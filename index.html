@@ -3017,6 +3017,7 @@
               <button type="button" aria-pressed="false" data-cam="laundry" interestfor="tip-cam-laundry">Laundry Wing</button>
               <button type="button" aria-pressed="false" data-cam="spiralBack" interestfor="tip-cam-spiral">Behind Spiral</button>
               <button type="button" aria-pressed="false" data-cam="gasVault" interestfor="tip-cam-gas">Gas Vault &amp; Lines</button>
+              <button type="button" aria-pressed="false" data-cam="stormDrains" interestfor="tip-cam-storm">Storm &amp; Strainers</button>
               <button type="button" aria-pressed="false" data-cam="water" interestfor="tip-cam-water">MEP · Water &amp; Vents</button>
               <button type="button" aria-pressed="false" data-cam="garden" interestfor="tip-cam-garden">Garden</button>
               <button type="button" aria-pressed="false" data-cam="firePit" interestfor="tip-cam-firepit">Fire Pit</button>
@@ -3089,6 +3090,7 @@
               <span><i class="water-dot" style="background:#f58842"></i>Solar Hot Water</span>
               <span><i class="water-dot" style="background:#9c7cff"></i>Sanitary DWV Drain</span>
               <span><i class="water-dot" style="background:#38cc9b"></i>Rainwater Harvest</span>
+              <span><i class="water-dot" style="background:#22d3ee"></i>Storm Trenches &amp; Strainers</span>
               <span><i class="water-dot" style="background:#a9d8f0"></i>HVAC &amp; Exhaust Vents</span>
               <span><i class="water-dot" style="background:#f6c93b"></i>LPG Gas (Locked Vault → Both Kitchens)</span>
             </div>
@@ -3208,6 +3210,8 @@
           6 + Ensuite 6, Ground Guest WC, Ensuites 1 &amp; 4, framed art &amp; spiral landings.</div>
         <div id="tip-cam-gas" class="ui-tip" popover="hint"><strong>Waterproof Lockable Gas Vault</strong>Elevated
           rainproof dual-LPG enclosure with keyed padlock door &amp; safety-yellow piping to GF Kitchen &amp; Rooftop BBQ.</div>
+        <div id="tip-cam-storm" class="ui-tip" popover="hint"><strong>Stormwater Draining &amp; Strainer Lines</strong>Perimeter
+          stainless trench grates, 4 silt catch-basin strainers, kitchen grease trap, rainwater mesh pre-filter, brass Y-strainers &amp; outfall backflow flap valve.</div>
         <div id="tip-cam-garden" class="ui-tip" popover="hint"><strong>Rear Garden &amp; Teak
             Benches</strong>Stepping-stone garden patio with 4 slatted teak &amp; bronze benches and bougainvillea beds.
         </div>
@@ -3280,6 +3284,9 @@
               &amp; teal rainwater harvesting.</li>
             <li><strong>HVAC &amp; Mechanical Exhaust:</strong> Rooftop ERV fresh-air unit, spinning roof turbo-vent,
               stainless chimney hoods over GF &amp; Rooftop BBQ kitchens, and spinning exhaust fans in all 8 bathrooms.</li>
+            <li><strong>Stormwater Draining &amp; Strainer Lines:</strong> Stainless perimeter &amp; garage/gate trench
+              grates, 4 corner silt/leaf catch-basin strainers, baffled kitchen/BBQ grease trap, rainwater vortex mesh
+              pre-filter, inline brass Y-strainers &amp; front-right non-return outfall valve.</li>
             <li><strong>Waterproof Lockable LPG Vault:</strong> Elevated 24 cm concrete rain plinth, perforated steel
               grate, sloped monsoon roof hood, keyed padlock door &amp; safety-yellow copper lines with drip-loops &amp;
               shutoff valves to both Ground &amp; Rooftop BBQ kitchens.</li>
@@ -3289,6 +3296,7 @@
             <span><i class="water-dot" style="background:#f58842"></i>Solar Hot</span>
             <span><i class="water-dot" style="background:#9c7cff"></i>Sanitary DWV</span>
             <span><i class="water-dot" style="background:#38cc9b"></i>Rainwater</span>
+            <span><i class="water-dot" style="background:#22d3ee"></i>Storm &amp; Strainers</span>
             <span><i class="water-dot" style="background:#a9d8f0"></i>HVAC &amp; Vents</span>
             <span><i class="water-dot" style="background:#f6c93b"></i>LPG Gas</span>
           </div>
@@ -4771,6 +4779,7 @@
       const pipeHotMat = new THREE.MeshStandardMaterial({ color: 0xf58842, emissive: 0x8a3a10, emissiveIntensity: 0.55, roughness: 0.28, metalness: 0.42 });
       const pipeDrainMat = new THREE.MeshStandardMaterial({ color: 0x9c7cff, emissive: 0x452b9e, emissiveIntensity: 0.46, roughness: 0.34, metalness: 0.30 });
       const pipeRainMat = new THREE.MeshStandardMaterial({ color: 0x38cc9b, emissive: 0x0e6346, emissiveIntensity: 0.48, roughness: 0.28, metalness: 0.40 });
+      const pipeStormMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x0b7487, emissiveIntensity: 0.54, roughness: 0.28, metalness: 0.38 });
       const pipeGasMat = new THREE.MeshStandardMaterial({ color: 0xf6c93b, emissive: 0x8c6706, emissiveIntensity: 0.52, roughness: 0.26, metalness: 0.55 });
       const ductVentMat = new THREE.MeshStandardMaterial({ color: 0xb6d8eb, emissive: 0x235574, emissiveIntensity: 0.36, roughness: 0.28, metalness: 0.68 });
       const gasFlameMat = new THREE.MeshStandardMaterial({ color: 0x67e8f9, emissive: 0x0ea5e9, emissiveIntensity: 2.4, roughness: 0.2 });
@@ -6215,6 +6224,135 @@
       const gfChimneyCap = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.14, 0.36, 12), steelMat);
       gfChimneyCap.position.set(1.42, 13.55, -0.45); ventRoofGroup.add(gfChimneyCap);
 
+      // F. STORMWATER DRAINING & STRAINER LINES (Perimeter Trench Grates, 4 Silt Catch Basins, Kitchen Grease Trap, Rainwater Mesh Pre-Filter, Brass Y-Strainers & Non-Return Outfall!)
+      const surfaceDrainsGroup = new THREE.Group();
+      waterSystemGroup.add(surfaceDrainsGroup);
+
+      // Helper: Recessed linear concrete drainage channel with brushed-stainless slotted mesh strainer grate (always visible at grade!)
+      function addTrenchDrain(x, z, length, alongZ = false) {
+        const g = new THREE.Group();
+        g.position.set(x, 0.035, z);
+        if (alongZ) g.rotation.y = Math.PI / 2;
+        addBox(g, length, 0.05, 0.34, 0, -0.01, 0, charcoalMat, false, true); // Dark recessed drainage trough
+        addBox(g, length, 0.055, 0.04, 0, 0.005, -0.15, steelMat, false, false); // Side lip rails
+        addBox(g, length, 0.055, 0.04, 0, 0.005, 0.15, steelMat, false, false);
+        const bars = Math.max(8, Math.floor(length / 0.24));
+        for (let i = 0; i <= bars; i++) {
+          const bx = -length / 2 + (i / bars) * length;
+          addBox(g, 0.045, 0.025, 0.27, bx, 0.018, 0, steelMat, false, false);
+        }
+        surfaceDrainsGroup.add(g);
+        return g;
+      }
+
+      // Helper: Corner Silt & Leaf Catch-Basin Strainer Trap (surface grate + inner removable mesh basket + underground concrete silt sump!)
+      function addCatchBasin(x, z) {
+        const g = new THREE.Group();
+        g.position.set(x, 0.04, z);
+        addBox(g, 0.62, 0.06, 0.62, 0, 0, 0, darkBronzeMat, false, true);
+        for (let s = -0.22; s <= 0.22; s += 0.11) {
+          addBox(g, 0.50, 0.025, 0.035, 0, 0.032, s, steelMat, false, false);
+          addBox(g, 0.035, 0.025, 0.50, s, 0.032, 0, steelMat, false, false);
+        }
+        surfaceDrainsGroup.add(g);
+        // Subterranean silt-settling concrete catch pit + glowing aqua strainer basket (visible in X-Ray / Spotlight!)
+        const pit = new THREE.Group();
+        pit.position.set(x, -0.45, z);
+        addBox(pit, 0.66, 0.88, 0.66, 0, 0, 0, concreteMat, false, false);
+        const basket = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.36, 12), pipeStormMat);
+        basket.position.set(0, 0.12, 0); pit.add(basket);
+        riserGroup.add(pit);
+      }
+
+      // Helper: Inline Brass Y-Strainer Valve Assembly (mesh debris trap on supply/pump/solar/gas headers!)
+      function addYStrainer(x, y, z, rotY = 0, parent = riserGroup) {
+        const ys = new THREE.Group();
+        ys.position.set(x, y, z); ys.rotation.y = rotY;
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.32, 12), brassMat);
+        body.rotation.z = Math.PI / 2; ys.add(body);
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.065, 0.24, 12), brassMat);
+        leg.position.set(0.04, -0.11, 0); leg.rotation.z = -0.68; ys.add(leg);
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.078, 0.078, 0.04, 8), goldMat);
+        cap.position.set(0.12, -0.20, 0); cap.rotation.z = -0.68; ys.add(cap);
+        parent.add(ys); return ys;
+      }
+
+      // Helper: Brushed-Stainless Roof / Balcony Dome Leaf-Guard Strainer Scupper
+      function addDomeStrainer(parent, x, y, z) {
+        const ds = new THREE.Group();
+        ds.position.set(x, y, z);
+        const flange = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.025, 14), steelMat);
+        ds.add(flange);
+        const dome = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), steelMat);
+        dome.position.y = 0.012; ds.add(dome);
+        parent.add(ds); return ds;
+      }
+
+      // 1. Surface Monsoon Trench Drains (Gate Threshold, Garage Threshold & Full 3-Side Foundation Perimeter Ring!)
+      addTrenchDrain(-0.35, 13.85, 13.8, false); // Front sliding gate driveway threshold trench grate
+      addTrenchDrain(-3.05, 5.46, 8.6, false);   // Garage portal threshold drain (keeps 2-car garage dry!)
+      addTrenchDrain(-9.15, -0.10, 11.1, true);  // Left perimeter foundation trench drain
+      addTrenchDrain(0.55, -5.65, 19.4, false);  // Rear foundation trench drain (ties into Gas Vault curb drain!)
+      addTrenchDrain(10.25, -0.10, 11.1, true);  // Right perimeter foundation trench drain
+      // 4 Corner Silt & Leaf Catch-Basin Strainers
+      [[-9.15, -5.65], [10.25, -5.65], [-9.15, 5.45], [10.25, 5.45]].forEach(([cx, cz]) => addCatchBasin(cx, cz));
+
+      // 2. Rooftop & Balcony Stainless Dome Leaf-Guard Strainers
+      addDomeStrainer(levels.roof, -7.45, 10.34, -4.65);  // BBQ terrace parapet leaf strainer
+      addDomeStrainer(levels.roof, 7.45, 10.34, -4.55);   // Laundry monsoon drying deck strainer
+      addDomeStrainer(levels.roof, -7.35, 12.80, -0.85);  // Party Shed rear gutter dome strainer
+      addDomeStrainer(levels.first, -7.65, 3.74, 4.15);   // 1F curved balcony scupper strainer
+      addDomeStrainer(levels.second, -7.65, 7.04, 4.15);  // 2F curved balcony scupper strainer
+
+      // 3. Dedicated Kitchen & BBQ Baffled Stainless Grease Trap / Solids Strainer Chamber (x=-2.2, z=-6.25!)
+      const gtX = -2.20, gtZ = -6.25;
+      addBox(surfaceDrainsGroup, 1.38, 0.07, 0.96, gtX, 0.04, gtZ, darkBronzeMat, false, true);
+      addBox(surfaceDrainsGroup, 1.24, 0.04, 0.82, gtX, 0.068, gtZ, steelMat, false, false);
+      addBox(surfaceDrainsGroup, 0.24, 0.03, 0.05, gtX, 0.095, gtZ, goldMat, false, false); // Lift handle
+      const greaseTrapBox = new THREE.Group();
+      greaseTrapBox.position.set(gtX, -0.68, gtZ);
+      addBox(greaseTrapBox, 1.32, 1.05, 0.90, 0, 0, 0, steelMat, false, false);
+      addBox(greaseTrapBox, 0.05, 0.72, 0.78, -0.24, 0.06, 0, goldMat, false, false); // Strainer baffle plate 1
+      addBox(greaseTrapBox, 0.05, 0.72, 0.78, 0.24, -0.06, 0, goldMat, false, false); // Strainer baffle plate 2
+      addBox(greaseTrapBox, 1.12, 0.42, 0.76, 0, -0.22, 0, pipeStormMat, false, false); // Strained greywater chamber
+      riserGroup.add(greaseTrapBox);
+      // Kitchen Sink & Rooftop BBQ Sink -> Baffled Grease Trap Strainer -> Bio-Septic Outfall!
+      addPipePath([[-0.53, 0.35, -1.60], [-0.53, -0.42, -5.15], [gtX + 0.55, -0.52, gtZ]], pipeStormMat, 0.050, 0.25);
+      addPipePath([[-6.74, 10.95, -2.28], [-6.74, 10.45, -4.95], [-6.74, -0.45, -4.95], [gtX - 0.55, -0.52, gtZ]], pipeStormMat, 0.046, 0.22);
+      addPipePath([[gtX - 0.62, -0.78, gtZ], [sepX + 1.0, -0.92, sepZ]], pipeDrainMat, 0.054, 0.22);
+
+      // 4. Upgraded Rainwater Multi-Stage Vortex Mesh Strainer Pre-Filter (upstream of 15,000 L UG tank!)
+      const rwFilter = new THREE.Group();
+      rwFilter.position.set(ugX - 0.68, -0.42, ugZ - 1.95);
+      const rwGlass = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.92, 16), atriumGlassMat);
+      rwFilter.add(rwGlass);
+      const rwMeshCone = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.72, 14, 1, true), steelMat);
+      rwMeshCone.rotation.x = Math.PI; rwFilter.add(rwMeshCone);
+      const rwCap = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.30, 0.08, 16), pipeRainMat);
+      rwCap.position.y = 0.48; rwFilter.add(rwCap);
+      riserGroup.add(rwFilter);
+
+      // 5. Four Inline Brass Y-Strainers (UG Pump Suction, Roof Tank Manifold, Solar Inlet & Gas Regulator!)
+      addYStrainer(ugX + 0.65, -0.68, ugZ + 0.35, 0);
+      addYStrainer(3.22, 13.05, -3.45, Math.PI / 2, roofWater);
+      addYStrainer(-0.35, 13.65, -2.85, 0, roofWater);
+      addYStrainer(8.42, 1.46, -3.55, 0, waterSystemGroup);
+
+      // 6. Underground Sloped Stormwater Collector Piping Ring -> Front-Right Municipal Outfall & Non-Return Flap Valve!
+      const outX = 12.85, outZ = 14.0;
+      addBox(surfaceDrainsGroup, 1.35, 0.07, 1.15, outX, 0.04, outZ, darkBronzeMat, false, true);
+      addBox(surfaceDrainsGroup, 1.15, 0.05, 0.95, outX, 0.068, outZ, steelMat, false, false);
+      const outfallPit = new THREE.Group();
+      outfallPit.position.set(outX, -0.95, outZ);
+      addBox(outfallPit, 1.25, 1.35, 1.05, 0, 0, 0, concreteMat, false, false);
+      addBox(outfallPit, 0.06, 0.34, 0.34, 0.42, -0.20, 0, brassMat, false, false); // Brass Non-Return Backflow Flap Valve!
+      riserGroup.add(outfallPit);
+      // Sloped Aqua-Cyan Storm Collector Network (Left + Rear + Right Catch Basins + Gas Vault Drain + Garage & Gate Trenches -> Outfall!)
+      addPipePath([[-9.15, -0.56, -5.65], [-9.15, -0.68, 5.45], [-9.15, -0.78, 13.85], [outX, -0.98, outZ]], pipeStormMat, 0.078, 0.28);
+      addPipePath([[-9.15, -0.56, -5.65], [10.25, -0.62, -5.65], [10.25, -0.74, 5.45], [10.25, -0.88, 13.85], [outX, -0.98, outZ]], pipeStormMat, 0.078, 0.28);
+      addPipePath([[-3.05, -0.64, 5.46], [10.25, -0.74, 5.45]], pipeStormMat, 0.064, 0.26); // Garage Threshold Drain -> Right Main
+      addPipePath([[8.95, -0.32, -3.25], [10.25, -0.62, -3.25]], pipeStormMat, 0.052, 0.24); // Gas Vault French-Drain -> Storm Ring!
+
       waterSystemGroup.add(riserGroup);
       waterXrayOnly.push(riserGroup);
 
@@ -6889,7 +7027,8 @@
         laundry: { floor: 'roof', mode: 'exterior', pos: [10.4, 13.4, -8.4], target: [4.6, 11.4, -3.2], badge: 'ROOFTOP SERVICE WING · LAUNDRY · DRYING SHED · WC', title: 'Dedicated Laundry Room, Monsoon Drying Shed & Roof WC', desc: 'Enclosed laundry room (hot/cold piped washer & dryer, folding counter, sink), polycarbonate rain-safe drying shed with breeze louvers, stainless rails & Rooftop Guest WC with exhaust fan.' },
         spiralBack: { floor: 'second', mode: 'exterior', pos: [5.2, 8.4, -10.8], target: [4.6, 6.2, -2.6], badge: 'BEHIND SPIRAL · BEDROOM 6 · 6 ENSUITES · 2 GUEST WCS', title: 'Behind the Spiral Staircase — Bedroom 6, Baths & Landings', desc: 'Looks straight into 2F Bedroom 6 (king bed, wall art, ceiling fan & wardrobe) & Ensuite 6, Ground Guest WC & Ensuite 1, 1F Ensuite 4 & Study, Rooftop Guest WC, plus the 4 spiral bridge landings & MEP shaft.' },
         gasVault: { floor: 'all', mode: 'gas', pos: [12.3, 2.45, -0.25], target: [8.65, 1.05, -3.35], badge: 'WATERPROOF LOCKABLE LPG VAULT · PIPED TO ALL KITCHENS', title: 'Waterproof Lockable Dual-LPG Gas Cylinder Vault & Kitchen Piping', desc: 'Elevated 24 cm rainproof concrete plinth, perforated steel drain grate, sloped monsoon hood, louvered vents, keyed padlock security door & twin cylinders with auto-changeover regulator piped in safety-yellow copper with drip-loop to both GF Kitchen & Rooftop BBQ!' },
-        water: { floor: 'all', mode: 'xray', pos: [-13.8, 8.6, -14.8], target: [-0.4, 5.2, -2.0], badge: 'FULL 3D MEP SHOWCASE · WATER · VENTS · DWV DRAIN · GAS', title: 'Complete 3D MEP Showcase: Water, Ventilation, Drainage & Gas Piping', desc: 'Animated X-Ray of all 6 building services: 18,000 L Cold Water (Blue), 500 L Solar Hot Water (Orange), 3 Sanitary DWV Soil Stacks → Bio-Septic (Violet), Rainwater Harvest + First-Flush (Teal), Rooftop ERV HVAC + Spinning Turbo-Vent + Hood Flues (Silver-Cyan) & LPG Gas Lines (Yellow).' },
+        stormDrains: { floor: 'all', mode: 'xray', pos: [17.8, 11.4, 19.6], target: [0.4, 0.2, 2.5], badge: 'STORMWATER DRAINING & STRAINER LINES · TRENCHES · GREASE TRAP', title: 'Stormwater Draining & Strainer Line Network (X-Ray)', desc: 'Full monsoon protection: front gate & garage stainless trench grates, 3-side perimeter trench drains, 4 corner silt/leaf catch-basin strainers, baffled kitchen/BBQ grease trap, rainwater vortex mesh pre-filter, 4 inline brass Y-strainers & front-right non-return outfall valve.' },
+        water: { floor: 'all', mode: 'xray', pos: [-13.8, 8.6, -14.8], target: [-0.4, 5.2, -2.0], badge: 'FULL 3D MEP SHOWCASE · WATER · STRAINERS · VENTS · GAS', title: 'Complete 3D MEP Showcase: Water, Straining Lines, Ventilation & Gas', desc: 'Animated X-Ray of all 7 building services: 18,000 L Cold Water (Blue), 500 L Solar Hot Water (Orange), Sanitary DWV Stacks → Bio-Septic (Violet), Rainwater Harvest + Mesh Pre-Filter (Teal), Storm Trenches, Grease Trap & Y-Strainers (Aqua), ERV HVAC + Turbo-Vent + Hood Flues (Silver-Cyan) & LPG Gas Lines (Yellow).' },
         garden: { floor: 'all', mode: 'exterior', pos: [-6.8, 4.2, -12.4], target: [-0.8, 0.9, -9.4], badge: 'REAR LANDSCAPED GARDEN · TEAK BENCHES & WALKWAY', title: 'Rear Garden Patio & Architectural Teak Benches', desc: 'Travertine stepping-stone garden walkway, four slatted-teak & dark-bronze benches with warm under-seat LED glow, low stone tea table & bougainvillea beds.' },
         firePit: { floor: 'all', mode: 'exterior', pos: [5.6, 4.0, 14.0], target: [11.1, 0.6, 10.1], badge: 'FRONT-RIGHT PATIO · SUNKEN FIRE-PIT LOUNGE', title: 'Circular Sunken Fire-Pit Lounge & Curved Benches', desc: 'Front-right circular stone patio featuring a glowing ember fire pit surrounded by three curved teak-topped conversation benches and tropical palms.' },
         aerial: { floor: 'all', mode: 'exterior', pos: [-12.5, 27.5, 25.5], target: [-0.2, 5.2, 0.2], badge: 'AERIAL ESTATE · PARTY SHED · ERV HVAC · SOLAR · GARDEN', title: 'Aerial Property Overview', desc: 'Complete 16-aana estate showing the rooftop Party Shed, BBQ pergola with exhaust hood, Laundry Wing, 3,000 L tanks, ERV HVAC, spinning roof turbo-vent, Solar PV, gas vault, garden & perimeter wall.' }
@@ -6940,6 +7079,7 @@
         { id: 'familyOffice', icon: '💼', title: 'Family & Office', sub: 'Live TV · CAD Desk · 3 Beds', pos: new THREE.Vector3(-2.80, 4.90, 1.70), level: 'first' },
         { id: 'livingKitchen', icon: '🛋️', title: 'Living & Kitchen', sub: 'Live 4K TV · Gas Hob · Hood', pos: new THREE.Vector3(-3.20, 1.55, -2.50), level: 'ground' },
         { id: 'gasVault', icon: '🔒', title: 'Lockable Gas Vault', sub: 'Waterproof LPG → Kitchens', pos: new THREE.Vector3(8.95, 1.65, -3.25), level: 'all' },
+        { id: 'stormDrains', icon: '🌊', title: 'Storm & Strainers', sub: 'Trenches · Grease Trap · Y-Filter', pos: new THREE.Vector3(10.25, 0.55, 5.45), level: 'all' },
         { id: 'water', icon: '💧', title: 'MEP · Water & Vents', sub: '18K L · HVAC · DWV · Gas', pos: new THREE.Vector3(-10.85, 0.75, 10.20), level: 'all' },
         { id: 'garden', icon: '🌿', title: 'Garden & Benches', sub: 'Rear Patio · 4 Teak Benches', pos: new THREE.Vector3(-1.50, 0.95, -9.80), level: 'all' },
         { id: 'firePit', icon: '🔥', title: 'Fire Pit Lounge', sub: 'Circular Patio · 3 Benches', pos: new THREE.Vector3(11.10, 0.90, 10.10), level: 'all' }
@@ -7009,7 +7149,7 @@
           m.depthWrite = !isolate;
           m.needsUpdate = true;
         });
-        [pipeColdMat, pipeHotMat, pipeDrainMat, pipeRainMat, pipeGasMat, ductVentMat].forEach(pm => {
+        [pipeColdMat, pipeHotMat, pipeDrainMat, pipeRainMat, pipeStormMat, pipeGasMat, ductVentMat].forEach(pm => {
           pm.emissiveIntensity = isolate ? 1.15 : xray ? 0.72 : 0.44;
         });
         ugChamber.visible = true;
