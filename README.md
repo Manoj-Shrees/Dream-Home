@@ -1,15 +1,16 @@
-# Dream Home — Interactive 3D Architectural Villa Studio
+# Dream Home — Interactive 3D Architectural Villa & MEP Studio
 
 **Live Site:** https://manoj-shrees.github.io/Dream-Home/
 
-An interactive 3D architectural showcase and masterplan viewer for a 16-Aana luxury modern villa (G + 2 + Rooftop, ~4,000 sq ft) built with Three.js and modern responsive web standards.
+An interactive 3D architectural showcase, real-home eye-level walkthrough, and full MEP (Water, Ventilation, Drainage & LPG Gas) simulation for a 16-Aana luxury modern villa (G + 2 + Rooftop, ~4,000 sq ft) built with Three.js and modern responsive web standards.
 
 ## Key Features
-- **Interactive 3D Villa Model (Three.js):** Full exterior & cutaway interior views across Ground, First, Second, and Rooftop levels with golden-hour, daylight, and twilight night lighting moods.
-- **Motorized Doors & Gate Controls:** Live animated bi-parting sliding main entry door, telescoping front sliding gate, and 12-slat articulated overhead rolling garage door.
-- **Complete Interiors & MEP Systems:** 6 ensuite bedrooms (including Bedroom 6 behind the spiral staircase), 8 bathrooms/WCs, PC/Console/VR game room, rooftop BBQ chef kitchen, Party Shed & bar, monsoon laundry wing, garden fire pit & teak benches, and an 18,000 L underground-to-rooftop water & solar thermal X-Ray view.
-- **Fullscreen Studio & Room Pins:** 11 interactive 3D room hover pins, fullscreen mode with live controls drawer and `Esc` exit, exploded floor stacks, and guided camera tour.
-- **HD Renders & CAD Floor Plates:** Crisp WebP elevations, interior renders, Before/After comparison slider, budget & timeline breakdown, and responsive multi-device layout.
+- **Real-Home First-Person Walkthrough & 8-Stop Guided Tour:** Walk inside at human eye level (`WASD` / Arrow Keys or touch D-pad) with quick room jumps, floor step controls, walking head-bob, and proximity auto-opening doors.
+- **Complete 3D MEP Showcase (X-Ray & Spotlight Modes):** Color-coded animated piping & ductwork for **18,000 L Cold Water Supply** (15,000 L UG UV/RO vault + 3,000 L roof tanks), **500 L Solar Hot Water**, **Sanitary DWV Soil Stacks → Bio-Septic Chamber**, **Rainwater Harvesting + First-Flush Diverter**, and **HVAC/Exhaust Ventilation** (rooftop ERV condenser, spinning rotary roof turbo-vent, stainless kitchen & BBQ chimney hoods, and spinning exhaust fans in all 8 bathrooms).
+- **Waterproof Lockable Dual-LPG Gas Vault & All-Kitchen Piping:** External elevated 24 cm concrete rain plinth, perforated drain grate, sloped monsoon hood, louvered rain baffles, keyed brass padlock + deadbolt security door (`🔒 Gas Lock`), twin cylinders with auto-changeover regulator, and safety-yellow copper gas piping with drip-loops & isolation valves to both Ground Floor Main Kitchen and Rooftop BBQ Chef Kitchen.
+- **Luxury Spa Bathrooms & Toilets (All 8 Baths/WCs):** Freestanding soaking tub with teak candle caddy, concealed-cistern porcelain toilets with chrome dual-flush plates, bidet sprays & tissue holders, vessel vanities, backlit halo mirrors, frameless rain showers with recessed niches, heated towel racks, and spinning exhaust fans.
+- **Wall/Ceiling Decor & Live Animated TVs/Gaming:** Procedural framed gallery art, fluted marble/walnut feature walls, velvet/sheer curtains, dropped LED cove ceilings with spinning ceiling fans, and real-time animated screens (4K HDR living/family/master TVs, 240 FPS triple-monitor cyber-racing PC rig, live esports console arena TV, rotating RGB PC fans, karaoke equalizer TV, and live BIM/CAD office monitors).
+- **Zero-Shift Responsive Studio Controls:** Fixed-weight ARIA-driven toolbars (`role="toolbar" focusgroup="toolbar wrap"`), non-shifting toggle LED dots, 13 interactive 3D room/MEP pins, and dual-engine fullscreen with live Model Controls.
 
 ## Run Locally
 ```bash

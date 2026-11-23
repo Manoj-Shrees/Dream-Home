@@ -271,7 +271,19 @@
       transform: translateY(-7px) rotate(-45deg)
     }
 
-    /* Buttons & Controls (High-contrast hover, press & focus feedback per natural-interactions) */
+    /* Buttons & Controls (Zero-shift fixed font-weight, ARIA-driven pressed states & hover media guard per toolbar guide) */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
     .btn,
     .tabs button,
     .viewer-tools button,
@@ -284,25 +296,41 @@
       background: linear-gradient(135deg, rgba(26, 48, 72, .88), rgba(9, 22, 38, .92));
       color: #f5f8fc;
       font-weight: 700;
+      font-variant-numeric: tabular-nums;
       display: inline-flex;
       gap: 7px;
       align-items: center;
       justify-content: center;
+      white-space: nowrap;
+      flex-shrink: 0;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       box-shadow: inset 0 1px rgba(255, 255, 255, .12), 0 6px 16px rgba(0, 0, 0, .22);
-      transition: background .18s ease-out, color .18s ease-out, border-color .18s ease-out, scale .15s ease-out, box-shadow .18s ease-out;
     }
 
-    .btn:hover,
-    .tabs button:hover,
-    .viewer-tools button:hover,
-    .viewer-side button:hover,
-    .hero-footer button:hover {
-      background: linear-gradient(135deg, rgba(32, 62, 92, .97), rgba(12, 28, 48, .98));
-      color: #ffffff;
-      border-color: var(--gold-bright);
-      box-shadow: inset 0 1px rgba(255, 255, 255, .24), 0 10px 24px rgba(0, 0, 0, .34);
+    @media (prefers-reduced-motion: no-preference) {
+      .btn,
+      .tabs button,
+      .viewer-tools button,
+      .viewer-side select,
+      .viewer-side button,
+      .hero-footer button,
+      .viewer-presets button {
+        transition: background .18s ease-out, color .18s ease-out, border-color .18s ease-out, box-shadow .18s ease-out;
+      }
+    }
+
+    @media (hover: hover) {
+      .btn:hover,
+      .tabs button:hover,
+      .viewer-tools button:hover,
+      .viewer-side button:hover,
+      .hero-footer button:hover {
+        background: linear-gradient(135deg, rgba(32, 62, 92, .97), rgba(12, 28, 48, .98));
+        color: #ffffff;
+        border-color: var(--gold-bright);
+        box-shadow: inset 0 1px rgba(255, 255, 255, .24), 0 10px 24px rgba(0, 0, 0, .34);
+      }
     }
 
     .btn:active,
@@ -310,28 +338,66 @@
     .viewer-tools button:active,
     .viewer-side button:active,
     .hero-footer button:active {
-      scale: .97;
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, .35);
+      box-shadow: inset 0 2px 7px rgba(0, 0, 0, .42);
     }
 
     .btn.gold,
     .tabs button.active,
+    .tabs button[aria-pressed="true"],
     .viewer-tools button[aria-pressed="true"],
     .hero-footer button[aria-pressed="true"] {
       background: linear-gradient(135deg, #f8dfae, #c89a54);
       color: #0c1726;
       border-color: #f4d69e;
-      font-weight: 800;
+      font-weight: 700;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .42), 0 6px 18px rgba(0, 0, 0, .32);
     }
 
-    .btn.gold:hover,
-    .tabs button.active:hover,
-    .viewer-tools button[aria-pressed="true"]:hover,
-    .hero-footer button[aria-pressed="true"]:hover {
-      background: linear-gradient(135deg, #fff0cb, #dca859);
-      color: #08111d;
-      border-color: #fff6de;
-      box-shadow: inset 0 1px rgba(255, 255, 255, .45), 0 10px 24px rgba(0, 0, 0, .36);
+    @media (hover: hover) {
+      .btn.gold:hover,
+      .tabs button.active:hover,
+      .tabs button[aria-pressed="true"]:hover,
+      .viewer-tools button[aria-pressed="true"]:hover,
+      .hero-footer button[aria-pressed="true"]:hover {
+        background: linear-gradient(135deg, #fff0cb, #dca859);
+        color: #08111d;
+        border-color: #fff6de;
+        box-shadow: inset 0 1px rgba(255, 255, 255, .48), 0 10px 24px rgba(0, 0, 0, .36);
+      }
+    }
+
+    @media (forced-colors: active) {
+      .viewer-tools button[aria-pressed="true"],
+      .viewer-presets button[aria-pressed="true"],
+      .tabs button.active {
+        background: Highlight;
+        color: HighlightText;
+        border-color: ButtonText;
+      }
+    }
+
+    .btn-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: #94a3b8;
+      box-shadow: 0 0 6px rgba(148, 163, 184, .45);
+    }
+
+    .btn-dot.is-open {
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, .8);
+    }
+
+    .btn-dot.is-closed {
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, .75);
+    }
+
+    .btn-dot.is-locked {
+      background: #ef4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, .85);
     }
 
     .btn.small {
@@ -835,7 +901,16 @@
     #modelStage:fullscreen .viewer-overlay,
     #modelStage:-webkit-full-screen .viewer-overlay,
     #modelStage.is-fullscreen .viewer-overlay {
-      top: 62px
+      top: 16px;
+      left: auto;
+      right: 16px;
+      max-width: calc(100% - 380px);
+    }
+
+    #modelStage:fullscreen .viewer-presets,
+    #modelStage:-webkit-full-screen .viewer-presets,
+    #modelStage.is-fullscreen .viewer-presets {
+      top: 62px;
     }
 
     #modelStage:fullscreen .viewer-side,
@@ -915,36 +990,57 @@
     .viewer-overlay {
       position: absolute;
       left: 16px;
-      top: 16px;
+      top: 14px;
       z-index: 3;
       pointer-events: none;
       display: flex;
       align-items: center;
       gap: 9px;
-      background: rgba(7, 17, 29, .78);
+      max-width: calc(100% - 32px);
+      background: rgba(7, 17, 29, .80);
       border: 1px solid rgba(232, 193, 126, .34);
-      padding: 9px 14px;
-      border-radius: 11px;
-      font-size: 11.5px;
+      padding: 7px 13px;
+      border-radius: 10px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: .7px;
+      letter-spacing: .65px;
       color: var(--gold-bright);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       backdrop-filter: blur(10px);
     }
 
     .viewer-presets {
       position: absolute;
+      left: 16px;
       right: 16px;
-      top: 16px;
+      top: 52px;
       z-index: 4;
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 6px;
-      justify-content: flex-end;
-      max-width: 660px;
+      justify-content: flex-start;
+      align-items: center;
+      overflow-x: auto;
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+      overflow-anchor: none;
+      scroll-padding-inline: 12px;
+      padding: 2px 20px 4px 0;
+      -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
+      mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
+    }
+
+    .viewer-presets::-webkit-scrollbar,
+    .viewer-tools::-webkit-scrollbar,
+    .tabs::-webkit-scrollbar {
+      display: none;
     }
 
     .viewer-presets button {
+      flex: 0 0 auto;
+      white-space: nowrap;
       padding: 7px 11px;
       font-size: 11.5px;
       border-radius: 9px;
@@ -955,22 +1051,118 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, .32);
-      transition: border-color .18s ease-out, background .18s ease-out, color .18s ease-out, scale .15s ease-out, box-shadow .18s ease-out;
     }
 
-    .viewer-presets button:hover,
+    @media (hover: hover) {
+      .viewer-presets button:hover,
+      .viewer-presets button:is(:interest-source, .interest-source) {
+        border-color: #fff2d1;
+        background: linear-gradient(135deg, #fbe5ba, #cfa056);
+        color: #0a1522;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, .42), inset 0 1px rgba(255, 255, 255, .45);
+      }
+    }
+
     .viewer-presets button:focus-visible,
-    .viewer-presets button:is(:interest-source, .interest-source),
-    .viewer-presets button.active {
+    .viewer-presets button.active,
+    .viewer-presets button[aria-pressed="true"] {
       border-color: #fff2d1;
       background: linear-gradient(135deg, #fbe5ba, #cfa056);
       color: #0a1522;
-      font-weight: 800;
+      font-weight: 700;
       box-shadow: 0 6px 18px rgba(0, 0, 0, .42), inset 0 1px rgba(255, 255, 255, .45);
     }
 
     .viewer-presets button:active {
-      scale: .96
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, .4);
+    }
+
+    /* Real-Home First-Person Walkthrough HUD (Shown only during Walkthrough mode, sits cleanly above bottom toolbar) */
+    .walk-hud {
+      display: none;
+      position: absolute;
+      left: 50%;
+      bottom: 66px;
+      transform: translateX(-50%);
+      z-index: 5;
+      max-width: calc(100% - 24px);
+      padding: 8px 12px;
+      border-radius: 14px;
+      background: rgba(7, 17, 29, .92);
+      border: 1px solid rgba(232, 193, 126, .48);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, .55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      flex-direction: column;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .walk-hud.is-active {
+      display: flex;
+    }
+
+    .walk-hud-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      max-width: 100%;
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+    }
+
+    .walk-hud-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .walk-hud button {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid rgba(232, 193, 126, .35);
+      background: rgba(20, 38, 58, .92);
+      color: #f3f7fb;
+      white-space: nowrap;
+    }
+
+    .walk-hud button.walk-exit {
+      background: linear-gradient(135deg, #f8dfae, #c89a54);
+      color: #0b1624;
+      border-color: #fff0cb;
+    }
+
+    .walk-hud-hint {
+      font-size: 10.5px;
+      color: #cbd8e6;
+      letter-spacing: .2px;
+      text-align: center;
+    }
+
+    /* Live MEP Piping Color Legend Bar inside Caption */
+    .mep-live-legend {
+      display: none;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(232, 193, 126, .22);
+      font-size: 11px;
+      color: #dce6f0;
+    }
+
+    .mep-live-legend.is-visible {
+      display: flex;
+    }
+
+    .mep-live-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
     }
 
     /* 3D Interactive Floating Room Hover Pins (Label text expands clearly on hover/focus & touch!) */
@@ -1178,17 +1370,27 @@
 
     .viewer-tools {
       position: absolute;
-      bottom: 16px;
+      bottom: 14px;
       left: 16px;
       right: 16px;
       z-index: 3;
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: center;
       gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+      overflow-anchor: none;
+      scroll-padding-inline: 12px;
+      padding: 2px 20px 2px 0;
+      -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
+      mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
     }
 
     .viewer-tools button {
-      padding: 9px 13px;
+      padding: 8px 12px;
       font-size: 12px;
       border-radius: 10px
     }
@@ -2178,18 +2380,17 @@
         top: 44px;
         left: 10px;
         right: 10px;
-        max-width: none;
         justify-content: flex-start;
         flex-wrap: nowrap;
         overflow-x: auto;
         scrollbar-width: none;
-        scroll-snap-type: x proximity;
-        padding-bottom: 4px
+        overscroll-behavior-x: contain;
+        overflow-anchor: none;
+        padding: 2px 18px 4px 0;
       }
 
       .viewer-presets button {
         flex: 0 0 auto;
-        scroll-snap-align: start;
         padding: 8px 11px;
         font-size: 11.5px;
       }
@@ -2208,16 +2409,25 @@
         flex-wrap: nowrap;
         overflow-x: auto;
         scrollbar-width: none;
-        scroll-snap-type: x proximity;
-        padding-bottom: 2px;
+        overscroll-behavior-x: contain;
+        overflow-anchor: none;
+        padding: 2px 18px 2px 0;
       }
 
       .viewer-tools button {
         flex: 0 0 auto;
-        scroll-snap-align: start;
         font-size: 11.5px;
         padding: 8px 11px;
         white-space: nowrap;
+      }
+
+      .walk-hud {
+        bottom: 60px;
+        padding: 7px 9px;
+      }
+
+      .walk-hud-hint {
+        display: none;
       }
 
       /* Mobile Fullscreen Safe-Area & Zero-Overlap Stacking */
@@ -2359,13 +2569,16 @@
         flex-wrap: nowrap;
         overflow-x: auto;
         scrollbar-width: none;
-        scroll-snap-type: x proximity;
-        padding-bottom: 4px
+        overscroll-behavior-x: contain;
+        overflow-anchor: none;
+        scroll-padding-inline: 10px;
+        padding: 2px 16px 4px 0;
+        -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+        mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
       }
 
       .tabs > * {
         flex: 0 0 auto;
-        scroll-snap-align: start
       }
     }
 
@@ -2770,12 +2983,12 @@
     <section id="model" class="section cv-section">
       <div class="section-head">
         <div>
-          <div class="eyebrow">Interactive 3D Architecture</div>
-          <h2>Explore the villa in 3D</h2>
-          <p>Full exterior &amp; room-by-room 3D interior cutaway: rounded garage portal, curved LED balconies, open
-            spiral staircase atrium with rear circulation bridge landings &amp; service core, landscaped garden with
-            architectural benches &amp; fire pit, plus complete 18,000 L underground-to-rooftop water &amp; solar
-            thermal system.</p>
+          <div class="eyebrow">Interactive 3D Architecture &amp; MEP Studio</div>
+          <h2>Explore &amp; walk through your villa in 3D</h2>
+          <p>Real-home eye-level walkthrough, furnished luxury interiors with wall &amp; ceiling decor, live animated TV
+            &amp; RGB gaming screens, spa bathrooms &amp; toilets, plus complete 3D MEP showcase: 18,000 L water &amp;
+            solar piping, HVAC/exhaust ventilation, sanitary drainage, and waterproof lockable LPG gas vault piped to
+            every kitchen.</p>
         </div>
       </div>
       <div class="model-layout" id="modelStage">
@@ -2790,35 +3003,62 @@
                 aria-controls="modelControlsPanel" interestfor="tip-fs-controls">⚙ Model Controls</button>
             </div>
             <div class="viewer-overlay" id="viewerBadge">NORMAL FRONT VIEW · FULL ESTATE &amp; 3D ARCHITECTURAL MODEL</div>
-            <div class="viewer-presets" id="cameraPresets" aria-label="Camera views">
-              <button type="button" class="active" data-cam="hero" interestfor="tip-cam-hero">Hero Front</button>
-              <button type="button" data-cam="cutaway" interestfor="tip-cam-cutaway">3D Interiors</button>
-              <button type="button" data-cam="livingKitchen" interestfor="tip-cam-living">Living &amp; Kitchen</button>
-              <button type="button" data-cam="familyOffice" interestfor="tip-cam-family">Family &amp; Office</button>
-              <button type="button" data-cam="masterSuite" interestfor="tip-cam-master">Master &amp; Spa</button>
-              <button type="button" data-cam="gameRoom" interestfor="tip-cam-game">Game Room</button>
-              <button type="button" data-cam="bbqKitchen" interestfor="tip-cam-bbq">BBQ Kitchen</button>
-              <button type="button" data-cam="rooftopParty" interestfor="tip-cam-party">Party Shed</button>
-              <button type="button" data-cam="laundry" interestfor="tip-cam-laundry">Laundry Wing</button>
-              <button type="button" data-cam="spiralBack" interestfor="tip-cam-spiral">Behind Spiral</button>
-              <button type="button" data-cam="garden" interestfor="tip-cam-garden">Garden</button>
-              <button type="button" data-cam="firePit" interestfor="tip-cam-firepit">Fire Pit</button>
-              <button type="button" data-cam="water" interestfor="tip-cam-water">Water System</button>
-              <button type="button" data-cam="aerial" interestfor="tip-cam-aerial">Aerial</button>
+            <div class="viewer-presets" id="cameraPresets" role="toolbar" focusgroup="toolbar wrap"
+              aria-label="Camera views" aria-controls="modelCanvas">
+              <button type="button" class="active" aria-pressed="true" data-cam="hero" interestfor="tip-cam-hero">Hero Front</button>
+              <button type="button" aria-pressed="false" data-cam="cutaway" interestfor="tip-cam-cutaway">3D Interiors</button>
+              <button type="button" aria-pressed="false" data-cam="livingKitchen" interestfor="tip-cam-living">Living &amp; Kitchen</button>
+              <button type="button" aria-pressed="false" data-cam="familyOffice" interestfor="tip-cam-family">Family &amp; Office</button>
+              <button type="button" aria-pressed="false" data-cam="masterSuite" interestfor="tip-cam-master">Master Suite</button>
+              <button type="button" aria-pressed="false" data-cam="spaBaths" interestfor="tip-cam-baths">Spa Baths &amp; WC</button>
+              <button type="button" aria-pressed="false" data-cam="gameRoom" interestfor="tip-cam-game">Game Room</button>
+              <button type="button" aria-pressed="false" data-cam="bbqKitchen" interestfor="tip-cam-bbq">BBQ Kitchen</button>
+              <button type="button" aria-pressed="false" data-cam="rooftopParty" interestfor="tip-cam-party">Party Shed</button>
+              <button type="button" aria-pressed="false" data-cam="laundry" interestfor="tip-cam-laundry">Laundry Wing</button>
+              <button type="button" aria-pressed="false" data-cam="spiralBack" interestfor="tip-cam-spiral">Behind Spiral</button>
+              <button type="button" aria-pressed="false" data-cam="gasVault" interestfor="tip-cam-gas">Gas Vault &amp; Lines</button>
+              <button type="button" aria-pressed="false" data-cam="water" interestfor="tip-cam-water">MEP · Water &amp; Vents</button>
+              <button type="button" aria-pressed="false" data-cam="garden" interestfor="tip-cam-garden">Garden</button>
+              <button type="button" aria-pressed="false" data-cam="firePit" interestfor="tip-cam-firepit">Fire Pit</button>
+              <button type="button" aria-pressed="false" data-cam="aerial" interestfor="tip-cam-aerial">Aerial</button>
             </div>
-            <div class="viewer-tools">
+            <div class="walk-hud" id="walkHud" aria-label="Real-home walkthrough navigation">
+              <div class="walk-hud-row" id="walkRoomJumps">
+                <button type="button" data-walk="entry">🚪 Entry</button>
+                <button type="button" data-walk="living">🛋️ Living &amp; TV</button>
+                <button type="button" data-walk="kitchen">🍳 GF Kitchen</button>
+                <button type="button" data-walk="family">💼 1F Family</button>
+                <button type="button" data-walk="master">👑 2F Master</button>
+                <button type="button" data-walk="spa">🛁 Spa Bath</button>
+                <button type="button" data-walk="game">🎮 Game Room</button>
+                <button type="button" data-walk="bbq">🍖 BBQ &amp; Party</button>
+                <button type="button" data-walk="gas">🔒 Gas Vault</button>
+              </div>
+              <div class="walk-hud-row">
+                <button type="button" data-move="fwd" aria-label="Walk forward">▲ Forward</button>
+                <button type="button" data-move="back" aria-label="Walk backward">▼ Back</button>
+                <button type="button" data-move="left" aria-label="Strafe left">◀ Left</button>
+                <button type="button" data-move="right" aria-label="Strafe right">▶ Right</button>
+                <button type="button" id="walkFloorDown" aria-label="Step down one floor">↓ Floor</button>
+                <button type="button" id="walkFloorUp" aria-label="Step up one floor">↑ Floor</button>
+                <button type="button" class="walk-exit" id="exitWalkBtn">✕ Exit Walk</button>
+              </div>
+              <div class="walk-hud-hint">W/A/S/D or Arrows to walk · Drag to look 360° · Shift to jog · Doors auto-open nearby</div>
+            </div>
+            <div class="viewer-tools" id="viewerToolsBar" role="toolbar" focusgroup="toolbar wrap"
+              aria-label="3D studio actions" aria-controls="modelCanvas">
+              <button type="button" id="walkthroughBtn" aria-pressed="false" interestfor="tip-tool-walk"><span class="btn-dot" aria-hidden="true"></span>🚶 Walk Inside</button>
+              <button type="button" id="tourModel" aria-pressed="false" interestfor="tip-tool-tour">▶ Guided Tour</button>
+              <button type="button" id="toggleMainDoor" aria-pressed="true" interestfor="tip-tool-maindoor"><span class="btn-dot is-open" id="dotMainDoor" aria-hidden="true"></span>🚪 Main Door</button>
+              <button type="button" id="toggleGarageDoor" aria-pressed="true" interestfor="tip-tool-garage"><span class="btn-dot is-open" id="dotGarageDoor" aria-hidden="true"></span>🚘 Garage Roll</button>
+              <button type="button" id="toggleGasLock" aria-pressed="false" interestfor="tip-tool-gaslock"><span class="btn-dot is-locked" id="dotGasLock" aria-hidden="true"></span>🔒 Gas Lock</button>
+              <button type="button" id="explodeModel" aria-pressed="false" interestfor="tip-tool-explode">Explode Floors</button>
+              <button type="button" id="togglePins" aria-pressed="true" interestfor="tip-tool-pins">🏷️ Room Pins</button>
+              <button type="button" id="rotateModel" aria-pressed="false" interestfor="tip-tool-rotate">⟳ Auto-Rotate</button>
               <button type="button" id="zoomIn" interestfor="tip-tool-zin">＋ Zoom</button>
               <button type="button" id="zoomOut" interestfor="tip-tool-zout">－ Zoom</button>
               <button type="button" id="fitModel" interestfor="tip-tool-fit">Fit</button>
-              <button type="button" id="explodeModel" interestfor="tip-tool-explode">Explode floors</button>
-              <button type="button" id="toggleMainDoor" aria-pressed="true" interestfor="tip-tool-maindoor">🚪 Main Door: Open</button>
-              <button type="button" id="toggleGarageDoor" aria-pressed="true" interestfor="tip-tool-garage">🚘 Garage Roll: Open</button>
-              <button type="button" id="togglePins" aria-pressed="true" interestfor="tip-tool-pins">🏷️ Room pins</button>
-              <button type="button" id="rotateModel" aria-pressed="false" interestfor="tip-tool-rotate">⟳
-                Auto-rotate</button>
-              <button type="button" id="tourModel" aria-pressed="false" interestfor="tip-tool-tour">▶ Guided tour</button>
-              <button type="button" id="fullscreenModel" aria-pressed="false" interestfor="tip-tool-fs">⛶
-                Fullscreen</button>
+              <button type="button" id="fullscreenModel" aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen</button>
               <button type="button" id="resetAnimation" interestfor="tip-tool-reset">↺ Reset</button>
             </div>
             <div class="viewer-loading" id="viewerLoading">
@@ -2839,10 +3079,21 @@
             </div>
           </div>
           <div class="viewer-caption" id="viewerCaption" aria-live="polite">
-            <strong>Normal Full-Estate Front View</strong>
-            Complete normal view showing the entire villa, 2-car garage portal, 3 curved LED balconies, glass spiral
-            chandelier atrium, rooftop Party Shed, right pavilion, garden fire pit &amp; front gate.
+            <div id="viewerCaptionText">
+              <strong>Normal Full-Estate Front View</strong>
+              Complete normal view showing the entire villa, 2-car garage portal, 3 curved LED balconies, glass spiral
+              chandelier atrium, rooftop Party Shed, right pavilion, garden fire pit &amp; front gate.
+            </div>
+            <div class="mep-live-legend" id="mepLiveLegend" aria-label="MEP piping color legend">
+              <span><i class="water-dot" style="background:#32b8f5"></i>Cold Supply (18,000 L)</span>
+              <span><i class="water-dot" style="background:#f58842"></i>Solar Hot Water</span>
+              <span><i class="water-dot" style="background:#9c7cff"></i>Sanitary DWV Drain</span>
+              <span><i class="water-dot" style="background:#38cc9b"></i>Rainwater Harvest</span>
+              <span><i class="water-dot" style="background:#a9d8f0"></i>HVAC &amp; Exhaust Vents</span>
+              <span><i class="water-dot" style="background:#f6c93b"></i>LPG Gas (Locked Vault → Both Kitchens)</span>
+            </div>
           </div>
+          <p id="viewerLiveStatus" class="sr-only" role="status" aria-live="polite"></p>
         </div>
 
         <aside class="viewer-side" id="modelControlsPanel" aria-label="3D model controls">
@@ -2876,10 +3127,11 @@
             <option value="walls">Show interior partitions</option>
           </select>
 
-          <label for="waterSystemMode">Water &amp; MEP system view</label>
+          <label for="waterSystemMode">MEP · Water, Vents &amp; Piping</label>
           <select id="waterSystemMode">
-            <option value="standard">Standard (roof tanks + glass vault hatch)</option>
-            <option value="xray">X-Ray cutaway (15,000 L UG + risers)</option>
+            <option value="standard">Standard (tanks, gas vault &amp; hoods)</option>
+            <option value="xray">Full MEP X-Ray (water · vents · drain · gas)</option>
+            <option value="mepIsolate">Piping &amp; Ventilation Spotlight</option>
           </select>
 
           <label for="facadeColor">Exterior color scheme</label>
@@ -2910,10 +3162,12 @@
           <label for="modelOpacity">Glass transparency</label>
           <input id="modelOpacity" type="range" min="15" max="95" value="38">
 
-          <label>Motorized doors &amp; gate</label>
+          <label>Motorized doors, gas lock &amp; walk</label>
           <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px">
-            <button type="button" class="btn small gold" id="panelMainDoor" aria-pressed="true" style="width:100%">🚪 Close Main Sliding Door &amp; Gate</button>
-            <button type="button" class="btn small gold" id="panelGarageDoor" aria-pressed="true" style="width:100%">🚘 Close Garage Rolling Door</button>
+            <button type="button" class="btn small gold" id="panelMainDoor" aria-pressed="true" style="width:100%">🚪 Main Door &amp; Gate: Open</button>
+            <button type="button" class="btn small gold" id="panelGarageDoor" aria-pressed="true" style="width:100%">🚘 Garage Rolling Door: Open</button>
+            <button type="button" class="btn small" id="panelGasLock" aria-pressed="false" style="width:100%">🔒 Gas Cylinder Vault: Locked</button>
+            <button type="button" class="btn small" id="panelWalkBtn" aria-pressed="false" style="width:100%">🚶 Real-Home Walkthrough</button>
           </div>
 
           <button type="button" class="btn gold" id="resetColors" style="width:100%;margin-top:12px">Reset
@@ -2938,27 +3192,33 @@
           Lounge (TV 1), 8-seat marble dining &amp; waterfall kitchen island.</div>
         <div id="tip-cam-family" class="ui-tip" popover="hint"><strong>1F Family Lounge &amp; Office</strong>Family TV
           lounge, executive home office, Beds 2 &amp; 3 + Twin Ensuites.</div>
-        <div id="tip-cam-master" class="ui-tip" popover="hint"><strong>2F Master Suite &amp; Spa Bath</strong>King
-          master bed, walk-in robe, soaking tub, toilet &amp; Private Lounge TV 2.</div>
-        <div id="tip-cam-game" class="ui-tip" popover="hint"><strong>PC / Console / VR Game Room</strong>Triple-monitor
-          RGB desk, glass PC tower, console OLED bay &amp; VR floor zone.</div>
+        <div id="tip-cam-master" class="ui-tip" popover="hint"><strong>2F Master Suite &amp; Decor</strong>King
+          master bed, fluted walnut wall art, cove ceiling fan, walk-in robe &amp; Private Lounge TV 2.</div>
+        <div id="tip-cam-baths" class="ui-tip" popover="hint"><strong>Luxury Spa Bathrooms &amp; WCs</strong>Up-close
+          view of soaking tub, porcelain WC toilets with flush plates &amp; bidets, backlit mirrors &amp; rain showers.</div>
+        <div id="tip-cam-game" class="ui-tip" popover="hint"><strong>Live Animated Game Room</strong>Triple-monitor
+          PC racing HUD, animated console OLED match, cycling RGB LEDs, spinning PC fans &amp; VR floor zone.</div>
         <div id="tip-cam-bbq" class="ui-tip" popover="hint"><strong>Rooftop BBQ Chef Kitchen</strong>L-shaped stone bar,
-          4-burner grill with glowing embers, sink &amp; 8-seat pergola dining.</div>
+          gas-piped 4-burner grill with exhaust hood &amp; glowing embers, sink &amp; 8-seat pergola dining.</div>
         <div id="tip-cam-party" class="ui-tip" popover="hint"><strong>All-Weather Party Shed &amp; Bar</strong>Elevated
-          monsoon-proof steel &amp; timber shed with festoon lights, mini-bar &amp; karaoke TV.</div>
+          monsoon-proof steel &amp; timber shed with festoon lights, spinning ceiling fan, mini-bar &amp; live karaoke equalizer TV.</div>
         <div id="tip-cam-laundry" class="ui-tip" popover="hint"><strong>Laundry &amp; Drying Wing</strong>Enclosed
-          washer/dryer room, covered monsoon drying shed &amp; Rooftop WC.</div>
+          washer/dryer room, covered monsoon drying shed, hot/cold risers &amp; Rooftop WC.</div>
         <div id="tip-cam-spiral" class="ui-tip" popover="hint"><strong>Behind Spiral · Bed 6 &amp; Baths</strong>Bedroom
-          6 + Ensuite 6, Ground Guest WC, Ensuites 1 &amp; 4 &amp; spiral landings.</div>
+          6 + Ensuite 6, Ground Guest WC, Ensuites 1 &amp; 4, framed art &amp; spiral landings.</div>
+        <div id="tip-cam-gas" class="ui-tip" popover="hint"><strong>Waterproof Lockable Gas Vault</strong>Elevated
+          rainproof dual-LPG enclosure with keyed padlock door &amp; safety-yellow piping to GF Kitchen &amp; Rooftop BBQ.</div>
         <div id="tip-cam-garden" class="ui-tip" popover="hint"><strong>Rear Garden &amp; Teak
             Benches</strong>Stepping-stone garden patio with 4 slatted teak &amp; bronze benches and bougainvillea beds.
         </div>
         <div id="tip-cam-firepit" class="ui-tip" popover="hint"><strong>Sunken Fire-Pit Lounge</strong>Front-right
           circular stone fire pit with glowing embers &amp; 3 curved teak benches.</div>
-        <div id="tip-cam-water" class="ui-tip" popover="hint"><strong>18,000 L Water X-Ray</strong>15,000 L underground
-          UV/RO vault, color-coded risers &amp; 3,000 L roof tanks.</div>
+        <div id="tip-cam-water" class="ui-tip" popover="hint"><strong>Complete 3D MEP Showcase</strong>Live animated
+          X-Ray of 18,000 L Cold Water, Solar Hot Water, Sanitary DWV Drain, Rainwater, HVAC/Exhaust Vents &amp; LPG Gas.</div>
         <div id="tip-cam-aerial" class="ui-tip" popover="hint"><strong>Aerial Estate Overview</strong>Full 16-aana plot
-          with Party Shed, BBQ, Laundry, Solar PV &amp; perimeter wall.</div>
+          with Party Shed, BBQ, Laundry, ERV HVAC, Turbo-Vent, Solar PV &amp; perimeter wall.</div>
+        <div id="tip-tool-walk" class="ui-tip" popover="hint"><strong>Real-Home First-Person Walkthrough</strong>Step
+          inside at human eye level (WASD / Arrow keys or touch D-pad) with quick room jumps &amp; auto-opening doors.</div>
         <div id="tip-tool-zin" class="ui-tip" popover="hint">Zoom camera closer to the villa</div>
         <div id="tip-tool-zout" class="ui-tip" popover="hint">Zoom camera further out</div>
         <div id="tip-tool-fit" class="ui-tip" popover="hint">Reset camera cleanly to the Hero Front view</div>
@@ -2966,6 +3226,7 @@
         </div>
         <div id="tip-tool-maindoor" class="ui-tip" popover="hint"><strong>Sliding Main Door &amp; Gate</strong>Operate the motorized bi-parting street sliding gate and glass atrium entry sliding door.</div>
         <div id="tip-tool-garage" class="ui-tip" popover="hint"><strong>Rolling Garage Door</strong>Roll the 12-slat articulated overhead sectional garage door up or down smoothly.</div>
+        <div id="tip-tool-gaslock" class="ui-tip" popover="hint"><strong>Lockable Waterproof Gas Vault</strong>Unlock and swing open the external rainproof LPG cylinder cabinet to inspect twin cylinders &amp; regulator.</div>
         <div id="tip-tool-pins" class="ui-tip" popover="hint">Show or hide interactive 3D room hover pins on the villa
         </div>
         <div id="tip-tool-rotate" class="ui-tip" popover="hint">Slowly orbit 360° around the entire 3D estate</div>
@@ -3009,21 +3270,27 @@
         </article>
 
         <article class="arch-callout">
-          <div class="eyebrow">18,000 L Water &amp; Solar Thermal</div>
-          <h3>Complete underground-to-rooftop water system</h3>
-          <p>Click <strong>Water System</strong> (or enable X-Ray cutaway) to trace the entire residential water
-            infrastructure in 3D:</p>
+          <div class="eyebrow">Full 3D MEP · Water · Vents · Gas</div>
+          <h3>Water, Ventilation, Drainage &amp; Lockable Gas Vault</h3>
+          <p>Click <strong>MEP · Water &amp; Vents</strong> or <strong>Gas Vault &amp; Lines</strong> to inspect every
+            building service in animated 3D X-Ray:</p>
           <ul>
-            <li><strong>Underground 15,000 L Vault:</strong> Front-left subterranean storage tank + 3-stage filtration
-              (Sediment, Activated Carbon, UV/RO) + twin pressure booster pumps under a flush glass inspection hatch.
-            </li>
-            <li><strong>Rooftop 3,000 L &amp; Solar Heater:</strong> Three ribbed stainless reserve tanks (3 × 1,000 L)
-              + 300–500 L evacuated-tube solar hot-water drum piped straight down the rear spiral service shaft.</li>
+            <li><strong>18,000 L Water &amp; DWV Drainage:</strong> 15,000 L UG UV/RO vault → 3,000 L roof tanks &amp;
+              500 L solar heater piped to all 8 baths, kitchens &amp; laundry, plus violet DWV stacks to rear bio-septic
+              &amp; teal rainwater harvesting.</li>
+            <li><strong>HVAC &amp; Mechanical Exhaust:</strong> Rooftop ERV fresh-air unit, spinning roof turbo-vent,
+              stainless chimney hoods over GF &amp; Rooftop BBQ kitchens, and spinning exhaust fans in all 8 bathrooms.</li>
+            <li><strong>Waterproof Lockable LPG Vault:</strong> Elevated 24 cm concrete rain plinth, perforated steel
+              grate, sloped monsoon roof hood, keyed padlock door &amp; safety-yellow copper lines with drip-loops &amp;
+              shutoff valves to both Ground &amp; Rooftop BBQ kitchens.</li>
           </ul>
           <div class="water-legend">
-            <span><i class="water-dot" style="background:#32b8f5"></i>Cold Supply Riser</span>
-            <span><i class="water-dot" style="background:#f58842"></i>Solar Hot Water</span>
-            <span><i class="water-dot" style="background:#38cc9b"></i>Rainwater Harvest</span>
+            <span><i class="water-dot" style="background:#32b8f5"></i>Cold Supply</span>
+            <span><i class="water-dot" style="background:#f58842"></i>Solar Hot</span>
+            <span><i class="water-dot" style="background:#9c7cff"></i>Sanitary DWV</span>
+            <span><i class="water-dot" style="background:#38cc9b"></i>Rainwater</span>
+            <span><i class="water-dot" style="background:#a9d8f0"></i>HVAC &amp; Vents</span>
+            <span><i class="water-dot" style="background:#f6c93b"></i>LPG Gas</span>
           </div>
         </article>
       </div>
@@ -4487,22 +4754,287 @@
       const interiorDecor = [];
       const cutawayShells = []; // Outer walls hidden cleanly in 3D Interior Cutaway mode
 
-      /* Additional architectural interior, garden & MEP materials */
+      /* Additional architectural interior, garden, decor & full MEP materials */
       const rugMat = new THREE.MeshStandardMaterial({ color: 0xd8d0c2, roughness: 0.95 });
       const marbleMat = new THREE.MeshStandardMaterial({ color: 0xf4f0ea, roughness: 0.16, metalness: 0.08 });
+      const tileAccentMat = new THREE.MeshStandardMaterial({ color: 0xe2d8c7, roughness: 0.30, metalness: 0.05 });
+      const towelMat = new THREE.MeshStandardMaterial({ color: 0xf7f4ee, roughness: 0.94 });
       const charcoalMat = new THREE.MeshStandardMaterial({ color: 0x22272f, roughness: 0.42, metalness: 0.18 });
       const walnutMat = new THREE.MeshStandardMaterial({ color: 0x5d3d28, roughness: 0.52, metalness: 0.05 });
+      const brassMat = new THREE.MeshStandardMaterial({ color: 0xd8a846, roughness: 0.24, metalness: 0.86 });
+      const curtainSheerMat = new THREE.MeshPhysicalMaterial({ color: 0xf7f2e8, roughness: 0.88, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false });
+      const velvetDrapeMat = new THREE.MeshStandardMaterial({ color: 0x3b4859, roughness: 0.90 });
       const rgbPurpleMat = new THREE.MeshStandardMaterial({ color: 0xc074ff, emissive: 0x9b3eff, emissiveIntensity: 2.0, roughness: 0.2 });
       const rgbCyanMat = new THREE.MeshStandardMaterial({ color: 0x62e8ff, emissive: 0x22c8ff, emissiveIntensity: 1.9, roughness: 0.2 });
       const waterGlowMat = new THREE.MeshPhysicalMaterial({ color: 0x2ab5f5, emissive: 0x0b5278, emissiveIntensity: 0.55, roughness: 0.12, metalness: 0.05, transparent: true, opacity: 0.78 });
-      const pipeColdMat = new THREE.MeshStandardMaterial({ color: 0x32b8f5, emissive: 0x0d5c85, emissiveIntensity: 0.45, roughness: 0.3, metalness: 0.4 });
-      const pipeHotMat = new THREE.MeshStandardMaterial({ color: 0xf58842, emissive: 0x8a3a10, emissiveIntensity: 0.48, roughness: 0.3, metalness: 0.4 });
-      const pipeRainMat = new THREE.MeshStandardMaterial({ color: 0x38cc9b, emissive: 0x0e6346, emissiveIntensity: 0.42, roughness: 0.3, metalness: 0.4 });
+      const pipeColdMat = new THREE.MeshStandardMaterial({ color: 0x32b8f5, emissive: 0x0d5c85, emissiveIntensity: 0.52, roughness: 0.28, metalness: 0.42 });
+      const pipeHotMat = new THREE.MeshStandardMaterial({ color: 0xf58842, emissive: 0x8a3a10, emissiveIntensity: 0.55, roughness: 0.28, metalness: 0.42 });
+      const pipeDrainMat = new THREE.MeshStandardMaterial({ color: 0x9c7cff, emissive: 0x452b9e, emissiveIntensity: 0.46, roughness: 0.34, metalness: 0.30 });
+      const pipeRainMat = new THREE.MeshStandardMaterial({ color: 0x38cc9b, emissive: 0x0e6346, emissiveIntensity: 0.48, roughness: 0.28, metalness: 0.40 });
+      const pipeGasMat = new THREE.MeshStandardMaterial({ color: 0xf6c93b, emissive: 0x8c6706, emissiveIntensity: 0.52, roughness: 0.26, metalness: 0.55 });
+      const ductVentMat = new THREE.MeshStandardMaterial({ color: 0xb6d8eb, emissive: 0x235574, emissiveIntensity: 0.36, roughness: 0.28, metalness: 0.68 });
+      const gasFlameMat = new THREE.MeshStandardMaterial({ color: 0x67e8f9, emissive: 0x0ea5e9, emissiveIntensity: 2.4, roughness: 0.2 });
+      const gasLockLedMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 2.4, roughness: 0.2 });
+      const gasSensorLedMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x16a34a, emissiveIntensity: 2.2, roughness: 0.2 });
       const lpgRedMat = new THREE.MeshStandardMaterial({ color: 0xd94836, roughness: 0.32, metalness: 0.35 });
       const fireEmberMat = new THREE.MeshStandardMaterial({ color: 0xffb347, emissive: 0xff6a1a, emissiveIntensity: 2.6, roughness: 0.3 });
       const bougMat = new THREE.MeshStandardMaterial({ color: 0xd65c96, roughness: 0.78 });
       const concreteMat = new THREE.MeshStandardMaterial({ color: 0x6d7780, roughness: 0.88 });
       const serviceShaftMat = new THREE.MeshStandardMaterial({ color: 0xded5c6, roughness: 0.62, transparent: true, opacity: 1.0 });
+
+      /* Live Animated TV, Gaming Monitor, Karaoke & Office CAD CanvasTextures + Gallery Canvas Art */
+      const spinningFans = [];
+      const mepFlowBeads = [];
+      const gasFlameMeshes = [];
+      const mepDimTargets = []; // Non-MEP shells gently dimmed in MEP Spotlight mode
+
+      function makeLiveScreen(w, h, drawFn) {
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        drawFn(ctx, w, h, 0);
+        const tex = new THREE.CanvasTexture(c);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        const mat = new THREE.MeshStandardMaterial({
+          map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: 0.92, roughness: 0.16, metalness: 0.08
+        });
+        return { c, ctx, tex, mat, drawFn, w, h };
+      }
+
+      const liveScreens = {
+        cinema: makeLiveScreen(256, 144, (ctx, w, h, t) => {
+          const g = ctx.createLinearGradient(0, 0, 0, h);
+          g.addColorStop(0, '#0f274a'); g.addColorStop(0.52, '#d87a4a'); g.addColorStop(0.72, '#f5c26b'); g.addColorStop(1, '#102338');
+          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+          // Sun & moving golden reflection ripples
+          const sunX = w * 0.5 + Math.sin(t * 0.35) * 18;
+          ctx.fillStyle = 'rgba(255,244,205,0.92)';
+          ctx.beginPath(); ctx.arc(sunX, h * 0.46, 17, 0, Math.PI * 2); ctx.fill();
+          // Himalayan silhouette peaks
+          ctx.fillStyle = '#182b45';
+          ctx.beginPath(); ctx.moveTo(0, h * 0.66);
+          ctx.lineTo(w * 0.22, h * 0.42); ctx.lineTo(w * 0.42, h * 0.58);
+          ctx.lineTo(w * 0.68, h * 0.38); ctx.lineTo(w * 0.88, h * 0.55); ctx.lineTo(w, h * 0.46);
+          ctx.lineTo(w, h * 0.68); ctx.lineTo(0, h * 0.68); ctx.fill();
+          // Animated lake light shimmer
+          for (let i = 0; i < 7; i++) {
+            const wy = h * 0.72 + i * 5.5;
+            const ww = 38 - i * 3 + Math.sin(t * 3 + i) * 7;
+            ctx.fillStyle = `rgba(255,222,148,${0.48 - i * 0.05})`;
+            ctx.fillRect(sunX - ww / 2 + Math.cos(t * 2.2 + i) * 4, wy, ww, 2.2);
+          }
+          // Drifting clouds
+          ctx.fillStyle = 'rgba(255,235,210,0.22)';
+          for (let i = 0; i < 3; i++) {
+            const cx = ((t * 14 + i * 96) % (w + 60)) - 30;
+            ctx.fillRect(cx, 18 + i * 11, 42, 6);
+          }
+          // Subtle 4K cinema playback bar
+          ctx.fillStyle = 'rgba(8,16,28,0.62)'; ctx.fillRect(8, h - 18, w - 16, 11);
+          ctx.fillStyle = '#f5c26b'; ctx.fillRect(12, h - 14, ((t * 18) % (w - 58)), 3);
+          ctx.fillStyle = '#e8f1fa'; ctx.font = 'bold 7px sans-serif'; ctx.fillText('4K HDR LIVE', w - 48, h - 10);
+        }),
+        pcGame: makeLiveScreen(256, 144, (ctx, w, h, t) => {
+          ctx.fillStyle = '#070414'; ctx.fillRect(0, 0, w, h);
+          const horizon = h * 0.48;
+          // Neon synthwave cyber sunset & horizon grid
+          const sg = ctx.createLinearGradient(0, 0, 0, horizon);
+          sg.addColorStop(0, '#12052b'); sg.addColorStop(1, '#581c87');
+          ctx.fillStyle = sg; ctx.fillRect(0, 0, w, horizon);
+          ctx.fillStyle = '#f43f5e';
+          ctx.beginPath(); ctx.arc(w * 0.5, horizon - 4, 22, Math.PI, 0); ctx.fill();
+          // Moving perspective neon highway grid
+          ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 1.2;
+          for (let i = -5; i <= 5; i++) {
+            ctx.beginPath(); ctx.moveTo(w * 0.5 + i * 6, horizon); ctx.lineTo(w * 0.5 + i * 44, h); ctx.stroke();
+          }
+          for (let r = 0; r < 6; r++) {
+            const p = ((r / 6 + (t * 0.85) % 1) % 1);
+            const ry = horizon + p * p * (h - horizon);
+            ctx.strokeStyle = `rgba(192,116,255,${0.25 + p * 0.75})`;
+            ctx.beginPath(); ctx.moveTo(0, ry); ctx.lineTo(w, ry); ctx.stroke();
+          }
+          // Racing car / spaceship silhouette swaying smoothly
+          const carX = w * 0.5 + Math.sin(t * 2.1) * 34;
+          ctx.fillStyle = '#38bdf8'; ctx.fillRect(carX - 18, h - 28, 36, 11);
+          ctx.fillStyle = '#f43f5e'; ctx.fillRect(carX - 15, h - 22, 7, 4); ctx.fillRect(carX + 8, h - 22, 7, 4);
+          // Live FPS + Boost HUD
+          ctx.fillStyle = 'rgba(6,12,26,0.78)'; ctx.fillRect(6, 6, 70, 18); ctx.fillRect(w - 78, 6, 72, 18);
+          ctx.fillStyle = '#38ef7d'; ctx.font = 'bold 9px monospace';
+          ctx.fillText(`FPS ${236 + Math.round(Math.sin(t * 5) * 4)}`, 10, 18);
+          ctx.fillStyle = '#22d3ee'; ctx.fillText(`SPD ${282 + Math.round(Math.cos(t * 3) * 18)}`, w - 72, 18);
+        }),
+        consoleGame: makeLiveScreen(256, 144, (ctx, w, h, t) => {
+          // Animated futuristic arena match
+          const bg = ctx.createRadialGradient(w / 2, h / 2, 12, w / 2, h / 2, w * 0.7);
+          bg.addColorStop(0, '#16355c'); bg.addColorStop(1, '#081326');
+          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+          // Pitch / arena lines
+          ctx.strokeStyle = 'rgba(98,232,255,0.42)'; ctx.lineWidth = 1.5;
+          ctx.strokeRect(14, 24, w - 28, h - 38);
+          ctx.beginPath(); ctx.moveTo(w / 2, 24); ctx.lineTo(w / 2, h - 14); ctx.stroke();
+          ctx.beginPath(); ctx.arc(w / 2, h * 0.54, 22, 0, Math.PI * 2); ctx.stroke();
+          // Moving players & glowing energy orb
+          const bx = w * 0.5 + Math.sin(t * 2.4) * 82;
+          const by = h * 0.54 + Math.cos(t * 3.1) * 34;
+          ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.arc(w * 0.30 + Math.sin(t * 1.6) * 26, by * 0.85 + 10, 8, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#f472b6'; ctx.beginPath(); ctx.arc(w * 0.70 + Math.cos(t * 1.9) * 26, h - by * 0.75, 8, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(bx, by, 5.5, 0, Math.PI * 2); ctx.fill();
+          // Top Scoreboard HUD
+          ctx.fillStyle = 'rgba(5,10,20,0.86)'; ctx.fillRect(w / 2 - 58, 5, 116, 15);
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif'; ctx.fillText('P1  04', w / 2 - 48, 16);
+          ctx.fillStyle = '#facc15'; ctx.fillText('-', w / 2 - 2, 16);
+          ctx.fillStyle = '#f472b6'; ctx.fillText('03  P2', w / 2 + 12, 16);
+        }),
+        partyTv: makeLiveScreen(256, 144, (ctx, w, h, t) => {
+          ctx.fillStyle = '#0a0819'; ctx.fillRect(0, 0, w, h);
+          const cols = ['#f5c26b', '#fb7185', '#c084fc', '#38bdf8', '#34d399'];
+          for (let i = 0; i < 16; i++) {
+            const amp = 0.22 + 0.72 * Math.abs(Math.sin(t * 4.2 + i * 0.58) * Math.cos(t * 1.9 + i * 0.3));
+            const bh = amp * (h - 46);
+            ctx.fillStyle = cols[i % cols.length];
+            ctx.fillRect(14 + i * 14.5, h - 18 - bh, 10, bh);
+          }
+          ctx.fillStyle = '#fef3c7'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('ROOFTOP PARTY · LIVE MIX', 46, 22);
+        }),
+        officeCad: makeLiveScreen(256, 144, (ctx, w, h, t) => {
+          ctx.fillStyle = '#091828'; ctx.fillRect(0, 0, w, h);
+          ctx.strokeStyle = 'rgba(56,189,248,0.22)'; ctx.lineWidth = 1;
+          for (let x = 0; x < w; x += 16) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+          for (let y = 0; y < h; y += 16) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+          // Rotating 3D architectural wireframe box
+          const cx = w * 0.34, cy = h * 0.52, r = 34;
+          const a = t * 0.8;
+          ctx.strokeStyle = '#f5c26b'; ctx.lineWidth = 2;
+          ctx.strokeRect(cx - r * Math.cos(a), cy - 24, r * 2 * Math.cos(a), 48);
+          ctx.strokeStyle = '#38bdf8'; ctx.strokeRect(cx - 28, cy - 18, 56, 36);
+          // Telemetry bars on right
+          for (let i = 0; i < 5; i++) {
+            const bw = 32 + 46 * (0.5 + 0.5 * Math.sin(t * 1.4 + i));
+            ctx.fillStyle = i % 2 ? '#38bdf8' : '#f5c26b';
+            ctx.fillRect(w * 0.62, 24 + i * 20, bw, 9);
+          }
+          ctx.fillStyle = '#e2eef8'; ctx.font = 'bold 8px monospace'; ctx.fillText('BIM · MEP STUDIO LIVE', 10, 14);
+        })
+      };
+
+      function updateLiveScreens(tSec) {
+        Object.values(liveScreens).forEach(s => {
+          s.drawFn(s.ctx, s.w, s.h, tSec);
+          s.tex.needsUpdate = true;
+        });
+      }
+
+      // Procedural Framed Gallery Wall Art Textures (zero network overhead, crisp gallery aesthetic)
+      const artMats = [
+        ['#182d46', '#d8a557', '#e8dfd1', '#c76d4b'],
+        ['#233344', '#e8c484', '#5b8278', '#f2ece1'],
+        ['#2e241f', '#dca95f', '#f4efe6', '#8d5b3e'],
+        ['#141b2e', '#62e8ff', '#c074ff', '#f43f5e']
+      ].map((pal, idx) => {
+        const c = document.createElement('canvas'); c.width = 192; c.height = 144;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = pal[0]; ctx.fillRect(0, 0, 192, 144);
+        ctx.fillStyle = pal[2]; ctx.beginPath(); ctx.arc(idx % 2 ? 124 : 68, 66, 44, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = pal[1]; ctx.fillRect(24, 92, 144, 24);
+        ctx.strokeStyle = pal[3]; ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.moveTo(22, 118); ctx.bezierCurveTo(64, 26, 126, 128, 170, 34); ctx.stroke();
+        const tex = new THREE.CanvasTexture(c);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.42, metalness: 0.06 });
+      });
+
+      /* Wall Decoration, Curtains, Ceiling Cove/Chandelier/Fan & Exhaust Vent Builders */
+      function addWallArt(parent, x, y, z, w, h, rotY = 0, artIdx = 0) {
+        const g = new THREE.Group();
+        g.position.set(x, y, z); g.rotation.y = rotY;
+        addBox(g, w + 0.12, h + 0.12, 0.05, 0, 0, 0, goldMat, false, false);
+        addBox(g, w, h, 0.06, 0, 0, 0.015, artMats[artIdx % artMats.length], false, false);
+        // Brass museum picture lamp above frame
+        addBox(g, w * 0.42, 0.035, 0.12, 0, h / 2 + 0.10, 0.06, goldMat, false, false);
+        addBox(g, w * 0.36, 0.02, 0.04, 0, h / 2 + 0.08, 0.09, warmLedMat, false, false);
+        parent.add(g); return g;
+      }
+
+      function addCurtainPair(parent, x, y, z, width, height, rotY = 0) {
+        const g = new THREE.Group();
+        g.position.set(x, y, z); g.rotation.y = rotY;
+        addBox(g, width + 0.3, 0.035, 0.04, 0, height - 0.06, 0, darkBronzeMat, false, false);
+        const sideW = Math.min(0.55, width * 0.18);
+        addBox(g, sideW, height - 0.10, 0.09, -width / 2 + sideW / 2, height / 2 - 0.05, 0.03, velvetDrapeMat, false, false);
+        addBox(g, sideW, height - 0.10, 0.09, width / 2 - sideW / 2, height / 2 - 0.05, 0.03, velvetDrapeMat, false, false);
+        addBox(g, sideW * 0.8, height - 0.12, 0.04, -width / 2 + sideW + sideW * 0.35, height / 2 - 0.06, 0.01, curtainSheerMat, false, false);
+        addBox(g, sideW * 0.8, height - 0.12, 0.04, width / 2 - sideW - sideW * 0.35, height / 2 - 0.06, 0.01, curtainSheerMat, false, false);
+        parent.add(g); return g;
+      }
+
+      function addCeilingDecor(parent, x, y, z, w, d, opts = {}) {
+        const g = new THREE.Group();
+        g.position.set(x, y, z);
+        // Recessed dropped gypsum tray + continuous warm perimeter cove LED glow!
+        addBox(g, w, 0.12, 0.24, 0, 0, -d / 2 + 0.12, whiteMat, false, false);
+        addBox(g, w, 0.12, 0.24, 0, 0, d / 2 - 0.12, whiteMat, false, false);
+        addBox(g, 0.24, 0.12, d - 0.48, -w / 2 + 0.12, 0, 0, whiteMat, false, false);
+        addBox(g, 0.24, 0.12, d - 0.48, w / 2 - 0.12, 0, 0, whiteMat, false, false);
+        addBox(g, w - 0.36, 0.03, 0.05, 0, -0.04, -d / 2 + 0.24, warmLedMat, false, false);
+        addBox(g, w - 0.36, 0.03, 0.05, 0, -0.04, d / 2 - 0.24, warmLedMat, false, false);
+        addBox(g, 0.05, 0.03, d - 0.36, -w / 2 + 0.24, -0.04, 0, warmLedMat, false, false);
+        addBox(g, 0.05, 0.03, d - 0.36, w / 2 - 0.24, -0.04, 0, warmLedMat, false, false);
+        if (opts.baffles) {
+          for (let bx = -w / 2 + 0.55; bx <= w / 2 - 0.55; bx += 0.42) {
+            addBox(g, 0.07, 0.09, d - 0.65, bx, 0.01, 0, walnutMat, false, false);
+          }
+        }
+        if (opts.ringChandelier) {
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.032, 8, 28), goldMat);
+          ring.rotation.x = Math.PI / 2; ring.position.set(0, -0.34, 0); g.add(ring);
+          const glowRing = new THREE.Mesh(new THREE.TorusGeometry(0.60, 0.018, 6, 28), chandelierOrbMat);
+          glowRing.rotation.x = Math.PI / 2; glowRing.position.set(0, -0.36, 0); g.add(glowRing);
+          for (let k = 0; k < 3; k++) {
+            const a = k * Math.PI * 2 / 3;
+            addBox(g, 0.012, 0.34, 0.012, Math.cos(a) * 0.60, -0.17, Math.sin(a) * 0.60, goldMat, false, false);
+          }
+        }
+        if (opts.fan) {
+          addBox(g, 0.04, 0.26, 0.04, 0, -0.13, 0, darkBronzeMat, false, false);
+          const fanRotor = new THREE.Group();
+          fanRotor.position.set(0, -0.27, 0);
+          const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.06, 14), darkBronzeMat);
+          fanRotor.add(hub);
+          const led = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.02, 12), chandelierOrbMat);
+          led.position.y = -0.035; fanRotor.add(led);
+          for (let k = 0; k < 3; k++) {
+            const blade = new THREE.Mesh(UNIT_BOX, walnutMat);
+            blade.scale.set(0.66, 0.02, 0.14);
+            const a = k * (Math.PI * 2 / 3);
+            blade.position.set(Math.cos(a) * 0.38, 0, Math.sin(a) * 0.38);
+            blade.rotation.y = -a;
+            fanRotor.add(blade);
+          }
+          g.add(fanRotor);
+          spinningFans.push({ obj: fanRotor, axis: 'y', speed: opts.fanSpeed || 2.8 });
+        }
+        parent.add(g); return g;
+      }
+
+      function addExhaustFan(parent, x, y, z) {
+        const g = new THREE.Group();
+        g.position.set(x, y, z);
+        addBox(g, 0.34, 0.04, 0.34, 0, 0, 0, whiteMat, false, false);
+        addBox(g, 0.26, 0.05, 0.26, 0, -0.01, 0, charcoalMat, false, false);
+        const rotor = new THREE.Group();
+        rotor.position.set(0, -0.03, 0);
+        for (let k = 0; k < 4; k++) {
+          const b = new THREE.Mesh(UNIT_BOX, steelMat);
+          b.scale.set(0.19, 0.012, 0.045);
+          b.rotation.y = k * (Math.PI / 4);
+          rotor.add(b);
+        }
+        g.add(rotor);
+        spinningFans.push({ obj: rotor, axis: 'y', speed: 6.5 });
+        parent.add(g); return g;
+      }
 
       /* Reusable Architectural 3D Furniture Builders */
       function addSofaUnit(parent, x, y, z, rotY = 0, w = 2.4) {
@@ -4572,80 +5104,132 @@
         }
         parent.add(g); return g;
       }
-      /* Reusable Ceramic Toilet, Ensuite Bathroom & Guest WC 3D Builders */
-      const porcelainMat = new THREE.MeshStandardMaterial({ color: 0xfcfcfa, roughness: 0.14, metalness: 0.06 });
+      /* Upgraded Luxury Ceramic Toilet, Spa Ensuite Bathroom & Guest WC 3D Builders (with flush plates, bidets, towel racks & exhaust fans!) */
+      const porcelainMat = new THREE.MeshStandardMaterial({ color: 0xfcfcfa, roughness: 0.12, metalness: 0.06 });
       function addToilet(parent, x, y, z, rotY = 0) {
         const t = new THREE.Group();
         t.position.set(x, y, z); t.rotation.y = rotY;
-        // Ceramic pedestal base + rounded bowl + closed seat lid + upright flush cistern with chrome dual-flush button
-        const base = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.28, 14), porcelainMat);
-        base.position.set(0, 0.14, 0.06); t.add(base);
-        const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.15, 0.16, 16), porcelainMat);
-        bowl.scale.set(0.92, 1.0, 1.22);
-        bowl.position.set(0, 0.34, 0.10); t.add(bowl);
-        const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.20, 0.035, 16), porcelainMat);
+        // Concealed tiled cistern wall box + brushed-chrome dual-flush actuator plate
+        addBox(t, 0.54, 1.12, 0.18, 0, 0.56, -0.24, tileAccentMat, false, false);
+        addBox(t, 0.22, 0.13, 0.025, 0, 0.94, -0.14, steelMat, false, false);
+        addBox(t, 0.06, 0.07, 0.03, -0.04, 0.94, -0.132, goldMat, false, false);
+        addBox(t, 0.08, 0.07, 0.03, 0.04, 0.94, -0.132, goldMat, false, false);
+        // Sculpted porcelain pedestal + rounded rim bowl + contoured seat & closed lid
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(0.145, 0.165, 0.28, 16), porcelainMat);
+        base.position.set(0, 0.14, 0.04); t.add(base);
+        const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.15, 0.17, 18), porcelainMat);
+        bowl.scale.set(0.94, 1.0, 1.24);
+        bowl.position.set(0, 0.35, 0.09); t.add(bowl);
+        const seatRing = new THREE.Mesh(new THREE.TorusGeometry(0.175, 0.025, 8, 18), porcelainMat);
+        seatRing.rotation.x = Math.PI / 2; seatRing.scale.set(0.94, 1.18, 1);
+        seatRing.position.set(0, 0.44, 0.09); t.add(seatRing);
+        const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.20, 0.03, 16), porcelainMat);
         lid.scale.set(0.92, 1.0, 1.20);
-        lid.position.set(0, 0.435, 0.10); t.add(lid);
-        addBox(t, 0.42, 0.44, 0.20, 0, 0.62, -0.18, porcelainMat, false, false);
-        addBox(t, 0.10, 0.03, 0.06, 0, 0.855, -0.18, steelMat, false, false);
+        lid.position.set(0, 0.465, 0.08); t.add(lid);
+        // Toilet paper roll holder (left) + chrome bidet / health faucet spray (right)
+        addBox(t, 0.03, 0.03, 0.11, -0.32, 0.62, -0.10, goldMat, false, false);
+        const tpRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.11, 10), towelMat);
+        tpRoll.rotation.z = Math.PI / 2; tpRoll.position.set(-0.34, 0.62, -0.04); t.add(tpRoll);
+        addBox(t, 0.03, 0.12, 0.04, 0.30, 0.56, -0.12, steelMat, false, false);
+        addBox(t, 0.018, 0.24, 0.018, 0.30, 0.42, -0.12, darkBronzeMat, false, false);
         parent.add(t); return t;
       }
       function addEnsuiteBath(parent, x, y, z, rotY = 0, scale = 1) {
         const b = new THREE.Group();
         b.position.set(x, y, z); b.rotation.y = rotY; b.scale.setScalar(scale);
-        // Tiled travertine floor pad
-        addBox(b, 2.15, 0.04, 1.95, 0, 0.02, 0, marbleMat, false, true);
-        // Ceramic WC toilet against rear wall
-        addToilet(b, -0.58, 0.03, -0.58, 0);
-        // Floating marble vanity, basin, brushed-gold tap & backlit mirror
-        addBox(b, 0.92, 0.30, 0.46, 0.42, 0.72, -0.68, marbleMat, false, false);
-        addBox(b, 0.48, 0.08, 0.34, 0.42, 0.90, -0.66, porcelainMat, false, false);
-        addBox(b, 0.04, 0.22, 0.04, 0.42, 0.98, -0.82, goldMat, false, false);
-        addBox(b, 0.86, 0.78, 0.04, 0.42, 1.44, -0.90, warmLedMat, false, false);
-        addBox(b, 0.78, 0.70, 0.05, 0.42, 1.44, -0.88, atriumGlassMat, false, false);
-        // Frameless glass walk-in rain shower bay + gold rain head
-        addBox(b, 0.04, 2.15, 0.96, -0.05, 1.08, 0.46, railGlassMat, false, false);
-        addBox(b, 0.98, 2.15, 0.04, -0.54, 1.08, -0.02, railGlassMat, false, false);
-        addBox(b, 0.04, 1.95, 0.04, -0.92, 1.02, 0.46, goldMat, false, false);
-        const rainHead = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.03, 14), goldMat);
-        rainHead.position.set(-0.62, 2.02, 0.46); b.add(rainHead);
+        // Patterned anti-slip travertine floor + full-height marble wet-zone accent back wall
+        addBox(b, 2.20, 0.04, 1.98, 0, 0.02, 0, marbleMat, false, true);
+        addBox(b, 2.18, 2.38, 0.06, 0, 1.20, -0.95, tileAccentMat, false, true);
+        // Upgraded Ceramic WC toilet against rear wet wall
+        addToilet(b, -0.58, 0.03, -0.62, 0);
+        // Floating walnut & marble vanity, ceramic vessel basin, curved gold tap, folded towels & glowing halo mirror
+        addBox(b, 0.96, 0.34, 0.48, 0.42, 0.70, -0.66, walnutMat, false, false);
+        addBox(b, 0.98, 0.05, 0.50, 0.42, 0.89, -0.66, marbleMat, false, false);
+        addBox(b, 0.90, 0.03, 0.04, 0.42, 0.52, -0.44, warmLedMat, false, false); // Under-vanity night glow
+        addBox(b, 0.34, 0.12, 0.28, 0.42, 0.34, -0.64, towelMat, false, false); // Rolled towels on lower shelf
+        const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.17, 0.13, 16), porcelainMat);
+        basin.position.set(0.42, 0.97, -0.64); b.add(basin);
+        addBox(b, 0.035, 0.24, 0.035, 0.42, 1.04, -0.82, goldMat, false, false);
+        addBox(b, 0.035, 0.035, 0.12, 0.42, 1.15, -0.77, goldMat, false, false);
+        const halo = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.03, 24), warmLedMat);
+        halo.rotation.x = Math.PI / 2; halo.position.set(0.42, 1.54, -0.90); b.add(halo);
+        const mirror = new THREE.Mesh(new THREE.CylinderGeometry(0.37, 0.37, 0.04, 24), atriumGlassMat);
+        mirror.rotation.x = Math.PI / 2; mirror.position.set(0.42, 1.54, -0.88); b.add(mirror);
+        // Frameless glass walk-in rain shower bay + linear floor drain + backlit shampoo niche + rain head & wand
+        addBox(b, 0.96, 0.03, 0.92, -0.56, 0.04, 0.48, tileAccentMat, false, true);
+        addBox(b, 0.72, 0.02, 0.06, -0.56, 0.06, 0.86, steelMat, false, false); // Linear stainless floor drain
+        addBox(b, 0.04, 2.18, 0.98, -0.05, 1.09, 0.46, railGlassMat, false, false);
+        addBox(b, 0.98, 2.18, 0.04, -0.54, 1.09, -0.02, railGlassMat, false, false);
+        addBox(b, 0.05, 2.18, 0.05, -0.05, 1.09, 0.94, goldMat, false, false);
+        addBox(b, 0.04, 1.98, 0.04, -0.96, 1.04, 0.46, goldMat, false, false); // Shower riser column
+        addBox(b, 0.08, 0.24, 0.42, -1.00, 1.24, 0.46, warmLedMat, false, false); // Backlit recessed shampoo niche
+        const rainHead = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.03, 16), goldMat);
+        rainHead.position.set(-0.62, 2.06, 0.46); b.add(rainHead);
+        // Heated gold towel rail + ceiling exhaust fan grille (spins in real time!)
+        addBox(b, 0.04, 0.75, 0.48, 1.02, 1.25, 0.25, goldMat, false, false);
+        addBox(b, 0.06, 0.36, 0.36, 0.99, 1.32, 0.25, towelMat, false, false);
+        addExhaustFan(b, 0.0, 2.38, 0.05);
         parent.add(b); return b;
       }
       function addGuestWC(parent, x, y, z, rotY = 0) {
         const w = new THREE.Group();
         w.position.set(x, y, z); w.rotation.y = rotY;
-        addBox(w, 1.55, 0.04, 1.30, 0, 0.02, 0, marbleMat, false, true);
-        addToilet(w, -0.36, 0.03, -0.32, 0);
-        addBox(w, 0.64, 0.28, 0.42, 0.36, 0.72, -0.38, marbleMat, false, false);
-        addBox(w, 0.38, 0.07, 0.28, 0.36, 0.89, -0.36, porcelainMat, false, false);
-        addBox(w, 0.035, 0.20, 0.035, 0.36, 0.96, -0.50, goldMat, false, false);
-        addBox(w, 0.60, 0.68, 0.04, 0.36, 1.42, -0.58, warmLedMat, false, false);
-        addBox(w, 0.54, 0.60, 0.05, 0.36, 1.42, -0.56, atriumGlassMat, false, false);
+        addBox(w, 1.58, 0.04, 1.32, 0, 0.02, 0, marbleMat, false, true);
+        addBox(w, 1.56, 2.30, 0.05, 0, 1.15, -0.62, tileAccentMat, false, false);
+        addToilet(w, -0.36, 0.03, -0.34, 0);
+        addBox(w, 0.66, 0.30, 0.42, 0.36, 0.70, -0.36, walnutMat, false, false);
+        addBox(w, 0.68, 0.05, 0.44, 0.36, 0.87, -0.36, marbleMat, false, false);
+        const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.14, 0.11, 14), porcelainMat);
+        basin.position.set(0.36, 0.94, -0.35); w.add(basin);
+        addBox(w, 0.035, 0.20, 0.035, 0.36, 0.98, -0.50, goldMat, false, false);
+        addBox(w, 0.60, 0.70, 0.04, 0.36, 1.46, -0.58, warmLedMat, false, false);
+        addBox(w, 0.54, 0.62, 0.05, 0.36, 1.46, -0.56, atriumGlassMat, false, false);
+        addExhaustFan(w, 0.0, 2.28, -0.05);
         parent.add(w); return w;
       }
       function addSpaBath(parent, x, y, z) {
         const g = new THREE.Group();
         g.position.set(x, y, z);
-        // Sculpted freestanding soaking bathtub
-        const tub = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.38, 0.56, 20), porcelainMat);
-        tub.scale.set(1.65, 1.0, 0.92);
-        tub.position.set(0, 0.28, 0.42); g.add(tub);
-        const waterIn = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.04, 18), waterGlowMat);
-        waterIn.scale.set(1.56, 1.0, 0.85);
-        waterIn.position.set(0, 0.52, 0.42); g.add(waterIn);
-        addBox(g, 0.05, 0.78, 0.05, 0.78, 0.39, 0.42, goldMat, false, false);
-        // Ceramic WC toilet in Master Spa Ensuite
-        addToilet(g, 0.82, 0.02, -0.45, -Math.PI / 2);
-        // Floating stone double vanity + basins + backlit mirror
-        addBox(g, 1.35, 0.32, 0.48, -0.05, 0.74, -0.92, marbleMat, false, false);
-        addBox(g, 0.44, 0.08, 0.32, -0.36, 0.93, -0.90, porcelainMat, false, false);
-        addBox(g, 0.44, 0.08, 0.32, 0.26, 0.93, -0.90, porcelainMat, false, false);
-        addBox(g, 1.25, 0.92, 0.05, -0.05, 1.48, -1.12, warmLedMat, false, false);
-        addBox(g, 1.15, 0.82, 0.06, -0.05, 1.48, -1.10, atriumGlassMat, false, false);
-        // Walk-in glass rain shower partition + gold rain showerhead
-        addBox(g, 0.04, 2.25, 1.15, -0.82, 1.12, -0.25, railGlassMat, false, false);
-        const rain = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.03, 14), goldMat);
-        rain.position.set(-1.15, 2.18, -0.35); g.add(rain);
+        // Full-suite luxury travertine marble floor & wet-zone accent back wall
+        addBox(g, 2.85, 0.04, 2.45, -0.05, 0.02, -0.05, marbleMat, false, true);
+        addBox(g, 2.82, 2.65, 0.06, -0.05, 1.32, -1.20, tileAccentMat, false, true);
+        // Sculpted freestanding egg soaking bathtub + shimmering water + teak spa caddy & glowing candle!
+        const tub = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.38, 0.58, 22), porcelainMat);
+        tub.scale.set(1.68, 1.0, 0.94);
+        tub.position.set(0.05, 0.30, 0.46); g.add(tub);
+        const waterIn = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.04, 20), waterGlowMat);
+        waterIn.scale.set(1.58, 1.0, 0.86);
+        waterIn.position.set(0.05, 0.55, 0.46); g.add(waterIn);
+        addBox(g, 0.22, 0.04, 0.84, 0.05, 0.61, 0.46, walnutMat, false, false); // Teak bath caddy
+        const spaCandle = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.11, 10), chandelierOrbMat);
+        spaCandle.position.set(0.05, 0.68, 0.36); g.add(spaCandle);
+        addBox(g, 0.05, 0.82, 0.05, 0.84, 0.41, 0.46, goldMat, false, false);
+        addBox(g, 0.20, 0.04, 0.04, 0.74, 0.80, 0.46, goldMat, false, false);
+        // Upgraded Ceramic WC toilet with flush plate, bidet spray & toilet roll
+        addToilet(g, 0.92, 0.03, -0.45, -Math.PI / 2);
+        // Floating walnut & Calacatta double vanity + twin vessel basins + gold taps + wide backlit mirror
+        addBox(g, 1.48, 0.36, 0.50, -0.05, 0.72, -0.90, walnutMat, false, false);
+        addBox(g, 1.52, 0.05, 0.52, -0.05, 0.92, -0.90, marbleMat, false, false);
+        addBox(g, 1.38, 0.03, 0.04, -0.05, 0.52, -0.66, warmLedMat, false, false);
+        for (const vx of [-0.42, 0.32]) {
+          const vb = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.16, 0.12, 16), porcelainMat);
+          vb.position.set(vx, 1.00, -0.88); g.add(vb);
+          addBox(g, 0.035, 0.22, 0.035, vx, 1.06, -1.04, goldMat, false, false);
+        }
+        addBox(g, 1.38, 0.96, 0.04, -0.05, 1.54, -1.14, warmLedMat, false, false);
+        addBox(g, 1.28, 0.86, 0.05, -0.05, 1.54, -1.11, atriumGlassMat, false, false);
+        // Walk-in glass rain shower bay + marble shower bench + linear drain + backlit niche + rain head
+        addBox(g, 0.04, 2.30, 1.22, -0.82, 1.15, -0.25, railGlassMat, false, false);
+        addBox(g, 0.05, 2.30, 0.05, -0.82, 1.15, 0.36, goldMat, false, false);
+        addBox(g, 0.52, 0.44, 0.36, -1.14, 0.22, -0.92, marbleMat, false, false); // Built-in shower seat
+        addBox(g, 0.06, 0.02, 0.82, -1.32, 0.06, -0.25, steelMat, false, false); // Linear floor drain
+        addBox(g, 0.06, 0.28, 0.48, -1.42, 1.32, -0.35, warmLedMat, false, false); // Backlit shower niche
+        const rain = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.03, 16), goldMat);
+        rain.position.set(-1.14, 2.22, -0.35); g.add(rain);
+        // Heated gold ladder towel warmer with stacked cream spa towels + spinning ceiling exhaust fan
+        addBox(g, 0.04, 1.15, 0.52, 1.28, 1.25, 0.32, goldMat, false, false);
+        addBox(g, 0.07, 0.42, 0.38, 1.24, 1.42, 0.32, towelMat, false, false);
+        addExhaustFan(g, -0.15, 2.62, -0.15);
         parent.add(g); return g;
       }
 
@@ -4663,31 +5247,59 @@
       // GROUND FLOOR 3D INTERIORS (Rear Living TV 1, 8-Seat Dining, Modern Marble Kitchen Island)
       const gfInterior = new THREE.Group();
       gf.add(gfInterior);
-      // Main Living Room (TV 1) at rear-left (x=-5.2, z=-2.5) + Arched Gold Floor Lamp & Accent Styling
+      // Main Living Room (Live 4K Animated TV 1, Fluted Marble Feature Wall, Gallery Art, Drapes & Cove Ceiling Fan!)
       addBox(gfInterior, 3.6, 0.03, 3.0, -5.15, 0.28, -2.55, rugMat, false, true);
       addSofaUnit(gfInterior, -5.15, 0.27, -1.35, Math.PI, 2.5);
       addSofaUnit(gfInterior, -5.15, 0.27, -3.75, 0, 2.5);
       addBox(gfInterior, 1.35, 0.32, 0.78, -5.15, 0.43, -2.55, walnutMat, false, true);
       addBox(gfInterior, 1.28, 0.04, 0.72, -5.15, 0.60, -2.55, marbleMat, false, false);
       addBox(gfInterior, 0.36, 0.03, 0.24, -5.25, 0.635, -2.55, goldMat, false, false);
-      addBox(gfInterior, 0.12, 2.35, 2.75, -7.88, 1.50, -2.55, walnutMat, false, false);
-      addBox(gfInterior, 0.08, 1.05, 1.92, -7.78, 1.55, -2.55, screenMat, false, false);
-      addBox(gfInterior, 0.05, 1.15, 2.02, -7.82, 1.55, -2.55, warmLedMat, false, false);
+      // Bookmatched marble + fluted walnut TV wall + Live Animated 85" OLED Cinema TV!
+      addBox(gfInterior, 0.12, 2.55, 3.45, -7.88, 1.56, -2.55, marbleMat, false, false);
+      for (let vz = -4.15; vz <= -0.95; vz += 0.24) {
+        if (Math.abs(vz + 2.55) > 1.05) addBox(gfInterior, 0.06, 2.50, 0.08, -7.81, 1.56, vz, walnutMat, false, false);
+      }
+      addBox(gfInterior, 0.08, 1.05, 1.92, -7.76, 1.55, -2.55, liveScreens.cinema.mat, false, false);
+      addBox(gfInterior, 0.05, 1.15, 2.02, -7.81, 1.55, -2.55, warmLedMat, false, false);
+      // Living Wall Art, Velvet/Sheer Rear Window Curtains & Dropped LED Cove Ceiling with Spinning Fan
+      addWallArt(gfInterior, -5.15, 1.75, -0.30, 1.35, 0.92, Math.PI, 0);
+      addCurtainPair(gfInterior, -5.15, 0.28, -4.88, 4.4, 2.82, 0);
+      addCeilingDecor(gfInterior, -5.15, 3.16, -2.55, 4.6, 3.8, { baffles: true, fan: true, fanSpeed: 2.4 });
       // Sculptural gold floor lamp beside living sofa
       const gfLampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 1.85, 8), goldMat);
       gfLampPole.position.set(-7.05, 1.20, -1.25); gfInterior.add(gfLampPole);
       const gfLampOrb = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), chandelierOrbMat);
       gfLampOrb.position.set(-7.05, 2.16, -1.25); gfInterior.add(gfLampOrb);
       addPlanterTree(gfInterior, -7.35, 0.27, -4.35, 0.72, false);
-      // 8-Seater Dining Area + Chandelier (x=-0.95, z=-3.6)
+      // 8-Seater Dining Area + Chandelier + Gallery Wall Art + Cove Ceiling (x=-0.95, z=-3.6)
       addDiningSet(gfInterior, -0.95, 0.27, -3.65, 0);
-      // Modern Charcoal & Marble Waterfall Kitchen Island (x=-0.95, z=-1.2) + Double-Door Fridge, Oven, Induction & Pendant Globes
+      addWallArt(gfInterior, 1.66, 1.72, -3.55, 1.35, 0.95, -Math.PI / 2, 1);
+      addCurtainPair(gfInterior, -0.95, 0.28, -4.88, 3.6, 2.82, 0);
+      addCeilingDecor(gfInterior, -0.95, 3.16, -2.85, 3.8, 3.4, { ringChandelier: false });
+      // Modern Charcoal & Marble Waterfall Kitchen Island (x=-0.95, z=-1.2) + Piped 4-Burner Gas Hob, Island Chimney Hood & Gas Leak Sensor!
       addKitchenIsland(gfInterior, -0.95, 0.27, -1.25);
       addBox(gfInterior, 0.92, 2.12, 0.72, 1.02, 1.33, -0.58, steelMat, false, false); // Double-door stainless refrigerator
       addBox(gfInterior, 0.03, 1.95, 0.04, 1.02, 1.33, -0.95, darkBronzeMat, false, false);
-      addBox(gfInterior, 0.64, 0.56, 0.06, -0.95, 1.24, -0.73, screenMat, false, false); // Built-in oven glass
-      addBox(gfInterior, 0.78, 0.03, 0.48, -1.35, 1.19, -1.60, charcoalMat, false, false); // Induction cooktop
-      for (const kx of [-1.55, -0.95, -0.35]) {
+      addBox(gfInterior, 0.64, 0.56, 0.06, -0.95, 1.24, -0.73, charcoalMat, false, false); // Built-in oven glass
+      // Upgraded 4-Burner Glass Gas Cooktop + Brass Burners + Subtle Blue Gas Flame Glow!
+      addBox(gfInterior, 0.84, 0.04, 0.52, -1.35, 1.19, -1.60, charcoalMat, false, false);
+      for (const [bx, bz] of [[-1.55, -1.72], [-1.15, -1.72], [-1.55, -1.48], [-1.15, -1.48]]) {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.014, 6, 12), brassMat);
+        ring.rotation.x = Math.PI / 2; ring.position.set(bx, 1.22, bz); gfInterior.add(ring);
+        const flame = new THREE.Mesh(new THREE.TorusGeometry(0.068, 0.012, 6, 12), gasFlameMat);
+        flame.rotation.x = Math.PI / 2; flame.position.set(bx, 1.238, bz); gfInterior.add(flame);
+        gasFlameMeshes.push(flame);
+      }
+      // Brushed-Steel Island Chimney Exhaust Hood directly above 4-Burner Gas Hob + Warm LED Hood Strip!
+      addBox(gfInterior, 0.98, 0.14, 0.66, -1.35, 2.38, -1.60, steelMat, false, false);
+      addBox(gfInterior, 0.34, 0.82, 0.30, -1.35, 2.86, -1.60, steelMat, false, false);
+      addBox(gfInterior, 0.84, 0.025, 0.05, -1.35, 2.30, -1.60, warmLedMat, false, false);
+      // Inline Kitchen Gas Isolation Shutoff Valve + Wall-Mounted Smart Gas Leak Sensor (Green pulsing LED!)
+      addBox(gfInterior, 0.14, 0.18, 0.07, 0.25, 1.92, -0.52, whiteMat, false, false);
+      addBox(gfInterior, 0.04, 0.04, 0.02, 0.25, 1.96, -0.48, gasSensorLedMat, false, false);
+      addBox(gfInterior, 0.10, 0.10, 0.10, -0.25, 0.84, -0.52, brassMat, false, false);
+      addBox(gfInterior, 0.14, 0.03, 0.03, -0.25, 0.90, -0.47, lpgRedMat, false, false); // Red quarter-turn valve handle
+      for (const kx of [-0.55, 0.05]) {
         addBox(gfInterior, 0.018, 0.85, 0.018, kx, 2.68, -1.60, goldMat, false, false);
         const kp = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), chandelierOrbMat);
         kp.position.set(kx, 2.22, -1.60); gfInterior.add(kp);
@@ -5006,22 +5618,26 @@
           addSofaUnit(floorFurn, -4.5, fy, 1.35, 0, 2.7);
           addSofaUnit(floorFurn, -6.1, fy, 2.05, Math.PI / 2, 1.65);
           addBox(floorFurn, 1.25, 0.30, 0.72, -4.5, fy + 0.15, 2.35, walnutMat, false, false);
-          // Slatted acoustic walnut TV wall + warm vertical LED strips + floor lamp + indoor planter
+          // Slatted acoustic walnut TV wall + warm vertical LED strips + Live 4K TV + Wall Art + Drapes + Cove Ceiling Fan
           for (let fx = -5.75; fx <= -3.25; fx += 0.22) addBox(floorFurn, 0.07, 2.45, 0.06, fx, fy + 1.24, -0.24, walnutMat, false, false);
           addBox(floorFurn, 0.05, 2.35, 0.05, -5.88, fy + 1.22, -0.22, warmLedMat, false, false);
           addBox(floorFurn, 0.05, 2.35, 0.05, -3.12, fy + 1.22, -0.22, warmLedMat, false, false);
-          addBox(floorFurn, 2.1, 0.98, 0.08, -4.5, fy + 1.35, -0.15, screenMat, false, false);
+          addBox(floorFurn, 2.1, 0.98, 0.08, -4.5, fy + 1.35, -0.15, liveScreens.cinema.mat, false, false);
           addBox(floorFurn, 2.2, 0.34, 0.42, -4.5, fy + 0.22, -0.02, walnutMat, false, false);
+          addWallArt(floorFurn, -7.22, fy + 1.48, 1.75, 1.25, 0.85, Math.PI / 2, 2);
+          addCurtainPair(floorFurn, -4.5, fy, 3.48, 4.2, 2.72, Math.PI);
+          addCeilingDecor(floorFurn, -4.5, fy + 2.74, 1.65, 4.2, 3.2, { fan: true, fanSpeed: 2.2 });
           const flPole = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.03, 1.78, 8), goldMat);
           flPole.position.set(-6.78, fy + 0.89, 0.82); floorFurn.add(flPole);
           const flOrb = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 10), chandelierOrbMat);
           flOrb.position.set(-6.78, fy + 1.82, 0.82); floorFurn.add(flOrb);
           addPlanterTree(floorFurn, -6.82, fy, 3.05, 0.64, false);
-          // Executive Home Office (front-right: walnut desk, dual monitors, architect lamp, swivel chair, reading chair & backlit shelves)
+          // Executive Home Office (front-right: walnut desk, LIVE animated CAD dual monitors, architect lamp, swivel chair, wall art & backlit shelves)
           addBox(floorFurn, 1.75, 0.74, 0.80, -0.35, fy + 0.37, 1.75, walnutMat, false, false);
           addBox(floorFurn, 0.56, 0.96, 0.56, -0.35, fy + 0.48, 0.96, charcoalMat, false, false);
-          addBox(floorFurn, 0.52, 0.32, 0.04, -0.64, fy + 0.96, 1.84, screenMat, false, false);
-          addBox(floorFurn, 0.52, 0.32, 0.04, -0.06, fy + 0.96, 1.84, screenMat, false, false);
+          addBox(floorFurn, 0.52, 0.32, 0.04, -0.64, fy + 0.96, 1.84, liveScreens.officeCad.mat, false, false);
+          addBox(floorFurn, 0.52, 0.32, 0.04, -0.06, fy + 0.96, 1.84, liveScreens.officeCad.mat, false, false);
+          addWallArt(floorFurn, -0.35, fy + 1.56, -0.22, 1.22, 0.82, 0, 1);
           addBox(floorFurn, 0.04, 0.38, 0.04, 0.36, fy + 0.93, 1.82, goldMat, false, false);
           addBox(floorFurn, 0.14, 0.05, 0.14, 0.36, fy + 1.13, 1.82, warmLedMat, false, false);
           addBox(floorFurn, 0.68, 0.78, 0.68, -0.35, fy + 0.39, 2.95, upholsteryMat, false, false);
@@ -5031,11 +5647,13 @@
             addBox(floorFurn, 0.22, 0.24, 0.42, 1.18, fy + sy + 0.16, 1.15, upholsteryMat, false, false);
             addBox(floorFurn, 0.22, 0.22, 0.38, 1.18, fy + sy + 0.15, 2.12, goldMat, false, false);
           }
-          // Bedroom 2 & Bedroom 3 (Rear) + Twin Ensuite Bathrooms 2 & 3 cleanly centered on either side of p1 (x=-3.15)!
+          // Bedroom 2 & Bedroom 3 (Rear) + Wall Art + Twin Ensuite Bathrooms 2 & 3 cleanly centered on either side of p1 (x=-3.15)!
           addBedSuite(floorFurn, -5.96, fy, -2.65, 0, 0.80);
+          addWallArt(floorFurn, -5.96, fy + 1.65, -3.72, 1.10, 0.72, 0, 0);
           addEnsuiteBath(floorFurn, -3.95, fy, -3.55, Math.PI, 0.66);
           addEnsuiteBath(floorFurn, -2.35, fy, -3.55, Math.PI, 0.66);
           addBedSuite(floorFurn, -0.22, fy, -2.65, 0, 0.80);
+          addWallArt(floorFurn, -0.22, fy + 1.65, -3.72, 1.10, 0.72, 0, 2);
           // REAR-RIGHT BEHIND-SPIRAL FIRST-FLOOR WING: Ensuite Bathroom 4 (for Bed 4) + Quiet Study Alcove!
           addBox(owner, 6.2, 0.32, 4.45, 4.85, y + 0.18, -2.65, whiteMat, true, true);
           addBox(owner, 5.4, wallH, 0.14, 4.95, wallY, -4.82, atriumGlassMat, false, false);
@@ -5046,20 +5664,27 @@
           addBox(floorFurn, 1.35, 0.74, 0.68, 3.05, fy + 0.37, -3.45, walnutMat, false, false);
           addBox(floorFurn, 0.52, 0.86, 0.52, 3.05, fy + 0.44, -2.75, upholsteryMat, false, false);
         } else if (idx === 1) {
-          // SECOND FLOOR: Private Lounge TV 2 (front), Master Suite (rear-left), Walk-in Robe (rear-mid), Master Spa Ensuite (rear-right)
+          // SECOND FLOOR: Private Lounge TV 2 (front), Master Suite + Decor + Ceiling Fan (rear-left), Walk-in Robe, Master Spa Ensuite
           addBox(floorFurn, 3.8, 0.03, 2.7, -4.2, fy + 0.015, 1.75, rugMat, false, true);
           addSofaUnit(floorFurn, -5.35, fy, 1.8, Math.PI / 2, 2.25);
           addSofaUnit(floorFurn, -2.95, fy, 1.8, -Math.PI / 2, 2.25);
           addBox(floorFurn, 1.15, 0.32, 0.85, -4.15, fy + 0.16, 1.8, marbleMat, false, false);
           addBox(floorFurn, 2.35, 0.36, 0.42, -4.15, fy + 0.18, -0.02, walnutMat, false, false);
-          addBox(floorFurn, 2.2, 1.05, 0.08, -4.15, fy + 1.38, -0.18, screenMat, false, false);
+          addBox(floorFurn, 2.2, 1.05, 0.08, -4.15, fy + 1.38, -0.18, liveScreens.cinema.mat, false, false);
           addBox(floorFurn, 2.32, 1.16, 0.04, -4.15, fy + 1.38, -0.22, warmLedMat, false, false);
+          addCurtainPair(floorFurn, -4.15, fy, 3.48, 4.4, 2.72, Math.PI);
+          addCeilingDecor(floorFurn, -4.15, fy + 2.74, 1.75, 4.2, 3.0, { ringChandelier: true });
           const plPole = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.03, 1.75, 8), goldMat);
           plPole.position.set(-6.45, fy + 0.88, 0.72); floorFurn.add(plPole);
           const plOrb = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 10), chandelierOrbMat);
           plOrb.position.set(-6.45, fy + 1.78, 0.72); floorFurn.add(plOrb);
-          // Grand Master Suite (rear-left) + Foot-of-bed Ottoman Bench + Hanging Gold Bedside Pendants
+          // Grand Master Suite (rear-left) + Foot Bench + Wall Art + Ambient Master TV + Cove Ceiling & Spinning Fan!
           addBedSuite(floorFurn, -5.35, fy, -2.65, 0, 1.02);
+          addWallArt(floorFurn, -5.35, fy + 1.88, -3.86, 1.55, 0.85, 0, 1);
+          addBox(floorFurn, 1.65, 0.86, 0.06, -5.35, fy + 1.38, -0.45, liveScreens.cinema.mat, false, false);
+          addBox(floorFurn, 1.74, 0.94, 0.04, -5.35, fy + 1.38, -0.41, warmLedMat, false, false);
+          addCurtainPair(floorFurn, -5.35, fy, -4.78, 3.8, 2.72, 0);
+          addCeilingDecor(floorFurn, -5.35, fy + 2.74, -2.55, 3.8, 3.6, { fan: true, fanSpeed: 1.9 });
           addBox(floorFurn, 1.55, 0.42, 0.46, -5.35, fy + 0.21, -1.16, upholsteryMat, false, false);
           for (const px of [-6.68, -4.02]) {
             addBox(floorFurn, 0.016, 1.15, 0.016, px, fy + 2.22, -3.58, goldMat, false, false);
@@ -5073,22 +5698,20 @@
           addBox(floorFurn, 0.85, 0.84, 0.56, -2.25, fy + 0.42, -2.45, marbleMat, false, false);
           addBox(floorFurn, 0.04, 1.88, 0.78, -3.02, fy + 1.06, -3.25, warmLedMat, false, false);
           addBox(floorFurn, 0.05, 1.78, 0.68, -3.00, fy + 1.06, -3.25, atriumGlassMat, false, false);
-          // Master Spa Ensuite (freestanding soaking tub + WC toilet + double vanity + glass rain shower)
+          // Master Spa Ensuite (freestanding soaking tub + WC toilet + double vanity + glass rain shower + exhaust fan)
           addSpaBath(floorFurn, -0.05, fy, -2.75);
 
-          // NEW BEDROOM 6 SUITE + ENSUITE BATHROOM 6 RIGHT BEHIND THE SPIRAL STAIRCASE (Completes all 6 Ensuite Bedrooms!)
+          // BEDROOM 6 SUITE + ENSUITE BATHROOM 6 RIGHT BEHIND THE SPIRAL STAIRCASE (Wall art + cove ceiling!)
           addBox(owner, 6.2, 0.34, 4.45, 4.85, y + 0.18, -2.65, whiteMat, true, true);
-          // Panoramic rear bronze-framed glazing + cutaway outer wall for Bedroom 6 behind spiral
           addBox(owner, 5.4, wallH, 0.14, 4.95, wallY, -4.82, atriumGlassMat, false, false);
           for (const bx of [2.3, 4.0, 5.7, 7.4]) addBox(owner, 0.08, wallH, 0.16, bx, wallY, -4.82, darkBronzeMat);
           cutawayShells.push(addBox(owner, 0.22, wallH, 4.4, 7.85, wallY, -2.65, whiteMat));
-          // Bedroom 6 King Bed Suite facing the rear garden glass + built-in illuminated walnut wardrobe
           addBedSuite(floorFurn, 5.85, fy, -2.55, Math.PI, 0.88);
+          addWallArt(floorFurn, 5.85, fy + 1.72, -1.48, 1.25, 0.78, Math.PI, 0);
+          addCeilingDecor(floorFurn, 5.85, fy + 2.74, -2.65, 3.0, 3.2, { fan: true, fanSpeed: 2.1 });
           addBox(floorFurn, 0.48, 2.35, 2.15, 7.50, fy + 1.18, -2.75, walnutMat, false, false);
           addBox(floorFurn, 0.05, 2.20, 0.05, 7.24, fy + 1.18, -1.72, warmLedMat, false, false);
-          // Attached Ensuite Bathroom 6 (toilet, floating marble vanity, backlit mirror & glass walk-in rain shower!)
           addEnsuiteBath(floorFurn, 2.98, fy, -2.75, Math.PI, 0.92);
-          // Partition wall between Bedroom 6 and Ensuite Bath 6
           interiorWalls.push(addBox(owner, 0.14, wallH - 0.15, 2.6, 4.18, wallY, -3.50, partitionMat, false, false));
         } else {
           // ROOFTOP LEVEL 3: Redesigned L-Shaped BBQ Chef Kitchen (rear), Enclosed RGB Gaming Studio (mid-left), Party Bar & Buffet (mid-right), Lounge TV 3 (front)
@@ -5102,9 +5725,24 @@
             addBox(floorFurn, 0.36, 0.64, 0.36, bx, fy + 0.32, -0.92, darkBronzeMat, false, false);
             addBox(floorFurn, 0.38, 0.10, 0.38, bx, fy + 0.68, -0.92, upholsteryMat, false, false);
           }
-          // 4-burner Brushed Steel BBQ Grill with open hood & glowing orange grill embers!
+          // 4-burner Piped Gas Brushed Steel BBQ Grill + Canopy Exhaust Hood + Gas Valve + Glowing Embers & Blue Flames!
           addBox(floorFurn, 0.66, 0.44, 1.05, -6.74, fy + 1.14, -3.55, steelMat, false, false);
           addBox(floorFurn, 0.48, 0.08, 0.86, -6.72, fy + 0.97, -3.55, fireEmberMat, false, false);
+          for (const bz of [-3.82, -3.55, -3.28]) {
+            const gf = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.012, 6, 12), gasFlameMat);
+            gf.rotation.x = Math.PI / 2; gf.position.set(-6.70, fy + 1.02, bz); floorFurn.add(gf);
+            gasFlameMeshes.push(gf);
+          }
+          // Commercial Brushed-Steel Outdoor BBQ Exhaust Canopy Hood + Rain-Capped Roof Flue!
+          addBox(floorFurn, 0.84, 0.24, 1.24, -6.74, fy + 2.02, -3.55, steelMat, false, false);
+          addBox(floorFurn, 0.34, 0.86, 0.34, -6.74, fy + 2.54, -3.55, steelMat, false, false);
+          addBox(floorFurn, 0.50, 0.06, 0.50, -6.74, fy + 2.98, -3.55, darkBronzeMat, false, false); // Rain cowl cap
+          addBox(floorFurn, 0.72, 0.025, 0.05, -6.74, fy + 1.89, -3.55, warmLedMat, false, false);
+          // Rooftop BBQ Gas Isolation Valve + Weatherproof Leak Sensor
+          addBox(floorFurn, 0.10, 0.10, 0.10, -7.12, fy + 0.68, -4.12, brassMat, false, false);
+          addBox(floorFurn, 0.14, 0.03, 0.03, -7.12, fy + 0.74, -4.12, lpgRedMat, false, false);
+          addBox(floorFurn, 0.10, 0.14, 0.06, -7.10, fy + 1.48, -4.15, whiteMat, false, false);
+          addBox(floorFurn, 0.035, 0.035, 0.02, -7.06, fy + 1.50, -4.12, gasSensorLedMat, false, false);
           // Prep sink + gold gooseneck tap + under-counter stainless beverage cooler
           addBox(floorFurn, 0.48, 0.06, 0.56, -6.74, fy + 0.95, -2.28, darkBronzeMat, false, false);
           addBox(floorFurn, 0.05, 0.36, 0.05, -6.96, fy + 1.12, -2.28, goldMat, false, false);
@@ -5115,21 +5753,20 @@
           const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.16, 10), chandelierOrbMat);
           candle.position.set(-3.25, fy + 0.88, -3.15); floorFurn.add(candle);
 
-          // 2. UPGRADED PC / CONSOLE / VR GAMING STUDIO (x: -7.25..-2.55, z: -0.25..+3.50)
-          // Acoustic fluted dark-walnut rear feature wall + interior divider between Game Room & Rooftop Lounge TV 3
+          // 2. UPGRADED LIVE ANIMATED PC / CONSOLE / VR GAMING STUDIO (x: -7.25..-2.55, z: -0.25..+3.50)
           for (let gx = -6.95; gx <= -2.95; gx += 0.24) {
             addBox(floorFurn, 0.09, 2.25, 0.07, gx, fy + 1.12, -0.22, walnutMat, false, false);
           }
+          addWallArt(floorFurn, -4.98, fy + 1.82, -0.17, 1.35, 0.55, 0, 3);
           interiorWalls.push(addBox(owner, 0.14, wallH - 0.15, 3.55, -2.48, wallY, 1.65, partitionMat, false, false));
-          // Pro L-shaped Obsidian & Walnut Battlestation Desk + Under-Desk Purple RGB Strip
           addBox(floorFurn, 3.15, 0.76, 0.78, -5.05, fy + 0.38, 0.25, charcoalMat, false, true);
           addBox(floorFurn, 3.18, 0.05, 0.80, -5.05, fy + 0.77, 0.25, walnutMat, false, false);
           addBox(floorFurn, 0.68, 0.76, 0.80, -3.15, fy + 0.38, 1.05, charcoalMat, false, true);
           addBox(floorFurn, 0.70, 0.05, 0.80, -3.15, fy + 0.77, 1.05, walnutMat, false, false);
           addBox(floorFurn, 3.05, 0.04, 0.05, -5.05, fy + 0.74, -0.14, rgbPurpleMat, false, false);
-          // Triple Curved RGB Gaming Monitors + RGB Keyboard/Mouse Pad + Dual Studio Speakers
+          // Triple Curved LIVE ANIMATED Gaming Monitors (240 FPS Synthwave Cyber-Racing HUD!)
           [[-5.85, 0.22, 0.20], [-4.98, 0.15, 0], [-4.12, 0.22, -0.20]].forEach(([mx, mz, ry]) => {
-            const m = addBox(floorFurn, 0.84, 0.44, 0.05, mx, fy + 1.10, mz, screenMat, false, false);
+            const m = addBox(floorFurn, 0.84, 0.44, 0.05, mx, fy + 1.10, mz, liveScreens.pcGame.mat, false, false);
             m.rotation.y = ry;
             const glow = addBox(floorFurn, 0.88, 0.48, 0.03, mx, fy + 1.10, mz - 0.025, rgbCyanMat, false, false);
             glow.rotation.y = ry;
@@ -5137,12 +5774,18 @@
           });
           addBox(floorFurn, 1.35, 0.02, 0.36, -4.98, fy + 0.80, 0.46, rgbCyanMat, false, false);
           addBox(floorFurn, 0.44, 0.03, 0.15, -5.05, fy + 0.82, 0.46, charcoalMat, false, false);
-          // Tempered-Glass RGB Gaming PC Tower with glowing cyan & purple fans
+          // Tempered-Glass RGB Gaming PC Tower with SPINNING glowing cyan & purple fans!
           addBox(floorFurn, 0.26, 0.56, 0.50, -3.56, fy + 1.07, 0.25, charcoalMat, false, false);
           addBox(floorFurn, 0.03, 0.48, 0.42, -3.70, fy + 1.07, 0.25, atriumGlassMat, false, false);
           for (const fz of [0.10, 0.25, 0.40]) {
-            const fan = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.014, 6, 12), fz === 0.25 ? rgbPurpleMat : rgbCyanMat);
-            fan.rotation.y = Math.PI / 2; fan.position.set(-3.68, fy + 1.06, fz); floorFurn.add(fan);
+            const fanGrp = new THREE.Group();
+            fanGrp.position.set(-3.68, fy + 1.06, fz);
+            const fanRing = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.014, 6, 12), fz === 0.25 ? rgbPurpleMat : rgbCyanMat);
+            fanRing.rotation.y = Math.PI / 2; fanGrp.add(fanRing);
+            const fanBlade = new THREE.Mesh(UNIT_BOX, fz === 0.25 ? rgbPurpleMat : rgbCyanMat);
+            fanBlade.scale.set(0.01, 0.09, 0.02); fanGrp.add(fanBlade);
+            floorFurn.add(fanGrp);
+            spinningFans.push({ obj: fanGrp, axis: 'x', speed: 8.5 });
           }
           // Two Ergonomic Racing Gaming Chairs (charcoal bucket seat + cyan bolster stripes)
           for (const cx of [-5.62, -4.38]) {
@@ -5153,32 +5796,34 @@
             addBox(floorFurn, 0.10, 0.42, 0.10, cx, fy + 0.21, 1.06, darkBronzeMat, false, false);
             addBox(floorFurn, 0.52, 0.05, 0.52, cx, fy + 0.04, 1.06, darkBronzeMat, false, false);
           }
-          // Mini Glass Energy-Drink / Snack Fridge beside gaming desk + VR Headset Stand on return desk
           addBox(floorFurn, 0.56, 0.90, 0.54, -6.96, fy + 0.45, 0.28, charcoalMat, false, false);
           addBox(floorFurn, 0.46, 0.76, 0.04, -6.96, fy + 0.46, 0.56, atriumGlassMat, false, false);
           addBox(floorFurn, 0.36, 0.04, 0.04, -6.96, fy + 0.76, 0.50, rgbCyanMat, false, false);
-          addBox(floorFurn, 0.18, 0.14, 0.16, -3.15, fy + 0.94, 1.15, porcelainMat, false, false); // VR headset
-          // Console Gaming Couch, 75" Wall-Mounted RGB Ambilight OLED TV, Next-Gen Console & Glowing VR Floor Mat
+          addBox(floorFurn, 0.18, 0.14, 0.16, -3.15, fy + 0.94, 1.15, porcelainMat, false, false);
+          // Console Gaming Couch, LIVE ANIMATED 75" Esports Arena OLED TV, Next-Gen Console & Glowing VR Floor Mat
           addBox(floorFurn, 2.35, 0.03, 1.55, -4.45, fy + 0.015, 2.35, charcoalMat, false, true);
           addBox(floorFurn, 2.40, 0.025, 0.04, -4.45, fy + 0.03, 1.56, rgbCyanMat, false, false);
           addBox(floorFurn, 2.40, 0.025, 0.04, -4.45, fy + 0.03, 3.14, rgbPurpleMat, false, false);
           addSofaUnit(floorFurn, -6.28, fy, 2.35, Math.PI / 2, 1.95);
-          addBox(floorFurn, 0.08, 0.98, 1.75, -2.62, fy + 1.28, 2.35, screenMat, false, false);
+          addBox(floorFurn, 0.08, 0.98, 1.75, -2.62, fy + 1.28, 2.35, liveScreens.consoleGame.mat, false, false);
           addBox(floorFurn, 0.04, 1.08, 1.85, -2.57, fy + 1.28, 2.35, rgbPurpleMat, false, false);
           addBox(floorFurn, 0.34, 0.30, 1.55, -2.74, fy + 0.28, 2.35, walnutMat, false, false);
-          addBox(floorFurn, 0.14, 0.34, 0.24, -2.74, fy + 0.60, 2.75, porcelainMat, false, false); // Next-gen console tower
-          // Overhead Twin Purple & Cyan RGB Ceiling Light Bars
+          addBox(floorFurn, 0.14, 0.34, 0.24, -2.74, fy + 0.60, 2.75, porcelainMat, false, false);
+          // Overhead Twin Purple & Cyan RGB Ceiling Light Bars + Acoustic Timber Baffles
           addBox(floorFurn, 3.85, 0.06, 0.07, -4.95, fy + 2.18, 0.35, rgbPurpleMat, false, false);
           addBox(floorFurn, 3.85, 0.06, 0.07, -4.95, fy + 2.18, 2.35, rgbCyanMat, false, false);
+          addCeilingDecor(floorFurn, -4.95, fy + 2.24, 1.65, 4.0, 3.2, { baffles: true });
 
-          // 3. Entertainment Media Lounge (TV 3) front-right (sofa, round marble cocktail table, 75" OLED TV & twin hi-fi towers)
+          // 3. Entertainment Media Lounge (Live Animated TV 3) front-right + Wall Art & Cove Ceiling
           addBox(floorFurn, 3.05, 0.03, 2.45, -0.55, fy + 0.015, 1.65, rugMat, false, true);
           addSofaUnit(floorFurn, -0.55, fy, 2.45, Math.PI, 2.45);
           const rTable = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.56, 0.34, 20), marbleMat);
           rTable.position.set(-0.55, fy + 0.17, 1.35); floorFurn.add(rTable);
           addBox(floorFurn, 2.15, 0.32, 0.42, -0.55, fy + 0.16, -0.02, walnutMat, false, false);
-          addBox(floorFurn, 1.95, 0.95, 0.08, -0.55, fy + 1.24, -0.08, screenMat, false, false);
+          addBox(floorFurn, 1.95, 0.95, 0.08, -0.55, fy + 1.24, -0.08, liveScreens.cinema.mat, false, false);
           addBox(floorFurn, 2.05, 1.04, 0.04, -0.55, fy + 1.24, -0.12, warmLedMat, false, false);
+          addWallArt(floorFurn, 1.36, fy + 1.35, 1.65, 1.15, 0.72, -Math.PI / 2, 2);
+          addCeilingDecor(floorFurn, -0.55, fy + 2.24, 1.65, 3.0, 2.6, { ringChandelier: false });
           for (const sx of [-1.85, 0.75]) addBox(floorFurn, 0.26, 1.15, 0.28, sx, fy + 0.58, -0.02, charcoalMat, false, false);
         }
         owner.add(floorFurn);
@@ -5275,9 +5920,10 @@
       addSofaUnit(partyShedGroup, -5.2, py, 3.25, Math.PI, 2.9);
       addSofaUnit(partyShedGroup, -6.75, py, 1.75, Math.PI / 2, 2.2);
       addBox(partyShedGroup, 1.55, 0.42, 0.85, -5.05, py + 0.21, 1.75, marbleMat, false, true);
-      // Party Media / Karaoke OLED Wall + Twin RGB Floor Tower Speakers
+      // Party Media / Karaoke LIVE Audio Equalizer OLED Wall + Spinning Outdoor Ceiling Fan + Twin RGB Floor Speakers
       addBox(partyShedGroup, 3.1, 2.15, 0.14, -5.15, py + 1.12, -0.68, walnutMat, false, false);
-      addBox(partyShedGroup, 2.1, 1.08, 0.08, -5.15, py + 1.32, -0.58, screenMat, false, false);
+      addBox(partyShedGroup, 2.1, 1.08, 0.08, -5.15, py + 1.32, -0.58, liveScreens.partyTv.mat, false, false);
+      addCeilingDecor(partyShedGroup, -4.65, py + 2.52, 1.75, 2.8, 2.4, { fan: true, fanSpeed: 2.0 });
       for (const spx of [-6.55, -3.75]) {
         addBox(partyShedGroup, 0.34, 1.15, 0.34, spx, py + 0.58, -0.45, charcoalMat, false, false);
         addBox(partyShedGroup, 0.22, 0.22, 0.04, spx, py + 0.85, -0.27, rgbPurpleMat, false, false);
@@ -5441,15 +6087,25 @@
       ugHeader.rotation.z = Math.PI / 2; ugHeader.position.set(0.55, 0.48, -0.45); ugChamber.add(ugHeader);
       waterSystemGroup.add(ugChamber);
 
-      // 3. Color-Coded Plumbing Risers (Underground Vault -> Rear Spiral Service Chase -> Rooftop 3,000 L & Solar Heater!)
+      // 3. COMPLETE COLOR-CODED MEP PIPING & VENTILATION SHOWCASE (Water · Solar · DWV Drain · Rainwater · HVAC/Exhaust · LPG Gas!)
       const riserGroup = new THREE.Group();
-      function addPipePath(pts, mat, rad = 0.065) {
+      const flowBeadGeo = new THREE.SphereGeometry(0.088, 8, 8);
+      function addPipePath(pts, mat, rad = 0.062, flowSpeed = 0, targetGrp = riserGroup) {
         const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)));
-        const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, rad, 10, false), mat);
-        riserGroup.add(mesh);
+        const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(24, pts.length * 14), rad, 10, false), mat);
+        targetGrp.add(mesh);
+        if (flowSpeed > 0) {
+          for (let k = 0; k < 3; k++) {
+            const bead = new THREE.Mesh(flowBeadGeo, mat);
+            bead.scale.setScalar(rad / 0.055);
+            targetGrp.add(bead);
+            mepFlowBeads.push({ mesh: bead, curve, phase: k / 3, speed: flowSpeed, grp: targetGrp });
+          }
+        }
         return mesh;
       }
-      // Cold Pressurized Supply Riser (Blue): UG Booster Pump -> Underground Feed -> Spiral Back Service Chase -> Rooftop 3,000 L Tanks above Laundry Wing
+
+      // A. COLD PRESSURIZED WATER SUPPLY (Blue #32b8f5): UG Pump -> Spiral Chase -> 3,000 L Roof Tanks -> Branches to ALL 8 Baths, Both Kitchens & Laundry!
       addPipePath([
         [ugX + 1.0, -0.78, ugZ - 0.45],
         [ugX + 1.0, -0.78, 0.72],
@@ -5457,41 +6113,225 @@
         [4.35, 13.75, 0.72],
         [4.35, 14.08, -3.45],
         [3.22, 14.10, -3.45]
-      ], pipeColdMat, 0.068);
-      // Solar Hot Water Return Manifold (Warm Coral/Amber): Rooftop 500 L Solar Drum -> Spiral Back Chase -> Laundry & All 3 Floors
+      ], pipeColdMat, 0.068, 0.24);
+      // Gravity Cold Down-Header -> Rear Wet Spine -> All Floors (Rooftop Laundry/WC/BBQ, 2F Master/Bath 6, 1F Baths 2/3/4, GF Kitchen/WC/Bath 1)
+      addPipePath([[3.22, 13.05, -3.45], [3.22, 10.65, -4.45], [3.22, 0.65, -4.45]], pipeColdMat, 0.054, 0.28);
+      addPipePath([[3.22, 10.65, -4.45], [-6.74, 10.65, -4.45], [-6.74, 10.95, -2.28]], pipeColdMat, 0.044, 0.22); // Roof BBQ Sink + Laundry
+      addPipePath([[3.22, 7.35, -4.45], [-0.05, 7.35, -4.45], [-0.05, 7.75, -3.75]], pipeColdMat, 0.046, 0.25); // 2F Master Spa + Bath 6
+      addPipePath([[6.15, 4.15, -4.45], [-3.95, 4.15, -4.45], [-3.95, 4.55, -3.75]], pipeColdMat, 0.046, 0.25); // 1F Ensuites 2, 3 & 4
+      addPipePath([[6.15, 0.78, -4.45], [-0.53, 0.78, -4.45], [-0.53, 0.85, -1.60]], pipeColdMat, 0.046, 0.26); // GF Bath 1, Guest WC & Kitchen Sink
+
+      // B. SOLAR HOT WATER DISTRIBUTION (Copper-Orange #f58842): 500 L Solar Drum -> Spiral Chase -> All 6 Ensuites, Master Tub, GF Kitchen & Laundry!
       addPipePath([
         [-1.35, 13.80, -3.0],
         [4.65, 13.80, -3.0],
         [4.65, 13.45, 0.72],
-        [4.65, 1.35, 0.72],
-        [1.65, 1.35, 0.72]
-      ], pipeHotMat, 0.062);
-      // Rainwater Harvesting Downpipe (Emerald Teal): Rooftop Catchment -> Spiral Back Chase -> Underground Filtration Vault
+        [4.65, 1.05, 0.72],
+        [3.42, 1.05, -4.25]
+      ], pipeHotMat, 0.060, 0.22);
+      addPipePath([[4.65, 10.95, -4.25], [3.12, 10.95, -4.25]], pipeHotMat, 0.042, 0.24); // Roof Laundry Washer Hot
+      addPipePath([[3.42, 7.62, -4.25], [-0.05, 7.62, -4.25], [-0.05, 7.85, -3.65]], pipeHotMat, 0.044, 0.24); // 2F Master Spa + Bath 6 Hot
+      addPipePath([[6.15, 4.35, -4.25], [-3.95, 4.35, -4.25]], pipeHotMat, 0.044, 0.24); // 1F Ensuites 2, 3 & 4 Hot
+      addPipePath([[6.15, 1.05, -4.25], [-0.53, 1.05, -4.25], [-0.53, 1.05, -1.60]], pipeHotMat, 0.044, 0.24); // GF Bath 1 & Kitchen Hot
+
+      // C. SANITARY DWV DRAINAGE SOIL STACKS (Violet #9c7cff) -> REAR-LEFT UNDERGROUND BIO-SEPTIC & MUNICIPAL OUTFALL CHAMBER!
+      const sepX = -10.25, sepZ = -6.85;
+      // Flush inspection manhole cover at rear-left service yard + subterranean bio-septic vault
+      addBox(waterSystemGroup, 2.35, 0.08, 1.85, sepX, 0.04, sepZ, darkBronzeMat, false, true);
+      addBox(waterSystemGroup, 2.05, 0.05, 1.55, sepX, 0.065, sepZ, steelMat, false, false);
+      const septicVault = new THREE.Group();
+      septicVault.position.set(sepX, -1.25, sepZ);
+      addBox(septicVault, 2.25, 1.75, 1.75, 0, 0, 0, concreteMat, false, false);
+      addBox(septicVault, 1.95, 1.12, 1.45, 0, -0.22, 0, pipeDrainMat, false, false);
+      waterSystemGroup.add(septicVault);
+      waterXrayOnly.push(septicVault);
+      // 3 Vertical DWV Soil Stacks (Right Bath 1/4, Central Spiral WC/Bath 6/Laundry, Main Wing Kitchen/Baths 2-3/Master/BBQ) + Roof Vent Cowl!
+      addPipePath([[6.15, 6.20, -4.70], [6.15, -0.92, -4.70], [sepX, -0.92, -4.70], [sepX, -0.92, sepZ]], pipeDrainMat, 0.072, 0.20);
+      addPipePath([[3.02, 12.95, -4.70], [3.02, -0.92, -4.70]], pipeDrainMat, 0.074, 0.20);
+      addPipePath([[-3.15, 11.45, -4.72], [-3.15, -0.92, -4.72]], pipeDrainMat, 0.074, 0.20);
+      addPipePath([[-0.05, 7.15, -3.45], [-0.05, 7.15, -4.72], [-3.15, 7.15, -4.72]], pipeDrainMat, 0.052, 0.22); // Master Spa Drain
+      addPipePath([[-0.53, 0.35, -1.60], [-0.53, -0.65, -4.72], [-3.15, -0.92, -4.72]], pipeDrainMat, 0.052, 0.22); // GF Kitchen Drain
+
+      // D. RAINWATER HARVESTING & FIRST-FLUSH LEAF FILTER (Emerald Teal #38cc9b): Parapet Scuppers -> First-Flush Diverter -> 15,000 L UG Vault!
       addPipePath([
-        [-1.25, 12.68, -4.65],
-        [4.95, 12.68, -4.65],
+        [-7.55, 12.68, -4.82],
+        [4.95, 12.68, -4.82],
         [4.95, 12.68, 0.72],
         [4.95, -1.05, 0.72],
         [ugX - 0.68, -1.05, 0.72],
         [ugX - 0.68, -1.05, ugZ]
-      ], pipeRainMat, 0.058);
+      ], pipeRainMat, 0.060, 0.26);
+      addPipePath([[-7.55, 12.68, -4.82], [-7.55, -0.85, -4.82], [ugX - 0.68, -0.85, -4.82], [ugX - 0.68, -1.05, ugZ]], pipeRainMat, 0.054, 0.24);
+      const ffDiverter = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 1.35, 14), pipeRainMat);
+      ffDiverter.position.set(-7.55, 1.25, -4.82); riserGroup.add(ffDiverter);
+
+      // E. COMPLETE HVAC & MECHANICAL VENTILATION SHOWCASE (Rooftop ERV Unit + Spinning Turbo-Vent + Kitchen Flues + Bath Exhaust Ducts!)
+      const ventRoofGroup = new THREE.Group();
+      levels.roof.add(ventRoofGroup);
+      // 1. Rooftop Fresh-Air ERV / Heat-Recovery HVAC Condenser Unit (seated neatly beside tanks at x=0.65, y=13.05, z=-3.85!)
+      addBox(ventRoofGroup, 1.48, 0.86, 0.92, 0.65, 13.38, -3.85, steelMat, true, true);
+      addBox(ventRoofGroup, 1.54, 0.08, 0.98, 0.65, 13.84, -3.85, darkBronzeMat, false, false);
+      for (const fx of [0.28, 1.02]) {
+        const shroud = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.03, 8, 18), darkBronzeMat);
+        shroud.position.set(fx, 13.38, -3.37); ventRoofGroup.add(shroud);
+        const hFan = new THREE.Group();
+        hFan.position.set(fx, 13.38, -3.38);
+        for (let k = 0; k < 4; k++) {
+          const bl = new THREE.Mesh(UNIT_BOX, steelMat);
+          bl.scale.set(0.38, 0.06, 0.02); bl.rotation.z = k * (Math.PI / 4);
+          hFan.add(bl);
+        }
+        ventRoofGroup.add(hFan);
+        spinningFans.push({ obj: hFan, axis: 'z', speed: 7.5 });
+      }
+      // 2. Spinning Stainless Rotary Roof Turbo-Ventilator (Whirlybird) crowning the Bathroom Exhaust Vent Stack!
+      const turboBase = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.24, 0.65, 14), steelMat);
+      turboBase.position.set(4.55, 13.28, -2.25); ventRoofGroup.add(turboBase);
+      const turboHead = new THREE.Group();
+      turboHead.position.set(4.55, 13.78, -2.25);
+      const turboDome = new THREE.Mesh(new THREE.SphereGeometry(0.30, 14, 10), steelMat);
+      turboDome.scale.set(1, 0.72, 1); turboHead.add(turboDome);
+      for (let k = 0; k < 8; k++) {
+        const fin = new THREE.Mesh(UNIT_BOX, darkBronzeMat);
+        fin.scale.set(0.03, 0.32, 0.14);
+        const a = k * Math.PI / 4;
+        fin.position.set(Math.cos(a) * 0.28, 0, Math.sin(a) * 0.28);
+        fin.rotation.y = -a + 0.35;
+        turboHead.add(fin);
+      }
+      ventRoofGroup.add(turboHead);
+      spinningFans.push({ obj: turboHead, axis: 'y', speed: 4.2 });
+      // 3. Ductwork Trunks (Visible in MEP X-Ray & Spotlight: HVAC Fresh-Air Supply + Bathroom Exhaust Stack + GF Kitchen Chimney Flue!)
+      addPipePath([[0.65, 13.10, -3.85], [0.65, 12.15, -0.45], [-4.85, 12.15, -0.45], [-4.85, 12.15, 1.55]], ductVentMat, 0.105, 0.18); // Roof Game Room HVAC
+      addPipePath([[0.65, 13.10, -3.85], [4.05, 13.10, 0.45], [4.05, 3.10, 0.45], [-4.85, 3.10, -2.45]], ductVentMat, 0.095, 0.19); // Main Fresh-Air ERV Riser -> GF Living
+      addPipePath([[4.05, 6.45, 0.45], [-4.50, 6.45, 1.55]], ductVentMat, 0.085, 0.18); // 1F Family/Office HVAC Branch
+      addPipePath([[4.05, 9.75, 0.45], [-5.15, 9.75, -2.55]], ductVentMat, 0.085, 0.18); // 2F Master Suite HVAC Branch
+      // Bathroom Exhaust Vent Collector -> Spinning Roof Whirlybird
+      addPipePath([[4.55, 13.28, -2.25], [4.55, 2.65, -2.25], [6.15, 2.65, -3.45]], ductVentMat, 0.075, 0.25);
+      addPipePath([[4.55, 6.10, -2.25], [-3.95, 6.10, -3.55]], ductVentMat, 0.068, 0.25); // 1F Baths Exhaust
+      addPipePath([[4.55, 9.45, -2.25], [-0.15, 9.45, -2.85]], ductVentMat, 0.068, 0.25); // 2F Master Spa & Bath 6 Exhaust
+      // Ground Kitchen Island Chimney Flue -> Vertical Stainless Exhaust to Rooftop Rain Cowl!
+      addPipePath([[-1.35, 3.22, -1.60], [-1.35, 3.22, -0.45], [1.42, 3.22, -0.45], [1.42, 13.45, -0.45]], ductVentMat, 0.088, 0.26);
+      const gfChimneyCap = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.14, 0.36, 12), steelMat);
+      gfChimneyCap.position.set(1.42, 13.55, -0.45); ventRoofGroup.add(gfChimneyCap);
+
       waterSystemGroup.add(riserGroup);
       waterXrayOnly.push(riserGroup);
 
-      // 4. Outdoor Ventilated Dual LPG Cylinder Safety Bay (Right-rear exterior wall, matching Right Side Elevation!)
+      // 4. WATERPROOF LOCKABLE DUAL-LPG GAS CYLINDER VAULT + SAFETY-YELLOW PIPED CONNECTIONS TO ALL KITCHENS!
       const lpgBay = new THREE.Group();
-      lpgBay.position.set(8.65, 0.04, -3.15);
-      addBox(lpgBay, 1.45, 0.10, 0.92, 0, 0.05, 0, concreteMat);
-      addBox(lpgBay, 1.42, 1.45, 0.88, 0, 0.82, 0, railGlassMat, false, false);
-      for (let lx = -0.68; lx <= 0.68; lx += 0.22) addBox(lpgBay, 0.03, 1.42, 0.04, lx, 0.82, 0.44, darkBronzeMat, false, false);
-      addBox(lpgBay, 1.52, 0.08, 0.96, 0, 1.56, 0, darkBronzeMat);
-      for (const cx of [-0.30, 0.30]) {
-        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.20, 0.82, 14), lpgRedMat);
-        cyl.position.set(cx, 0.52, 0); lpgBay.add(cyl);
-        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.14, 0.18, 10), goldMat);
-        neck.position.set(cx, 1.00, 0); lpgBay.add(neck);
+      lpgBay.position.set(8.95, 0.0, -3.25);
+      // Zero-Water-Damage Elevated 24 cm Concrete Plinth + Perimeter Drainage Gravel Apron + Perforated Steel Grate Floor!
+      addBox(lpgBay, 2.05, 0.06, 1.48, 0, 0.03, 0, stoneWallMat, false, true); // Gravel French-drain surround
+      addBox(lpgBay, 1.66, 0.24, 1.08, 0, 0.12, 0, concreteMat, true, true); // 24 cm raised monsoon-proof plinth!
+      addBox(lpgBay, 1.44, 0.04, 0.88, 0, 0.26, 0, steelMat, false, true); // Perforated elevated drain grate
+      // Sealed Back & Left/Right Galvanized Steel Cabinet Enclosure with EPDM Silicone Wall Flashing
+      addBox(lpgBay, 1.56, 1.54, 0.08, 0, 1.01, -0.46, darkBronzeMat, true, true); // Sealed rear waterproof wall
+      addBox(lpgBay, 1.62, 0.08, 0.10, 0, 1.80, -0.48, charcoalMat, false, false); // EPDM silicone rain flashing strip
+      for (const sx of [-0.74, 0.74]) {
+        addBox(lpgBay, 0.06, 1.54, 0.94, sx, 1.01, 0, darkBronzeMat, true, false);
+        // Downward-angled 35° rain-baffle cross-ventilation louvers (air flows, monsoon rain bounces out!)
+        for (const lyL of [0.46, 0.62, 1.38, 1.54]) {
+          const lvr = addBox(lpgBay, 0.10, 0.04, 0.62, sx + (sx > 0 ? 0.02 : -0.02), lyL, 0, steelMat, false, false);
+          lvr.rotation.z = sx > 0 ? -0.58 : 0.58;
+        }
+      }
+      // Sloped Overhanging Monsoon Rain-Hood Roof (-12° outward shed + front gutter drip lip!)
+      const gasRoof = addBox(lpgBay, 1.78, 0.09, 1.28, 0, 1.84, 0.06, darkBronzeMat, true, true);
+      gasRoof.rotation.x = 0.14;
+      addBox(lpgBay, 1.80, 0.06, 0.06, 0, 1.74, 0.68, goldMat, false, false); // Front rain drip-edge flashing
+      // Security Header with Live Red (LOCKED) / Green (UNLOCKED) Status Indicator LED!
+      addBox(lpgBay, 1.46, 0.14, 0.07, 0, 1.72, 0.46, charcoalMat, false, false);
+      const gasStatusLed = addBox(lpgBay, 0.14, 0.06, 0.08, 0.54, 1.72, 0.48, gasLockLedMat, false, false);
+      addBox(lpgBay, 0.42, 0.08, 0.03, -0.35, 1.72, 0.50, pipeGasMat, false, false); // Yellow LPG Safety Plaque
+
+      // Twin 14.2 kg Red LPG Cylinders (Primary + Reserve) + Steel Restraint Bar + Auto-Changeover Dual Regulator + Gauge + Emergency Valve!
+      for (const cx of [-0.34, 0.34]) {
+        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.21, 0.78, 16), lpgRedMat);
+        cyl.position.set(cx, 0.67, -0.04); cyl.castShadow = true; lpgBay.add(cyl);
+        const dome = new THREE.Mesh(new THREE.SphereGeometry(0.21, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), lpgRedMat);
+        dome.position.set(cx, 1.06, -0.04); lpgBay.add(dome);
+        const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.14, 12), lpgRedMat);
+        collar.position.set(cx, 1.24, -0.04); lpgBay.add(collar);
+        const valve = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.10, 10), brassMat);
+        valve.position.set(cx, 1.32, -0.04); lpgBay.add(valve);
+      }
+      addBox(lpgBay, 1.34, 0.04, 0.04, 0, 0.86, 0.18, steelMat, false, false); // Anti-tip safety restraint bar
+      // Wall-mounted Auto-Changeover Manifold Regulator + Pressure Gauge + Braided Copper Pigtails + Yellow Shutoff Valve!
+      addBox(lpgBay, 0.36, 0.22, 0.12, 0, 1.46, -0.36, brassMat, false, false);
+      const gauge = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.04, 12), whiteMat);
+      gauge.rotation.x = Math.PI / 2; gauge.position.set(0, 1.56, -0.29); lpgBay.add(gauge);
+      addBox(lpgBay, 0.72, 0.035, 0.035, 0, 1.42, -0.18, pipeGasMat, false, false); // Manifold header bar
+      addBox(lpgBay, 0.14, 0.04, 0.04, -0.48, 1.46, -0.32, lpgRedMat, false, false); // Emergency shutoff handle
+
+      // INTERACTIVE LOCKING HINGED VENTILATED STEEL SECURITY DOOR + ANIMATED BRASS PADLOCK & SLIDING DEADBOLT!
+      const gasDoorPivot = new THREE.Group();
+      gasDoorPivot.position.set(-0.71, 0.28, 0.46); // Hinged on left steel post
+      lpgBay.add(gasDoorPivot);
+      // Door frame + waterproof perimeter gasket + ventilated steel louver slats + viewing mesh window
+      addBox(gasDoorPivot, 1.42, 0.07, 0.05, 0.71, 1.33, 0, darkBronzeMat, true, false);
+      addBox(gasDoorPivot, 1.42, 0.07, 0.05, 0.71, 0.04, 0, darkBronzeMat, true, false);
+      addBox(gasDoorPivot, 0.07, 1.36, 0.05, 0.035, 0.68, 0, darkBronzeMat, true, false);
+      addBox(gasDoorPivot, 0.07, 1.36, 0.05, 1.385, 0.68, 0, darkBronzeMat, true, false);
+      addBox(gasDoorPivot, 1.28, 0.62, 0.025, 0.71, 0.96, 0, railGlassMat, false, false); // Upper safety inspection window
+      for (let slatY = 0.14; slatY <= 0.60; slatY += 0.11) {
+        const ds = addBox(gasDoorPivot, 1.28, 0.055, 0.04, 0.71, slatY, 0.01, steelMat, false, false);
+        ds.rotation.x = 0.48; // Rain-shedding lower ventilation slats!
+      }
+      addBox(gasDoorPivot, 0.04, 0.30, 0.07, 1.24, 0.72, 0.05, goldMat, false, false); // Door pull handle
+      // Animated Sliding Deadbolt + Keyed Brass Padlock Assembly!
+      const gasLockBolt = addBox(gasDoorPivot, 0.16, 0.05, 0.05, 1.36, 0.72, 0.04, steelMat, false, false);
+      const gasPadlock = new THREE.Group();
+      gasPadlock.position.set(1.36, 0.62, 0.07);
+      addBox(gasPadlock, 0.11, 0.12, 0.055, 0, 0, 0, brassMat, false, false);
+      const shackle = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.011, 6, 12, Math.PI), steelMat);
+      shackle.position.set(0, 0.06, 0); gasPadlock.add(shackle);
+      gasDoorPivot.add(gasPadlock);
+
+      function updateGasVault(openFrac) {
+        // 0..0.30: padlock drops & deadbolt retracts + LED flips Red -> Green; 0.30..1.0: door swings smoothly open 108°!
+        const lockT = Math.min(1, openFrac / 0.30);
+        const doorT = Math.max(0, (openFrac - 0.25) / 0.75);
+        gasLockBolt.position.x = 1.36 - lockT * 0.12;
+        gasPadlock.position.y = 0.62 - lockT * 0.09;
+        gasPadlock.rotation.z = lockT * 0.45;
+        gasDoorPivot.rotation.y = -doorT * (Math.PI * 0.60);
+        const unlocked = openFrac > 0.18;
+        gasLockLedMat.color.setHex(unlocked ? 0x10b981 : 0xef4444);
+        gasLockLedMat.emissive.setHex(unlocked ? 0x10b981 : 0xef4444);
       }
       levels.ground.add(lpgBay);
+
+      // SAFETY-YELLOW PIPED LPG SUPPLY LINES TO ALL KITCHENS (Always visible outside + glowing animated flow in MEP X-Ray!)
+      const gasPipesGroup = new THREE.Group();
+      waterSystemGroup.add(gasPipesGroup);
+      // Waterproof Drip-Loop Exit from Gas Vault -> Exterior Protected Clamped Rear Header (z = -5.12)
+      addPipePath([
+        [8.42, 1.46, -3.55],
+        [8.15, 1.24, -3.55], // Downward waterproof drip-loop prevents rainwater tracking into pipe sleeve!
+        [8.15, 1.38, -5.12],
+        [1.82, 1.38, -5.12],
+        [-7.65, 1.38, -5.12]
+      ], pipeGasMat, 0.044, 0.26, gasPipesGroup);
+      // Branch 1 -> Ground Floor Main Kitchen (enters sealed sleeve -> inline red isolation valve -> 4-burner gas hob!)
+      addPipePath([
+        [1.82, 1.38, -5.12],
+        [1.82, 0.84, -0.52],
+        [-0.25, 0.84, -0.52],
+        [-0.25, 0.34, -0.52],
+        [-1.35, 0.34, -1.60],
+        [-1.35, 1.15, -1.60]
+      ], pipeGasMat, 0.040, 0.28, gasPipesGroup);
+      // Branch 2 -> Rooftop BBQ & Outdoor Chef Kitchen (exterior clamped vertical riser -> rooftop shutoff valve -> 4-burner BBQ grill!)
+      addPipePath([
+        [-7.65, 1.38, -5.12],
+        [-7.65, 10.95, -5.12],
+        [-7.12, 10.95, -4.12],
+        [-6.74, 10.95, -3.55]
+      ], pipeGasMat, 0.042, 0.26, gasPipesGroup);
+      // Weatherproof Stainless Exterior Pipe Clamps along rear wall & riser
+      for (const rx of [6.2, 3.2, -0.5, -4.2, -7.2]) addBox(gasPipesGroup, 0.08, 0.11, 0.11, rx, 1.38, -5.08, steelMat, false, false);
+      for (const ry of [2.8, 5.2, 7.6, 9.8]) addBox(gasPipesGroup, 0.11, 0.08, 0.11, -7.65, ry, -5.08, steelMat, false, false);
 
       /* === CENTERPIECE: MONUMENTAL GLASS SPIRAL STAIRCASE ATRIUM + DETAILED BACK CORE & LANDINGS === */
       const tower = new THREE.Group();
@@ -5620,13 +6460,25 @@
       crownBody.position.set(CX, 14.66, CZ);
       crownBody.castShadow = true;
       crownGroup.add(crownBody);
-      // Two crisp horizontal dark-bronze recessed reveal bands (signature detail from home photo!)
+      // Two crisp horizontal dark-bronze recessed reveal bands + passive stack-ventilation crown louvers!
       for (const gy of [14.35, 14.88]) {
         const groove = new THREE.Mesh(new THREE.TorusGeometry(crownR - 0.01, 0.048, 8, 72), darkBronzeMat);
         groove.rotation.x = Math.PI / 2;
         groove.position.set(CX, gy, CZ);
         crownGroup.add(groove);
       }
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2;
+        const lv = addBox(crownGroup, 0.34, 0.14, 0.05, CX + Math.cos(a) * (crownR + 0.01), 14.62, CZ + Math.sin(a) * (crownR + 0.01), steelMat, false, false);
+        lv.rotation.y = -a + Math.PI / 2;
+      }
+      // Warm interior ambient practical lights for crisp Real-Home Walkthrough lighting!
+      const livingWarmLight = new THREE.PointLight(0xffd79e, 9, 13, 1.8);
+      livingWarmLight.position.set(-4.2, 2.55, -2.5); scene.add(livingWarmLight);
+      const masterWarmLight = new THREE.PointLight(0xffdca8, 9, 13, 1.8);
+      masterWarmLight.position.set(-3.4, 9.15, -2.6); scene.add(masterWarmLight);
+      const gameRgbLight = new THREE.PointLight(0x88b4ff, 8, 11, 1.8);
+      gameRgbLight.position.set(-4.8, 12.05, 1.35); scene.add(gameRgbLight);
       // Warm golden inner crown LED halo & ceiling medallion
       const halo = new THREE.Mesh(new THREE.TorusGeometry(ATRIUM_R - 0.05, 0.055, 10, 64), warmLedMat);
       halo.rotation.x = Math.PI / 2;
@@ -6025,38 +6877,72 @@
 
       /* Camera Presets with Smooth Glide, Exact Unobstructed Room Framing & Floor/Mode Metadata */
       const CAM_PRESETS = {
-        hero: { floor: 'all', mode: 'exterior', pos: [3.2, 11.4, 38.5], target: [0.4, 6.0, 2.0], badge: 'FULL VILLA NORMAL VIEW · SPIRAL ATRIUM · PARTY SHED · GARDEN', title: 'Normal Full-Estate Front View', desc: 'Complete normal view showing the entire villa, 2-car garage portal, 3 curved LED balconies, glass spiral chandelier atrium, rooftop Party Shed, right pavilion, garden fire pit & front gate.' },
-        cutaway: { floor: 'all', mode: 'cutaway', pos: [-16.2, 9.4, 12.6], target: [-3.2, 5.8, -0.8], badge: '3D INTERIORS · ALL 4 LEVELS · 6 BEDS & 8 BATHS', title: '3D Furnished Interior Cutaway', desc: 'Left outer wall and roof canopy open cleanly to reveal Ground Living/Dining/Kitchen, 1F Family Lounge & Office, 2F Master + WIR + Spa Bath, and Rooftop RGB Gaming Studio.' },
-        livingKitchen: { floor: 'ground', mode: 'cutaway', pos: [-10.6, 2.7, -5.8], target: [-3.2, 1.4, -2.5], badge: 'GROUND FLOOR · LIVING TV 1 · 8-SEAT DINING · KITCHEN', title: 'Main Living Room, Dining & Waterfall Kitchen', desc: 'Rear-left Main Living Room (opposing ivory sofas, walnut TV 1 wall & gold lamp), 8-seat marble dining chandelier, and charcoal waterfall kitchen island with fridge, oven & pendants.' },
-        familyOffice: { floor: 'first', mode: 'cutaway', pos: [-10.4, 5.8, 5.8], target: [-3.0, 4.8, 1.6], badge: 'FIRST FLOOR · FAMILY LOUNGE · EXECUTIVE HOME OFFICE', title: 'Family TV Lounge, Home Office & 3 Ensuite Beds', desc: 'Slatted acoustic walnut Family Lounge opening onto the planted curved balcony, dual-monitor Executive Home Office with backlit shelving, plus Bedrooms 2, 3 & 4 with Ensuites.' },
-        masterSuite: { floor: 'second', mode: 'cutaway', pos: [-10.6, 8.8, -5.2], target: [-3.2, 8.0, -2.7], badge: 'SECOND FLOOR · MASTER SUITE · WALK-IN ROBE · SPA BATH', title: 'Grand Master Suite, Walk-in Robe & Spa Ensuite', desc: 'King master bed with hanging gold pendants & foot bench, illuminated Walk-in Robe with full-length dressing mirror, Master Spa Bath (soaking tub, toilet, shower) & Private Lounge TV 2.' },
-        gameRoom: { floor: 'roof', mode: 'cutaway', pos: [-10.6, 12.6, 4.8], target: [-4.8, 11.2, 1.3], badge: 'ROOFTOP STUDIO · PC · CONSOLE · VR GAME ROOM', title: 'PC, Console & VR RGB Gaming Studio + Media Lounge', desc: 'Triple curved RGB gaming monitors, glass-sided RGB PC tower, dual racing chairs, mini beverage fridge, 75" console OLED bay, glowing cyan/purple VR floor zone & adjacent Media Lounge TV 3.' },
-        bbqKitchen: { floor: 'roof', mode: 'exterior', pos: [-10.8, 12.8, -6.2], target: [-5.0, 11.3, -2.9], badge: 'ROOFTOP PERGOLA · L-SHAPED 4-BURNER BBQ CHEF KITCHEN', title: 'Redesigned Outdoor BBQ Chef Kitchen & Pergola Dining', desc: 'Travertine L-shaped BBQ counter, 4-burner stainless grill with glowing embers, prep sink, gold faucet, beverage cooler, wrap bar stools & 8-seat dining under the slatted teak pergola.' },
-        rooftopParty: { floor: 'roof', mode: 'exterior', pos: [-11.8, 16.6, 8.8], target: [-3.8, 13.7, 1.6], badge: 'ROOFTOP SKY-DECK · ALL-WEATHER PARTY SHED & BAR', title: 'All-Weather Room Party Shed, Mini-Bar & Yoga Deck', desc: 'Elevated monsoon-proof steel & timber Party Shed with warm festoon string lights, backlit mini-bar, karaoke OLED TV, twin party speakers & morning yoga deck.' },
-        laundry: { floor: 'roof', mode: 'exterior', pos: [10.4, 13.4, -8.4], target: [4.6, 11.4, -3.2], badge: 'ROOFTOP SERVICE WING · LAUNDRY & DRYING SHED', title: 'Dedicated Laundry Room & Monsoon Drying Shed', desc: 'Enclosed laundry room (front-load washer & dryer, marble folding counter, utility sink) beside a translucent polycarbonate rain-safe drying shed with breeze louvers, stainless rails & Rooftop Guest WC.' },
-        spiralBack: { floor: 'second', mode: 'exterior', pos: [5.2, 8.4, -10.8], target: [4.6, 6.2, -2.6], badge: 'BEHIND SPIRAL · BEDROOM 6 · 6 ENSUITES · 2 GUEST WCS', title: 'Behind the Spiral Staircase — Bedroom 6, Bathrooms & Landings', desc: 'Looks straight into 2F Bedroom 6 (king bed + wardrobe) & Ensuite 6 directly behind the spiral, Ground Guest WC & Ensuite 1, 1F Ensuite 4 & Study, Rooftop Guest WC, plus the 4 spiral bridge landings & MEP shaft.' },
+        hero: { floor: 'all', mode: 'exterior', pos: [3.2, 11.4, 38.5], target: [0.4, 6.0, 2.0], badge: 'FULL VILLA NORMAL VIEW · SPIRAL ATRIUM · PARTY SHED · GARDEN', title: 'Normal Full-Estate Front View', desc: 'Complete normal view showing the entire villa, 2-car garage portal, 3 curved LED balconies, glass spiral chandelier atrium, rooftop Party Shed, right pavilion, garden fire pit, waterproof gas vault & front gate.' },
+        cutaway: { floor: 'all', mode: 'cutaway', pos: [-16.2, 9.4, 12.6], target: [-3.2, 5.8, -0.8], badge: '3D INTERIORS · WALL & CEILING DECOR · LIVE TVS · 8 BATHS', title: '3D Furnished Interior Cutaway', desc: 'Opens left shell & roof canopy to showcase wall art, LED cove ceilings, spinning ceiling fans, live animated 4K TVs, RGB gaming studio, 6 bedrooms & 8 spa bathrooms.' },
+        livingKitchen: { floor: 'ground', mode: 'cutaway', pos: [-10.4, 2.6, -5.8], target: [-3.1, 1.45, -2.2], badge: 'GROUND FLOOR · LIVE 4K TV · COVE FAN · PIPED GAS KITCHEN', title: 'Main Living Room, Wall Decor & Piped Gas Kitchen', desc: 'Live animated 85" OLED TV on marble & fluted walnut wall, gallery art, drapes, spinning cove ceiling fan, 8-seat dining chandelier, plus 4-burner piped gas hob with stainless island chimney hood & gas leak sensor.' },
+        familyOffice: { floor: 'first', mode: 'cutaway', pos: [-10.4, 5.8, 5.8], target: [-3.0, 4.8, 1.6], badge: 'FIRST FLOOR · FAMILY TV · LIVE CAD OFFICE · 3 ENSUITES', title: 'Family TV Lounge, Live CAD Office & 3 Ensuite Beds', desc: 'Slatted acoustic walnut Family Lounge with live animated TV, gallery art, drapes & spinning fan, dual-monitor live BIM/CAD Executive Office, plus Bedrooms 2, 3 & 4 with upgraded Ensuites.' },
+        masterSuite: { floor: 'second', mode: 'cutaway', pos: [-10.6, 8.8, -5.2], target: [-3.4, 8.0, -2.6], badge: 'SECOND FLOOR · MASTER SUITE · WALL ART · WALK-IN ROBE', title: 'Grand Master Suite, Walk-in Robe & Private Lounge', desc: 'King master bed with gallery art, hanging gold pendants, ambient wall TV, velvet drapes, spinning cove ceiling fan, illuminated Walk-in Robe & Private Lounge TV 2.' },
+        spaBaths: { floor: 'second', mode: 'cutaway', pos: [1.5, 8.9, -6.2], target: [0.3, 7.8, -2.75], badge: 'SPA BATHROOMS & TOILETS · SOAKING TUB · BIDET WC · EXHAUST', title: 'Luxury Spa Bathrooms & Concealed-Cistern Toilets', desc: 'Inspect the freestanding egg soaking tub with teak candle caddy, porcelain WC toilets with chrome dual-flush plates, bidet sprays & tissue holders, twin vessel basins, backlit halo mirrors, glass rain showers & spinning ceiling exhaust fans.' },
+        gameRoom: { floor: 'roof', mode: 'cutaway', pos: [-10.4, 12.5, 4.7], target: [-4.8, 11.2, 1.3], badge: 'ROOFTOP STUDIO · LIVE 240 FPS PC · ESPORTS CONSOLE · RGB', title: 'Live Animated PC, Console & VR RGB Gaming Studio', desc: 'Triple curved gaming monitors playing live 240 FPS cyber-racing HUD, 75" console OLED playing live esports arena match, spinning RGB PC tower fans, acoustic ceiling baffles, cyber wall art & Media Lounge TV 3.' },
+        bbqKitchen: { floor: 'roof', mode: 'exterior', pos: [-10.8, 12.8, -6.2], target: [-5.0, 11.3, -2.9], badge: 'ROOFTOP PERGOLA · GAS-PIPED 4-BURNER BBQ & CANOPY HOOD', title: 'Gas-Piped Outdoor BBQ Chef Kitchen & Canopy Exhaust Hood', desc: 'Travertine L-shaped BBQ bar fed by the dedicated safety-yellow gas riser with shutoff valve & leak sensor, commercial stainless canopy exhaust hood, glowing embers & blue flames, prep sink & 8-seat pergola dining.' },
+        rooftopParty: { floor: 'roof', mode: 'exterior', pos: [-11.8, 16.6, 8.8], target: [-3.8, 13.7, 1.6], badge: 'ROOFTOP SKY-DECK · PARTY SHED · LIVE KARAOKE TV & FAN', title: 'All-Weather Room Party Shed, Mini-Bar & Karaoke Equalizer', desc: 'Elevated monsoon-proof steel & timber Party Shed featuring live animated karaoke audio-visualizer TV, spinning timber ceiling fan, draped festoon lights, backlit cocktail bar & morning yoga deck.' },
+        laundry: { floor: 'roof', mode: 'exterior', pos: [10.4, 13.4, -8.4], target: [4.6, 11.4, -3.2], badge: 'ROOFTOP SERVICE WING · LAUNDRY · DRYING SHED · WC', title: 'Dedicated Laundry Room, Monsoon Drying Shed & Roof WC', desc: 'Enclosed laundry room (hot/cold piped washer & dryer, folding counter, sink), polycarbonate rain-safe drying shed with breeze louvers, stainless rails & Rooftop Guest WC with exhaust fan.' },
+        spiralBack: { floor: 'second', mode: 'exterior', pos: [5.2, 8.4, -10.8], target: [4.6, 6.2, -2.6], badge: 'BEHIND SPIRAL · BEDROOM 6 · 6 ENSUITES · 2 GUEST WCS', title: 'Behind the Spiral Staircase — Bedroom 6, Baths & Landings', desc: 'Looks straight into 2F Bedroom 6 (king bed, wall art, ceiling fan & wardrobe) & Ensuite 6, Ground Guest WC & Ensuite 1, 1F Ensuite 4 & Study, Rooftop Guest WC, plus the 4 spiral bridge landings & MEP shaft.' },
+        gasVault: { floor: 'all', mode: 'gas', pos: [12.3, 2.45, -0.25], target: [8.65, 1.05, -3.35], badge: 'WATERPROOF LOCKABLE LPG VAULT · PIPED TO ALL KITCHENS', title: 'Waterproof Lockable Dual-LPG Gas Cylinder Vault & Kitchen Piping', desc: 'Elevated 24 cm rainproof concrete plinth, perforated steel drain grate, sloped monsoon hood, louvered vents, keyed padlock security door & twin cylinders with auto-changeover regulator piped in safety-yellow copper with drip-loop to both GF Kitchen & Rooftop BBQ!' },
+        water: { floor: 'all', mode: 'xray', pos: [-13.8, 8.6, -14.8], target: [-0.4, 5.2, -2.0], badge: 'FULL 3D MEP SHOWCASE · WATER · VENTS · DWV DRAIN · GAS', title: 'Complete 3D MEP Showcase: Water, Ventilation, Drainage & Gas Piping', desc: 'Animated X-Ray of all 6 building services: 18,000 L Cold Water (Blue), 500 L Solar Hot Water (Orange), 3 Sanitary DWV Soil Stacks → Bio-Septic (Violet), Rainwater Harvest + First-Flush (Teal), Rooftop ERV HVAC + Spinning Turbo-Vent + Hood Flues (Silver-Cyan) & LPG Gas Lines (Yellow).' },
         garden: { floor: 'all', mode: 'exterior', pos: [-6.8, 4.2, -12.4], target: [-0.8, 0.9, -9.4], badge: 'REAR LANDSCAPED GARDEN · TEAK BENCHES & WALKWAY', title: 'Rear Garden Patio & Architectural Teak Benches', desc: 'Travertine stepping-stone garden walkway, four slatted-teak & dark-bronze benches with warm under-seat LED glow, low stone tea table & bougainvillea beds.' },
         firePit: { floor: 'all', mode: 'exterior', pos: [5.6, 4.0, 14.0], target: [11.1, 0.6, 10.1], badge: 'FRONT-RIGHT PATIO · SUNKEN FIRE-PIT LOUNGE', title: 'Circular Sunken Fire-Pit Lounge & Curved Benches', desc: 'Front-right circular stone patio featuring a glowing ember fire pit surrounded by three curved teak-topped conversation benches and tropical palms.' },
-        water: { floor: 'all', mode: 'xray', pos: [-14.2, 6.2, 15.8], target: [-4.8, 3.2, 5.2], badge: '18,000 L WATER SYSTEM · UG VAULT · UV/RO · SOLAR', title: 'Complete 3D Water & Solar Thermal System (X-Ray)', desc: 'Traces 15,000 L underground tank & 3-stage UV/RO filtration (front-left) → blue supply riser behind spiral stair → 3,000 L stainless rooftop tanks & 500 L solar hot-water drum.' },
-        aerial: { floor: 'all', mode: 'exterior', pos: [-12.5, 27.5, 25.5], target: [-0.2, 5.2, 0.2], badge: 'AERIAL ESTATE · PARTY SHED · LAUNDRY · GARDEN', title: 'Aerial Property Overview', desc: 'Complete 16-aana estate showing the rooftop Party Shed, Chef BBQ pergola, Laundry & Drying Wing, 3,000 L tanks & solar PV, garden benches, fire pit, and perimeter wall.' }
+        aerial: { floor: 'all', mode: 'exterior', pos: [-12.5, 27.5, 25.5], target: [-0.2, 5.2, 0.2], badge: 'AERIAL ESTATE · PARTY SHED · ERV HVAC · SOLAR · GARDEN', title: 'Aerial Property Overview', desc: 'Complete 16-aana estate showing the rooftop Party Shed, BBQ pergola with exhaust hood, Laundry Wing, 3,000 L tanks, ERV HVAC, spinning roof turbo-vent, Solar PV, gas vault, garden & perimeter wall.' }
       };
       let camGoalPos = null, camGoalTarget = null;
-      let activeCamKey = 'hero', pinsVisible = true;
+      let activeCamKey = 'hero', pinsVisible = true, walkMode = false;
+      const liveStatusEl = document.getElementById('viewerLiveStatus');
+      const mepLegendEl = document.getElementById('mepLiveLegend');
+      const captionTextEl = document.getElementById('viewerCaptionText');
+      const announceStatus = msg => { if (liveStatusEl) liveStatusEl.textContent = msg; };
 
-      /* 11 Exact 1-to-1 Interactive 3D Floating Room Hover Pins (Each navigates directly to its exact room!) */
+      /* Roving-tabindex keyboard fallback when native HTML focusgroup is unavailable (per modern-web-guidance toolbar guide) */
+      if (!('focusGroup' in HTMLElement.prototype)) {
+        document.querySelectorAll('[role="toolbar"][focusgroup]').forEach(bar => {
+          const items = Array.from(bar.querySelectorAll('button'));
+          if (!items.length) return;
+          items.forEach((b, i) => { b.tabIndex = i === 0 ? 0 : -1; });
+          bar.addEventListener('focusin', ({ target }) => {
+            if (items.includes(target)) items.forEach(b => { b.tabIndex = b === target ? 0 : -1; });
+          });
+          bar.addEventListener('keydown', e => {
+            const idx = items.indexOf(document.activeElement);
+            if (idx < 0) return;
+            const rtl = getComputedStyle(bar).direction === 'rtl';
+            let next = -1;
+            if (e.key === 'ArrowRight') next = (idx + (rtl ? -1 : 1) + items.length) % items.length;
+            else if (e.key === 'ArrowLeft') next = (idx + (rtl ? 1 : -1) + items.length) % items.length;
+            else if (e.key === 'Home') next = 0;
+            else if (e.key === 'End') next = items.length - 1;
+            if (next >= 0) {
+              e.preventDefault();
+              items[next].focus();
+            }
+          });
+        });
+      }
+
+      /* 13 Exact 1-to-1 Interactive 3D Floating Room, Spa, Gas Vault & MEP Hover Pins */
       const pinLayer = document.getElementById('pinLayer');
       const PIN_SPECS = [
-        { id: 'gameRoom', icon: '🎮', title: 'Game Room', sub: 'PC · Console · VR · RGB', pos: new THREE.Vector3(-4.90, 11.40, 1.35), level: 'roof' },
-        { id: 'rooftopParty', icon: '🎉', title: 'Party Shed & Bar', sub: 'All-Weather · Karaoke TV', pos: new THREE.Vector3(-3.80, 14.05, 1.70), level: 'roof' },
-        { id: 'bbqKitchen', icon: '🍖', title: 'BBQ Chef Kitchen', sub: '4-Burner Grill · 8-Seat', pos: new THREE.Vector3(-5.20, 11.45, -2.90), level: 'roof' },
+        { id: 'gameRoom', icon: '🎮', title: 'Game Room', sub: 'Live 240 FPS PC · Console', pos: new THREE.Vector3(-4.90, 11.40, 1.35), level: 'roof' },
+        { id: 'rooftopParty', icon: '🎉', title: 'Party Shed & Bar', sub: 'Karaoke TV · Fan · Bar', pos: new THREE.Vector3(-3.80, 14.05, 1.70), level: 'roof' },
+        { id: 'bbqKitchen', icon: '🍖', title: 'BBQ Chef Kitchen', sub: 'Gas Grill · Canopy Hood', pos: new THREE.Vector3(-5.20, 11.45, -2.90), level: 'roof' },
         { id: 'laundry', icon: '🧺', title: 'Laundry & Drying', sub: 'Washer/Dryer · Rain Shed', pos: new THREE.Vector3(4.80, 11.55, -3.30), level: 'roof' },
         { id: 'spiralBack', icon: '🛏️', title: 'Bedroom 6 & Bath 6', sub: 'Behind Spiral · Ensuite', pos: new THREE.Vector3(5.10, 8.15, -2.70), level: 'second' },
-        { id: 'masterSuite', icon: '👑', title: 'Master Suite & Spa', sub: 'King Bed · WIR · Tub & WC', pos: new THREE.Vector3(-3.30, 8.15, -2.70), level: 'second' },
-        { id: 'familyOffice', icon: '💼', title: 'Family & Office', sub: 'Lounge · Study · 3 Beds', pos: new THREE.Vector3(-2.80, 4.90, 1.70), level: 'first' },
-        { id: 'livingKitchen', icon: '🛋️', title: 'Living & Kitchen', sub: 'TV 1 · Dining · Island', pos: new THREE.Vector3(-3.20, 1.55, -2.50), level: 'ground' },
+        { id: 'masterSuite', icon: '👑', title: 'Master Suite', sub: 'King Bed · Art · WIR', pos: new THREE.Vector3(-5.10, 8.20, -2.65), level: 'second' },
+        { id: 'spaBaths', icon: '🛁', title: 'Spa Baths & WCs', sub: 'Soaking Tub · Toilets · Rain', pos: new THREE.Vector3(-0.05, 8.15, -2.75), level: 'second' },
+        { id: 'familyOffice', icon: '💼', title: 'Family & Office', sub: 'Live TV · CAD Desk · 3 Beds', pos: new THREE.Vector3(-2.80, 4.90, 1.70), level: 'first' },
+        { id: 'livingKitchen', icon: '🛋️', title: 'Living & Kitchen', sub: 'Live 4K TV · Gas Hob · Hood', pos: new THREE.Vector3(-3.20, 1.55, -2.50), level: 'ground' },
+        { id: 'gasVault', icon: '🔒', title: 'Lockable Gas Vault', sub: 'Waterproof LPG → Kitchens', pos: new THREE.Vector3(8.95, 1.65, -3.25), level: 'all' },
+        { id: 'water', icon: '💧', title: 'MEP · Water & Vents', sub: '18K L · HVAC · DWV · Gas', pos: new THREE.Vector3(-10.85, 0.75, 10.20), level: 'all' },
         { id: 'garden', icon: '🌿', title: 'Garden & Benches', sub: 'Rear Patio · 4 Teak Benches', pos: new THREE.Vector3(-1.50, 0.95, -9.80), level: 'all' },
-        { id: 'firePit', icon: '🔥', title: 'Fire Pit Lounge', sub: 'Circular Patio · 3 Benches', pos: new THREE.Vector3(11.10, 0.90, 10.10), level: 'all' },
-        { id: 'water', icon: '💧', title: '18,000 L Water', sub: '15K UG Vault · 3K Roof', pos: new THREE.Vector3(-10.85, 0.75, 10.20), level: 'all' }
+        { id: 'firePit', icon: '🔥', title: 'Fire Pit Lounge', sub: 'Circular Patio · 3 Benches', pos: new THREE.Vector3(11.10, 0.90, 10.10), level: 'all' }
       ];
       const pinNodes = PIN_SPECS.map(spec => {
         const btn = document.createElement('button');
@@ -6072,7 +6958,7 @@
       /* Dirty-checked pin projection avoids unnecessary DOM style writes while camera is resting */
       let lastPinSig = '';
       function updatePins(force = false) {
-        if (!pinsVisible) { pinLayer.style.display = 'none'; lastPinSig = ''; return; }
+        if (!pinsVisible || walkMode) { pinLayer.style.display = 'none'; lastPinSig = ''; return; }
         pinLayer.style.display = '';
         const w = canvas.clientWidth, h = canvas.clientHeight;
         if (!w || !h) return;
@@ -6099,25 +6985,40 @@
         });
       }
 
+      let currentMepMode = 'standard';
       function applyWaterMode(mode) {
-        const xray = mode === 'xray';
+        currentMepMode = mode;
+        const xray = mode === 'xray' || mode === 'mepIsolate';
+        const isolate = mode === 'mepIsolate';
         waterXrayOnly.forEach(obj => { obj.visible = xray; });
-        serviceShaftMat.opacity = xray ? 0.22 : 1.0;
+        serviceShaftMat.opacity = isolate ? 0.14 : xray ? 0.22 : 1.0;
         serviceShaftMat.depthWrite = !xray;
         serviceShaftMat.needsUpdate = true;
         earth.material.transparent = xray;
-        earth.material.opacity = xray ? 0.36 : 1.0;
+        earth.material.opacity = isolate ? 0.24 : xray ? 0.34 : 1.0;
         earth.material.depthWrite = !xray;
         earth.material.needsUpdate = true;
         drivewayMat.transparent = xray;
-        drivewayMat.opacity = xray ? 0.38 : 1.0;
+        drivewayMat.opacity = isolate ? 0.26 : xray ? 0.36 : 1.0;
         drivewayMat.depthWrite = !xray;
         drivewayMat.needsUpdate = true;
+        // In Piping & Ventilation Spotlight mode, make structural white/warm shells ghostly architectural glass so all 6 MEP networks glow cleanly!
+        [whiteMat, warmWallMat].forEach(m => {
+          m.transparent = isolate;
+          m.opacity = isolate ? 0.22 : 1.0;
+          m.depthWrite = !isolate;
+          m.needsUpdate = true;
+        });
+        [pipeColdMat, pipeHotMat, pipeDrainMat, pipeRainMat, pipeGasMat, ductVentMat].forEach(pm => {
+          pm.emissiveIntensity = isolate ? 1.15 : xray ? 0.72 : 0.44;
+        });
         ugChamber.visible = true;
+        if (mepLegendEl) mepLegendEl.classList.toggle('is-visible', xray || activeCamKey === 'gasVault');
       }
       function goPreset(name) {
         const p = CAM_PRESETS[name];
         if (!p) return;
+        if (walkMode) exitWalkthrough(false);
         activeCamKey = name;
         tour = false;
         spinning = false;
@@ -6142,30 +7043,43 @@
           camGoalPos.sub(camGoalTarget).multiplyScalar(distScale).add(camGoalTarget);
         }
 
-        document.querySelectorAll('#cameraPresets button').forEach(b => b.classList.toggle('active', b.dataset.cam === name));
+        document.querySelectorAll('#cameraPresets button').forEach(b => {
+          const isAct = b.dataset.cam === name;
+          b.classList.toggle('active', isAct);
+          b.setAttribute('aria-pressed', String(isAct));
+        });
         document.getElementById('viewerBadge').textContent = p.badge;
-        document.getElementById('viewerCaption').innerHTML = `<strong>${p.title}</strong>${p.desc}`;
+        if (captionTextEl) captionTextEl.innerHTML = `<strong>${p.title}</strong>${p.desc}`;
 
-        // Automatically apply the exact display / X-Ray mode required by this room view
+        // Automatically apply the exact display / X-Ray / Gas Vault mode required by this view
         if (p.mode === 'cutaway') {
           document.getElementById('modelDisplay').value = 'cutaway';
           document.getElementById('waterSystemMode').value = 'standard';
           applyDisplay(); applyWaterMode('standard');
         } else if (p.mode === 'xray') {
+          document.getElementById('waterSystemMode').value = 'mepIsolate';
+          document.getElementById('modelDisplay').value = 'exterior';
+          applyDisplay(); applyWaterMode('mepIsolate');
+        } else if (p.mode === 'gas') {
           document.getElementById('waterSystemMode').value = 'xray';
           document.getElementById('modelDisplay').value = 'exterior';
           applyDisplay(); applyWaterMode('xray');
+          // Auto-unlock & swing open the waterproof gas vault door for easy inspection!
+          gasVaultTarget = 1;
+          if (reduced) { gasVaultPos = 1; updateGasVault(1); }
+          syncDoorButtons();
         } else {
           if (document.getElementById('modelDisplay').value === 'cutaway') {
             document.getElementById('modelDisplay').value = 'exterior';
             applyDisplay();
           }
-          if (document.getElementById('waterSystemMode').value === 'xray') {
+          if (document.getElementById('waterSystemMode').value !== 'standard') {
             document.getElementById('waterSystemMode').value = 'standard';
             applyWaterMode('standard');
           }
         }
-        updatePins();
+        if (mepLegendEl) mepLegendEl.classList.toggle('is-visible', currentMepMode !== 'standard' || name === 'gasVault');
+        updatePins(true);
       }
       document.getElementById('cameraPresets').addEventListener('click', e => {
         const b = e.target.closest('[data-cam]');
@@ -6187,50 +7101,205 @@
       new ResizeObserver(resize).observe(canvas);
       resize();
 
-      /* Controls Wiring */
-      let exploded = false, spinning = false, tour = false, tourStart = 0, lastTime = 0;
-      // Motorized Door & Gate States (Default OPEN=1 so cars, foyer & driveway are clearly visible in normal view!)
+      /* Controls Wiring: Motorized Doors, Lockable Waterproof Gas Vault & Real-Home Walkthrough */
+      let exploded = false, spinning = false, tour = false, tourStart = 0, lastTime = 0, lastTourStop = -1;
+      let walkBobPhase = 0, walkFloorIdx = 0;
+      const walkFloors = [1.88, 5.28, 8.56, 11.86, 14.35];
+      const walkKeys = { fwd: false, back: false, left: false, right: false, fast: false };
+      const WALK_STOPS = {
+        entry: { pos: [4.4, 2.35, 9.6], look: [4.4, 2.4, 3.2], floorIdx: 0, mode: 'exterior', title: 'Walkthrough · Arrival Gate & Spiral Entry', desc: 'Walking through the front sliding gate toward the grand arrival steps & glass spiral chandelier atrium.' },
+        living: { pos: [-2.8, 1.88, -1.6], look: [-6.8, 1.55, -2.55], floorIdx: 0, mode: 'walls', title: 'Walkthrough · Ground Living Room (Live 4K TV)', desc: 'Eye-level inside the Main Living Room facing the animated 85" OLED TV, fluted marble wall, gallery art & spinning ceiling fan.' },
+        kitchen: { pos: [-3.1, 1.88, -2.6], look: [-0.95, 1.35, -1.25], floorIdx: 0, mode: 'walls', title: 'Walkthrough · Ground Floor Gas Kitchen & Dining', desc: 'Standing beside the marble dining table looking into the waterfall island, 4-burner piped gas hob, stainless chimney hood & gas leak sensor.' },
+        family: { pos: [-2.2, 5.28, 2.5], look: [-4.8, 4.95, 0.2], floorIdx: 1, mode: 'walls', title: 'Walkthrough · 1F Family Lounge & Live CAD Office', desc: 'Eye-level inside the 1st Floor Family Lounge with live TV, acoustic walnut wall, drapes & dual-monitor Executive Office beside you.' },
+        master: { pos: [-3.4, 8.56, -1.4], look: [-5.4, 8.15, -3.2], floorIdx: 2, mode: 'walls', title: 'Walkthrough · 2F Grand Master Suite', desc: 'Inside the Master Suite featuring the king bed, framed wall art, hanging gold pendants, spinning ceiling fan & ambient wall TV.' },
+        spa: { pos: [0.3, 8.56, -1.3], look: [-0.15, 7.85, -3.15], floorIdx: 2, mode: 'walls', title: 'Walkthrough · 2F Master Spa Bath & WC', desc: 'Inside the Master Spa Ensuite: freestanding soaking tub with teak candle caddy, luxury WC with flush plate & bidet, double vanity, rain shower & exhaust fan.' },
+        game: { pos: [-4.6, 11.86, 2.6], look: [-4.95, 11.35, 0.2], floorIdx: 3, mode: 'walls', title: 'Walkthrough · Rooftop Live Gaming Studio', desc: 'Inside the RGB Gaming Studio watching triple curved 240 FPS PC racing monitors, live esports console TV & spinning RGB tower fans.' },
+        bbq: { pos: [-3.6, 11.86, -1.8], look: [-6.5, 11.45, -3.3], floorIdx: 3, mode: 'exterior', title: 'Walkthrough · Rooftop BBQ Chef Kitchen', desc: 'Standing under the slatted teak pergola facing the gas-piped 4-burner BBQ grill, stainless canopy exhaust hood & wrap serving bar.' },
+        gas: { pos: [11.2, 1.72, -1.1], look: [8.85, 1.05, -3.25], floorIdx: 0, mode: 'exterior', title: 'Walkthrough · Waterproof Lockable Gas Cylinder Vault', desc: 'Inspecting the external elevated 24 cm rainproof LPG enclosure, keyed padlock door, twin cylinders, regulator & yellow gas piping to both kitchens.' }
+      };
+
+      // Motorized Door, Garage & Lockable Gas Vault States (Main & Garage Open=1; Gas Vault starts LOCKED=0 for safety!)
       let mainDoorPos = 1, mainDoorTarget = 1;
       let garageDoorPos = 1, garageDoorTarget = 1;
+      let gasVaultPos = 0, gasVaultTarget = 0;
       const btnMainDoor = document.getElementById('toggleMainDoor');
       const btnGarageDoor = document.getElementById('toggleGarageDoor');
+      const btnGasLock = document.getElementById('toggleGasLock');
+      const btnWalk = document.getElementById('walkthroughBtn');
       const panelMainDoor = document.getElementById('panelMainDoor');
       const panelGarageDoor = document.getElementById('panelGarageDoor');
+      const panelGasLock = document.getElementById('panelGasLock');
+      const panelWalkBtn = document.getElementById('panelWalkBtn');
+      const dotMainDoor = document.getElementById('dotMainDoor');
+      const dotGarageDoor = document.getElementById('dotGarageDoor');
+      const dotGasLock = document.getElementById('dotGasLock');
+      const walkHud = document.getElementById('walkHud');
 
       function syncDoorButtons() {
         const mOpen = mainDoorTarget >= 0.5;
         const gOpen = garageDoorTarget >= 0.5;
+        const gasOpen = gasVaultTarget >= 0.5;
+        // Toolbar buttons keep constant label text (ZERO horizontal shift!) and update aria-pressed + LED dot color
         btnMainDoor.setAttribute('aria-pressed', String(mOpen));
-        btnMainDoor.textContent = mOpen ? '🚪 Main Door: Open' : '🚪 Main Door: Closed';
+        if (dotMainDoor) dotMainDoor.className = 'btn-dot ' + (mOpen ? 'is-open' : 'is-closed');
         panelMainDoor.setAttribute('aria-pressed', String(mOpen));
         panelMainDoor.classList.toggle('gold', mOpen);
-        panelMainDoor.textContent = mOpen ? '🚪 Close Main Sliding Door & Gate' : '🚪 Open Main Sliding Door & Gate';
+        panelMainDoor.textContent = mOpen ? '🚪 Main Door & Gate: Open' : '🚪 Main Door & Gate: Closed';
 
         btnGarageDoor.setAttribute('aria-pressed', String(gOpen));
-        btnGarageDoor.textContent = gOpen ? '🚘 Garage Roll: Open' : '🚘 Garage Roll: Closed';
+        if (dotGarageDoor) dotGarageDoor.className = 'btn-dot ' + (gOpen ? 'is-open' : 'is-closed');
         panelGarageDoor.setAttribute('aria-pressed', String(gOpen));
         panelGarageDoor.classList.toggle('gold', gOpen);
-        panelGarageDoor.textContent = gOpen ? '🚘 Close Garage Rolling Door' : '🚘 Open Garage Rolling Door';
+        panelGarageDoor.textContent = gOpen ? '🚘 Garage Rolling Door: Open' : '🚘 Garage Rolling Door: Closed';
+
+        btnGasLock.setAttribute('aria-pressed', String(gasOpen));
+        if (dotGasLock) dotGasLock.className = 'btn-dot ' + (gasOpen ? 'is-open' : 'is-locked');
+        panelGasLock.setAttribute('aria-pressed', String(gasOpen));
+        panelGasLock.classList.toggle('gold', gasOpen);
+        panelGasLock.textContent = gasOpen ? '🔓 Gas Cylinder Vault: Unlocked' : '🔒 Gas Cylinder Vault: Locked';
       }
       function toggleMainDoor() {
         mainDoorTarget = mainDoorTarget >= 0.5 ? 0 : 1;
         if (reduced) { mainDoorPos = mainDoorTarget; updateMainDoors(mainDoorPos); }
         syncDoorButtons();
+        announceStatus(mainDoorTarget >= 0.5 ? 'Main sliding door and street gate opened' : 'Main sliding door and street gate closed');
         startLoop();
       }
       function toggleGarageDoor() {
         garageDoorTarget = garageDoorTarget >= 0.5 ? 0 : 1;
         if (reduced) { garageDoorPos = garageDoorTarget; updateGarageDoor(garageDoorPos); }
         syncDoorButtons();
+        announceStatus(garageDoorTarget >= 0.5 ? 'Garage rolling door opened' : 'Garage rolling door closed');
+        startLoop();
+      }
+      function toggleGasLock() {
+        gasVaultTarget = gasVaultTarget >= 0.5 ? 0 : 1;
+        if (reduced) { gasVaultPos = gasVaultTarget; updateGasVault(gasVaultPos); }
+        syncDoorButtons();
+        announceStatus(gasVaultTarget >= 0.5 ? 'Gas cylinder vault unlocked and door opened' : 'Gas cylinder vault closed and padlocked');
         startLoop();
       }
       btnMainDoor.onclick = toggleMainDoor;
       panelMainDoor.onclick = toggleMainDoor;
       btnGarageDoor.onclick = toggleGarageDoor;
       panelGarageDoor.onclick = toggleGarageDoor;
+      btnGasLock.onclick = toggleGasLock;
+      panelGasLock.onclick = toggleGasLock;
       updateMainDoors(mainDoorPos);
       updateGarageDoor(garageDoorPos);
+      updateGasVault(gasVaultPos);
       syncDoorButtons();
+
+      function jumpWalkStop(key) {
+        const st = WALK_STOPS[key];
+        if (!st) return;
+        walkFloorIdx = st.floorIdx;
+        if (exploded) { exploded = false; arrangeFloors(); document.getElementById('explodeModel').setAttribute('aria-pressed', 'false'); }
+        document.getElementById('modelLevel').value = 'all';
+        Object.values(levels).forEach(g => { g.visible = true; });
+        tower.visible = true;
+        document.getElementById('modelDisplay').value = st.mode || 'walls';
+        applyDisplay();
+        if (key === 'gas') { gasVaultTarget = 1; syncDoorButtons(); }
+        if (key === 'entry') { mainDoorTarget = 1; syncDoorButtons(); }
+        const p = new THREE.Vector3(...st.pos);
+        const dir = new THREE.Vector3(...st.look).sub(p).normalize();
+        camGoalPos = p.clone();
+        camGoalTarget = p.clone().addScaledVector(dir, 0.35);
+        document.getElementById('viewerBadge').textContent = 'REAL-HOME WALKTHROUGH · EYE-LEVEL VIRTUAL TOUR';
+        if (captionTextEl) captionTextEl.innerHTML = `<strong>${st.title}</strong>${st.desc}`;
+        startLoop();
+      }
+      function enterWalkthrough(startStop = 'entry') {
+        walkMode = true;
+        tour = false; spinning = false;
+        document.getElementById('tourModel').setAttribute('aria-pressed', 'false');
+        document.getElementById('rotateModel').setAttribute('aria-pressed', 'false');
+        btnWalk.setAttribute('aria-pressed', 'true');
+        btnWalk.querySelector('.btn-dot').className = 'btn-dot is-open';
+        panelWalkBtn.setAttribute('aria-pressed', 'true');
+        panelWalkBtn.classList.add('gold');
+        panelWalkBtn.textContent = '✕ Exit Real-Home Walkthrough';
+        walkHud.classList.add('is-active');
+        camera.fov = 62;
+        camera.updateProjectionMatrix();
+        controls.minDistance = 0.08;
+        controls.maxDistance = 2.5;
+        controls.maxPolarAngle = Math.PI * 0.85;
+        jumpWalkStop(startStop);
+        updatePins(true);
+        announceStatus('Entered real-home eye-level walkthrough mode');
+      }
+      function exitWalkthrough(restoreHero = true) {
+        if (!walkMode) return;
+        walkMode = false;
+        Object.keys(walkKeys).forEach(k => { walkKeys[k] = false; });
+        btnWalk.setAttribute('aria-pressed', 'false');
+        btnWalk.querySelector('.btn-dot').className = 'btn-dot';
+        panelWalkBtn.setAttribute('aria-pressed', 'false');
+        panelWalkBtn.classList.remove('gold');
+        panelWalkBtn.textContent = '🚶 Real-Home Walkthrough';
+        walkHud.classList.remove('is-active');
+        camera.fov = 40;
+        camera.updateProjectionMatrix();
+        controls.minDistance = 3.5;
+        controls.maxDistance = 85;
+        controls.maxPolarAngle = Math.PI * 0.495;
+        if (restoreHero) goPreset('hero');
+        updatePins(true);
+        announceStatus('Exited walkthrough mode');
+      }
+      btnWalk.onclick = () => { if (walkMode) exitWalkthrough(true); else enterWalkthrough('entry'); };
+      panelWalkBtn.onclick = () => { if (walkMode) exitWalkthrough(true); else enterWalkthrough('entry'); };
+      document.getElementById('exitWalkBtn').onclick = () => exitWalkthrough(true);
+      document.getElementById('walkRoomJumps').addEventListener('click', e => {
+        const b = e.target.closest('[data-walk]');
+        if (b) jumpWalkStop(b.dataset.walk);
+      });
+      document.getElementById('walkFloorUp').onclick = () => {
+        walkFloorIdx = Math.min(walkFloors.length - 1, walkFloorIdx + 1);
+        const dy = walkFloors[walkFloorIdx] - camera.position.y;
+        camera.position.y += dy; controls.target.y += dy;
+        announceStatus(`Moved up to floor level ${walkFloorIdx + 1}`);
+      };
+      document.getElementById('walkFloorDown').onclick = () => {
+        walkFloorIdx = Math.max(0, walkFloorIdx - 1);
+        const dy = walkFloors[walkFloorIdx] - camera.position.y;
+        camera.position.y += dy; controls.target.y += dy;
+        announceStatus(`Moved down to floor level ${walkFloorIdx + 1}`);
+      };
+      // Touch & Pointer Hold D-Pad inside Walkthrough HUD
+      walkHud.querySelectorAll('[data-move]').forEach(btn => {
+        const dir = btn.dataset.move;
+        const on = e => { e.preventDefault(); walkKeys[dir] = true; startLoop(); };
+        const off = () => { walkKeys[dir] = false; };
+        btn.addEventListener('pointerdown', on);
+        btn.addEventListener('pointerup', off);
+        btn.addEventListener('pointerleave', off);
+        btn.addEventListener('pointercancel', off);
+      });
+      document.addEventListener('keydown', e => {
+        if (!walkMode) return;
+        const tag = e.target && e.target.tagName;
+        if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+        const k = e.key.toLowerCase();
+        if (k === 'w' || e.key === 'ArrowUp') { walkKeys.fwd = true; e.preventDefault(); }
+        else if (k === 's' || e.key === 'ArrowDown') { walkKeys.back = true; e.preventDefault(); }
+        else if (k === 'a' || e.key === 'ArrowLeft') { walkKeys.left = true; e.preventDefault(); }
+        else if (k === 'd' || e.key === 'ArrowRight') { walkKeys.right = true; e.preventDefault(); }
+        else if (e.key === 'Shift') walkKeys.fast = true;
+        else if (k === 'e') document.getElementById('walkFloorUp').click();
+        else if (k === 'q') document.getElementById('walkFloorDown').click();
+        else if (e.key === 'Escape') exitWalkthrough(true);
+      });
+      document.addEventListener('keyup', e => {
+        const k = e.key.toLowerCase();
+        if (k === 'w' || e.key === 'ArrowUp') walkKeys.fwd = false;
+        else if (k === 's' || e.key === 'ArrowDown') walkKeys.back = false;
+        else if (k === 'a' || e.key === 'ArrowLeft') walkKeys.left = false;
+        else if (k === 'd' || e.key === 'ArrowRight') walkKeys.right = false;
+        else if (e.key === 'Shift') walkKeys.fast = false;
+      });
 
       function arrangeFloors() {
         Object.values(levels).forEach((g, i) => { g.userData.targetY = exploded ? i * 2.7 : 0; });
@@ -6240,24 +7309,43 @@
       document.getElementById('zoomOut').onclick = () => { camera.position.sub(controls.target).multiplyScalar(1.19).add(controls.target); };
       document.getElementById('fitModel').onclick = () => goPreset('hero');
       document.getElementById('explodeModel').onclick = () => {
+        if (walkMode) exitWalkthrough(false);
         exploded = !exploded;
         arrangeFloors();
-        document.getElementById('explodeModel').textContent = exploded ? 'Stack floors' : 'Explode floors';
+        document.getElementById('explodeModel').setAttribute('aria-pressed', String(exploded));
+        announceStatus(exploded ? 'Floors exploded vertically' : 'Floors stacked back together');
       };
       document.getElementById('togglePins').onclick = () => {
         pinsVisible = !pinsVisible;
         document.getElementById('togglePins').setAttribute('aria-pressed', String(pinsVisible));
-        updatePins();
+        updatePins(true);
+        announceStatus(pinsVisible ? '3D room pins shown' : '3D room pins hidden');
       };
       document.getElementById('rotateModel').onclick = () => {
+        if (walkMode) exitWalkthrough(false);
         spinning = !spinning; tour = false; camGoalPos = null;
         document.getElementById('rotateModel').setAttribute('aria-pressed', String(spinning));
         document.getElementById('tourModel').setAttribute('aria-pressed', 'false');
       };
+
+      /* Multi-Stop Real-Home Cinematic Guided Tour (Walks exterior -> living/kitchen -> spa baths -> live game room -> gas vault -> full MEP X-Ray!) */
+      const TOUR_STOPS = [
+        { pos: [4.2, 4.2, 22.5], target: [2.2, 4.5, 3.8], mode: 'exterior', mep: 'standard', badge: 'GUIDED TOUR 1/8 · ARRIVAL GATE & SPIRAL ATRIUM', title: 'Grand Arrival — Sliding Gate, Portal & Spiral Chandelier', desc: 'Approaching the estate through the motorized sliding street gate toward the 2-car garage portal and glass chandelier atrium.' },
+        { pos: [-10.4, 2.7, -5.8], target: [-3.1, 1.45, -2.2], mode: 'cutaway', mep: 'standard', badge: 'GUIDED TOUR 2/8 · LIVING TV 1 & PIPED GAS KITCHEN', title: 'Main Living Room, Wall Decor, Ceiling Fan & Gas Kitchen', desc: 'Live animated 85" OLED TV, fluted marble wall, framed gallery art, spinning cove ceiling fan, and 4-burner gas kitchen with island chimney hood.' },
+        { pos: [-10.4, 5.8, 5.8], target: [-3.0, 4.8, 1.6], mode: 'cutaway', mep: 'standard', badge: 'GUIDED TOUR 3/8 · 1F FAMILY LOUNGE & LIVE CAD OFFICE', title: '1st Floor Family Lounge & Executive Home Office', desc: 'Acoustic walnut Family TV lounge opening onto the curved LED balcony beside the dual-monitor BIM/CAD office.' },
+        { pos: [1.5, 8.9, -6.2], target: [-0.8, 7.8, -2.75], mode: 'cutaway', mep: 'standard', badge: 'GUIDED TOUR 4/8 · 2F MASTER SUITE & LUXURY SPA BATH', title: 'Master Suite & Spa Bathroom with Soaking Tub & Toilet', desc: 'Freestanding soaking tub with candle caddy, concealed-cistern WC with bidet & flush plate, double vanity, rain shower & spinning exhaust fan.' },
+        { pos: [-10.4, 12.5, 4.7], target: [-4.8, 11.2, 1.3], mode: 'cutaway', mep: 'standard', badge: 'GUIDED TOUR 5/8 · LIVE ANIMATED PC & CONSOLE GAME ROOM', title: 'Rooftop RGB Gaming Studio (Live Playing Screens)', desc: 'Triple curved 240 FPS PC racing monitors, live esports console match OLED, spinning RGB PC tower fans & acoustic ceiling.' },
+        { pos: [-11.5, 16.0, 8.2], target: [-4.4, 13.1, -0.4], mode: 'exterior', mep: 'standard', badge: 'GUIDED TOUR 6/8 · ROOFTOP PARTY SHED & BBQ CHEF KITCHEN', title: 'All-Weather Party Shed (Karaoke TV) & Gas BBQ Kitchen', desc: 'Monsoon-proof Party Shed with live audio-visualizer TV & ceiling fan above the gas-piped 4-burner outdoor BBQ kitchen & canopy hood.' },
+        { pos: [12.3, 2.45, -0.25], target: [8.65, 1.05, -3.35], mode: 'exterior', mep: 'xray', gasOpen: true, badge: 'GUIDED TOUR 7/8 · WATERPROOF LOCKABLE GAS VAULT', title: 'Waterproof Lockable LPG Vault & Kitchen Gas Lines', desc: 'Padlock unlocks & door opens smoothly revealing the 24 cm rainproof plinth, twin cylinders, regulator & yellow gas piping to both kitchens.' },
+        { pos: [-13.8, 8.6, -14.8], target: [-0.4, 5.2, -2.0], mode: 'exterior', mep: 'mepIsolate', badge: 'GUIDED TOUR 8/8 · FULL 3D MEP PIPING & VENTILATION', title: 'Complete 3D MEP Showcase: Water, Vents, Drainage & Gas', desc: 'Full translucent BIM view of 18,000 L Cold Water, Solar Hot Water, DWV Sanitary Stacks, Rainwater Harvest, HVAC/Exhaust Ducts & LPG Gas.' }
+      ];
       document.getElementById('tourModel').onclick = () => {
-        tour = !tour; spinning = false; camGoalPos = null; tourStart = performance.now();
+        if (walkMode) exitWalkthrough(false);
+        tour = !tour; spinning = false; camGoalPos = null; tourStart = performance.now(); lastTourStop = -1;
         document.getElementById('tourModel').setAttribute('aria-pressed', String(tour));
         document.getElementById('rotateModel').setAttribute('aria-pressed', 'false');
+        announceStatus(tour ? 'Started real-home cinematic guided tour' : 'Stopped guided tour');
+        startLoop();
       };
       /* Dual-Engine Fullscreen (Native API + CSS Fullscreen Fallback) with Live Model Controls & Exit Button */
       const modelStage = document.getElementById('modelStage');
@@ -6273,12 +7361,11 @@
         modelStage.classList.toggle('fs-controls-hidden', !open);
         toggleFsCtrlBtn.setAttribute('aria-pressed', String(open));
         toggleFsCtrlBtn.textContent = open ? '⚙ Hide Controls' : '⚙ Model Controls';
-        requestAnimationFrame(() => { resize(); updatePins(); });
+        requestAnimationFrame(() => { resize(); updatePins(true); });
       }
       function syncFullscreenUI() {
         const active = isStageFullscreen();
         document.body.classList.toggle('fs-lock', active);
-        fsBtn.textContent = active ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
         fsBtn.setAttribute('aria-pressed', String(active));
         if (active) {
           isSkipped = false;
@@ -6287,8 +7374,8 @@
         } else {
           modelStage.classList.remove('fs-controls-hidden');
         }
-        requestAnimationFrame(() => { resize(); updatePins(); });
-        setTimeout(() => { resize(); updatePins(); }, 140);
+        requestAnimationFrame(() => { resize(); updatePins(true); });
+        setTimeout(() => { resize(); updatePins(true); }, 140);
       }
       async function enterFullscreen() {
         const req = modelStage.requestFullscreen || modelStage.webkitRequestFullscreen;
@@ -6322,14 +7409,15 @@
         if (e.key === 'Escape' && isStageFullscreen()) exitFullscreen();
       });
       document.getElementById('resetAnimation').onclick = () => {
+        if (walkMode) exitWalkthrough(false);
         tour = false; spinning = false; exploded = false; pinsVisible = true; arrangeFloors();
-        mainDoorTarget = 1; garageDoorTarget = 1;
-        if (reduced) { mainDoorPos = 1; garageDoorPos = 1; updateMainDoors(1); updateGarageDoor(1); }
+        mainDoorTarget = 1; garageDoorTarget = 1; gasVaultTarget = 0;
+        if (reduced) { mainDoorPos = 1; garageDoorPos = 1; gasVaultPos = 0; updateMainDoors(1); updateGarageDoor(1); updateGasVault(0); }
         syncDoorButtons();
         Object.values(levels).forEach(g => { g.visible = true; });
         tower.visible = true;
         document.getElementById('modelLevel').value = 'all';
-        document.getElementById('explodeModel').textContent = 'Explode floors';
+        document.getElementById('explodeModel').setAttribute('aria-pressed', 'false');
         document.getElementById('togglePins').setAttribute('aria-pressed', 'true');
         goPreset('hero');
       };
@@ -6337,7 +7425,7 @@
         const v = e.target.value;
         Object.entries(levels).forEach(([k, g]) => { g.visible = v === 'all' || v === k; });
         tower.visible = v === 'all' && !exploded;
-        updatePins();
+        updatePins(true);
       };
 
       const exteriorPalettes = {
@@ -6401,9 +7489,12 @@
       applyWaterMode('standard');
 
       /* Efficient Background Processing (per modern-web-guidance) */
-      let rafId = 0, isSkipped = false, isHidden = document.hidden;
+      let rafId = 0, isSkipped = false, isHidden = document.hidden, lastScreenTick = 0;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const modelSection = document.getElementById('model');
+      const _walkFwd = new THREE.Vector3(), _walkRight = new THREE.Vector3(), _walkMove = new THREE.Vector3();
+      const _tourPosA = new THREE.Vector3(), _tourPosB = new THREE.Vector3(), _tourTgtA = new THREE.Vector3(), _tourTgtB = new THREE.Vector3();
+      const _doorPosMain = new THREE.Vector3(4.5, 1.8, 6.2), _doorPosGarage = new THREE.Vector3(-3.0, 1.8, 5.2), _doorPosGas = new THREE.Vector3(8.95, 1.8, -3.25);
 
       function startLoop() {
         if (rafId || isSkipped || isHidden) return;
@@ -6438,16 +7529,16 @@
         if (isSkipped || isHidden) return;
         const dt = Math.min(0.05, Math.max(0, (time - lastTime) / 1000));
         lastTime = time;
+        const tSec = time * 0.001;
 
         Object.values(levels).forEach(g => {
           g.position.y += ((g.userData.targetY || 0) - g.position.y) * Math.min(1, dt * 5.5);
         });
 
-        // Smooth motorized sliding main door/gate & overhead rolling garage door motion
+        // Smooth motorized sliding main door/gate, overhead rolling garage door & lockable waterproof gas vault!
         if (Math.abs(mainDoorTarget - mainDoorPos) > 0.001) {
           const step = Math.min(Math.abs(mainDoorTarget - mainDoorPos), dt * 0.72);
           mainDoorPos += Math.sign(mainDoorTarget - mainDoorPos) * step;
-          // Smooth cubic ease-in-out curve on visual position
           const eM = mainDoorPos < 0.5 ? 4 * mainDoorPos * mainDoorPos * mainDoorPos : 1 - Math.pow(-2 * mainDoorPos + 2, 3) / 2;
           updateMainDoors(eM);
         }
@@ -6456,6 +7547,48 @@
           garageDoorPos += Math.sign(garageDoorTarget - garageDoorPos) * step;
           const eG = garageDoorPos < 0.5 ? 4 * garageDoorPos * garageDoorPos * garageDoorPos : 1 - Math.pow(-2 * garageDoorPos + 2, 3) / 2;
           updateGarageDoor(eG);
+        }
+        if (Math.abs(gasVaultTarget - gasVaultPos) > 0.001) {
+          const step = Math.min(Math.abs(gasVaultTarget - gasVaultPos), dt * 0.85);
+          gasVaultPos += Math.sign(gasVaultTarget - gasVaultPos) * step;
+          const eV = gasVaultPos < 0.5 ? 4 * gasVaultPos * gasVaultPos * gasVaultPos : 1 - Math.pow(-2 * gasVaultPos + 2, 3) / 2;
+          updateGasVault(eV);
+        }
+
+        // First-Person Real-Home Walkthrough Physics (WASD / Touch D-Pad + Head-Bob + Proximity Auto-Doors!)
+        if (walkMode && !camGoalPos) {
+          const fwdAmt = (walkKeys.fwd ? 1 : 0) - (walkKeys.back ? 1 : 0);
+          const strafeAmt = (walkKeys.right ? 1 : 0) - (walkKeys.left ? 1 : 0);
+          if (fwdAmt || strafeAmt) {
+            camera.getWorldDirection(_walkFwd);
+            _walkFwd.y = 0;
+            if (_walkFwd.lengthSq() > 0.0001) _walkFwd.normalize();
+            _walkRight.crossVectors(_walkFwd, camera.up).normalize();
+            _walkMove.set(0, 0, 0).addScaledVector(_walkFwd, fwdAmt).addScaledVector(_walkRight, strafeAmt).normalize();
+            const spd = (walkKeys.fast ? 5.6 : 3.2) * dt;
+            _walkMove.multiplyScalar(spd);
+            camera.position.add(_walkMove);
+            controls.target.add(_walkMove);
+            // Keep within estate grounds cleanly
+            camera.position.x = THREE.MathUtils.clamp(camera.position.x, -15.5, 15.5);
+            camera.position.z = THREE.MathUtils.clamp(camera.position.z, -14.5, 15.5);
+            if (!reduced) {
+              walkBobPhase += dt * (walkKeys.fast ? 11.5 : 8.2);
+              const targetY = walkFloors[walkFloorIdx] + Math.sin(walkBobPhase) * 0.032;
+              const dy = (targetY - camera.position.y) * Math.min(1, dt * 10);
+              camera.position.y += dy; controls.target.y += dy;
+            }
+          }
+          // Proximity auto-opening doors when walking nearby!
+          if (camera.position.distanceTo(_doorPosMain) < 4.5 && mainDoorTarget < 0.5) {
+            mainDoorTarget = 1; syncDoorButtons();
+          }
+          if (camera.position.distanceTo(_doorPosGarage) < 4.5 && garageDoorTarget < 0.5) {
+            garageDoorTarget = 1; syncDoorButtons();
+          }
+          if (camera.position.distanceTo(_doorPosGas) < 4.2 && gasVaultTarget < 0.5) {
+            gasVaultTarget = 1; syncDoorButtons();
+          }
         }
 
         if (camGoalPos && camGoalTarget) {
@@ -6469,21 +7602,67 @@
           }
         }
 
+        // Upgraded Multi-Stop Real-Home Cinematic Guided Tour
         if (tour && !reduced) {
-          const t = (time - tourStart) / 1000;
-          const angle = t * 0.22 + 0.25;
-          const radius = 36 + 3.0 * Math.sin(t * 0.3);
-          const height = 11.5 + 3.5 * Math.sin(t * 0.38);
-          camera.position.set(Math.sin(angle) * radius, height, Math.cos(angle) * radius);
-          controls.target.set(0.4, 6.0, 2.0);
+          const dur = 6.2;
+          const totalT = (time - tourStart) / 1000;
+          const idx = Math.floor(totalT / dur) % TOUR_STOPS.length;
+          const nextIdx = (idx + 1) % TOUR_STOPS.length;
+          const u = (totalT % dur) / dur;
+          // Hold 48% on current room, then smoothly cubic-glide to the next room!
+          const g = u < 0.48 ? 0 : (u - 0.48) / 0.52;
+          const s = g < 0.5 ? 4 * g * g * g : 1 - Math.pow(-2 * g + 2, 3) / 2;
+          const A = TOUR_STOPS[idx], B = TOUR_STOPS[nextIdx];
+          if (idx !== lastTourStop) {
+            lastTourStop = idx;
+            document.getElementById('modelDisplay').value = A.mode;
+            document.getElementById('waterSystemMode').value = A.mep;
+            applyDisplay(); applyWaterMode(A.mep);
+            if (A.gasOpen) { gasVaultTarget = 1; syncDoorButtons(); }
+            document.getElementById('viewerBadge').textContent = A.badge;
+            if (captionTextEl) captionTextEl.innerHTML = `<strong>${A.title}</strong>${A.desc}`;
+          }
+          _tourPosA.set(...A.pos); _tourPosB.set(...B.pos);
+          _tourTgtA.set(...A.target); _tourTgtB.set(...B.target);
+          camera.position.lerpVectors(_tourPosA, _tourPosB, s);
+          controls.target.lerpVectors(_tourTgtA, _tourTgtB, s);
+          // Subtle cinematic drift while dwelling in a room
+          camera.position.x += Math.sin(u * Math.PI) * 0.45;
         }
 
-        controls.autoRotate = spinning && !tour && !reduced;
+        controls.autoRotate = spinning && !tour && !walkMode && !reduced;
         controls.autoRotateSpeed = 0.72;
-        // Gentle organic fire pit flicker & underground water shimmer (respects reduced motion)
+
+        // Live Simulation Polish: Animated TVs/Gaming Screens (~16 FPS), Spinning Fans, RGB Gaming Cycle, Gas Flames & Animated MEP Flow Pulses!
         if (!reduced) {
+          if (time - lastScreenTick > 62) {
+            lastScreenTick = time;
+            updateLiveScreens(tSec);
+          }
+          for (let i = 0; i < spinningFans.length; i++) {
+            const f = spinningFans[i];
+            f.obj.rotation[f.axis] += dt * f.speed;
+          }
+          // Dynamic RGB pulse inside Game Room
+          const hueP = (0.76 + 0.06 * Math.sin(tSec * 1.3)) % 1;
+          const hueC = (0.52 + 0.06 * Math.cos(tSec * 1.1)) % 1;
+          rgbPurpleMat.emissive.setHSL(hueP, 0.9, 0.52);
+          rgbCyanMat.emissive.setHSL(hueC, 0.9, 0.50);
+          gameRgbLight.color.setHSL(hueP, 0.7, 0.65);
+
+          // Organic fire pit flicker, blue gas hob flame shimmer & underground water glow
           fireLight.intensity = 14 + 3.2 * Math.sin(time * 0.0065) + 1.6 * Math.cos(time * 0.011);
           waterGlowMat.emissiveIntensity = 0.50 + 0.12 * Math.sin(time * 0.0025);
+          const fPulse = 0.92 + 0.14 * Math.sin(tSec * 14);
+          for (let i = 0; i < gasFlameMeshes.length; i++) gasFlameMeshes[i].scale.setScalar(fPulse);
+
+          // Animated directional flow pulses along visible MEP pipes & ventilation ducts!
+          for (let i = 0; i < mepFlowBeads.length; i++) {
+            const b = mepFlowBeads[i];
+            if (!b.grp.visible) continue;
+            const pT = (tSec * b.speed + b.phase) % 1;
+            b.curve.getPointAt(pT, b.mesh.position);
+          }
         }
         controls.update();
         renderer.render(scene, camera);
