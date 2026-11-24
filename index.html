@@ -63,7 +63,7 @@
     html {
       scroll-behavior: smooth;
       scroll-padding-top: calc(5.5rem + env(safe-area-inset-top, 0px));
-      scroll-padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
       background: var(--bg)
     }
 
@@ -801,8 +801,9 @@
       overflow: hidden;
     }
 
-    /* 3D Architectural Viewer & Fullscreen Studio Stage */
+    /* 3D Architectural Viewer & Fullscreen Studio Stage (Container-Query Driven!) */
     .model-layout {
+      container: model-stage / inline-size;
       display: grid;
       grid-template-columns: minmax(0, 1fr) 295px;
       gap: 16px
@@ -816,12 +817,14 @@
     }
 
     .viewer {
+      container: viewer-box / inline-size;
       position: relative;
-      height: clamp(500px, 72dvh, 880px);
-      min-height: 460px;
+      height: clamp(460px, 72dvh, 880px);
+      min-height: 400px;
       background: radial-gradient(ellipse at 50% 60%, #1e3a56, #081320 78%);
       box-shadow: var(--shadow);
       contain: layout style paint;
+      overscroll-behavior: contain;
     }
 
     .fs-bar {
@@ -835,12 +838,19 @@
       flex-wrap: wrap;
     }
 
-    /* Always-visible Top-Right Quick Fullscreen Button inside the 3D Viewer */
-    .viewer-quick-fs {
+    /* Always-visible Top-Right Quick Action Bar inside the 3D Viewer (Mobile Controls + Fullscreen) */
+    .viewer-top-actions {
       position: absolute;
       top: 12px;
       right: 14px;
       z-index: 6;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .viewer-quick-fs,
+    .viewer-mobile-ctrl {
       padding: 7px 13px;
       font-size: 12px;
       line-height: 1.2;
@@ -848,10 +858,113 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, .42), inset 0 1px rgba(255, 255, 255, .45);
     }
 
-    #modelStage:fullscreen .viewer-quick-fs,
-    #modelStage:-webkit-full-screen .viewer-quick-fs,
-    #modelStage.is-fullscreen .viewer-quick-fs {
+    .viewer-mobile-ctrl {
       display: none;
+      background: rgba(7, 17, 29, .90);
+      border: 1px solid rgba(232, 193, 126, .55);
+      color: var(--gold-bright);
+      font-weight: 700;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .viewer-mobile-ctrl[aria-pressed="true"] {
+      background: linear-gradient(135deg, #fbe5ba, #cfa056);
+      color: #0a1522;
+      border-color: #fff2d1;
+    }
+
+    #modelStage:fullscreen .viewer-top-actions,
+    #modelStage:-webkit-full-screen .viewer-top-actions,
+    #modelStage.is-fullscreen .viewer-top-actions {
+      display: none;
+    }
+
+    /* Subtle Auto-Dismissing Touch Gesture Hint (Touch Devices Only) */
+    .viewer-touch-hint {
+      display: none;
+      position: absolute;
+      left: 50%;
+      bottom: 66px;
+      transform: translateX(-50%);
+      z-index: 4;
+      pointer-events: none;
+      max-width: calc(100% - 28px);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #f3f7fc;
+      background: rgba(6, 15, 27, .86);
+      border: 1px solid rgba(232, 193, 126, .42);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: opacity .3s ease-out, transform .3s ease-out;
+    }
+
+    .viewer-touch-hint.is-dismissed {
+      opacity: 0;
+      transform: translate(-50%, 8px);
+    }
+
+    @media (pointer: coarse) {
+      .viewer-touch-hint {
+        display: block;
+      }
+    }
+
+    /* Compact Mobile Controls Launcher Bar & Slide-Up Bottom Sheet Backdrop (Shown <= 1050px) */
+    .mobile-controls-bar {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mobile-controls-bar .btn {
+      flex: 1 1 auto;
+      justify-content: center;
+      font-size: 12.5px;
+      padding: 10px 12px;
+    }
+
+    .mobile-sheet-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9990;
+      background: rgba(3, 9, 18, .46);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .mobile-sheet-handle {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 0 10px;
+      margin: -6px 0 4px;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .mobile-sheet-handle span {
+      display: block;
+      width: 44px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(232, 193, 126, .52);
+    }
+
+    .panel-controls-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 4px;
     }
 
     .fs-bar button {
@@ -1031,7 +1144,10 @@
       width: 100%;
       height: 100%;
       display: block;
-      cursor: grab
+      cursor: grab;
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     #modelCanvas:active {
@@ -1078,6 +1194,9 @@
       overscroll-behavior-x: contain;
       overflow-anchor: none;
       scroll-padding-inline: 12px;
+      scroll-snap-type: x proximity;
+      touch-action: pan-x;
+      -webkit-overflow-scrolling: touch;
       padding: 2px 20px 4px 0;
       -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
       mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
@@ -1168,6 +1287,23 @@
       display: none;
     }
 
+    .walk-hud-pad {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .walk-hud-pad .walk-arrows,
+    .walk-hud-pad .walk-meta-btns {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: nowrap;
+    }
+
     .walk-hud button {
       flex: 0 0 auto;
       padding: 6px 10px;
@@ -1178,6 +1314,65 @@
       background: rgba(20, 38, 58, .92);
       color: #f3f7fb;
       white-space: nowrap;
+      touch-action: manipulation;
+    }
+
+    @container viewer-box (inline-size < 640px) {
+      .viewer-overlay {
+        left: 10px;
+        top: 10px;
+        max-width: calc(100% - 216px);
+        padding: 6px 9px;
+        font-size: 9.5px;
+        letter-spacing: .35px;
+      }
+
+      .viewer-top-actions {
+        top: 8px;
+        right: 10px;
+        gap: 5px;
+      }
+
+      .viewer-quick-fs,
+      .viewer-mobile-ctrl {
+        padding: 7px 10px;
+        font-size: 11.5px;
+      }
+
+      .viewer-presets {
+        top: 50px;
+        left: 10px;
+        right: 10px;
+      }
+
+      .walk-hud {
+        width: calc(100% - 16px);
+        padding: 7px 8px;
+        gap: 6px;
+      }
+
+      .walk-hud-pad {
+        justify-content: space-between;
+      }
+
+      .walk-hud-pad .walk-lbl {
+        display: none;
+      }
+
+      .walk-hud-pad button {
+        padding: 8px 11px;
+        font-size: 13px;
+      }
+    }
+
+    @container viewer-box (inline-size < 410px) {
+      .viewer-overlay {
+        display: none;
+      }
+
+      .viewer-presets {
+        top: 54px;
+      }
     }
 
     .walk-hud button.walk-exit {
@@ -1438,18 +1633,25 @@
       overscroll-behavior-x: contain;
       overflow-anchor: none;
       scroll-padding-inline: 12px;
+      scroll-snap-type: x proximity;
+      touch-action: pan-x;
+      -webkit-overflow-scrolling: touch;
       padding: 2px 20px 2px 0;
       -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
       mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
     }
 
     .viewer-tools button {
+      flex: 0 0 auto;
+      white-space: nowrap;
+      scroll-snap-align: start;
       padding: 8px 12px;
       font-size: 12px;
       border-radius: 10px
     }
 
     .viewer-side {
+      container: controls-panel / inline-size;
       padding: 19px;
       align-self: start;
       position: sticky;
@@ -1458,6 +1660,16 @@
       border: 1px solid var(--glass-border);
       border-radius: var(--radius);
       box-shadow: inset 0 1px rgba(255, 255, 255, .08);
+    }
+
+    @container controls-panel (inline-size >= 340px) {
+      .panel-controls-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panel-controls-grid > :last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
     }
 
     .viewer-side h3 {
@@ -2333,6 +2545,22 @@
         inset: -7px;
       }
 
+      .viewer-presets button,
+      .viewer-tools button,
+      .viewer-top-actions button,
+      .fs-bar button,
+      .walk-hud button,
+      .viewer-side select,
+      .viewer-side .btn,
+      .mobile-controls-bar .btn {
+        min-block-size: var(--target-size);
+      }
+
+      .viewer-presets button,
+      .viewer-tools button {
+        padding-inline: 13px;
+      }
+
       .compare-knob {
         width: 48px;
         height: 48px;
@@ -2378,17 +2606,72 @@
         grid-column: span 2
       }
 
-      .viewer-side {
-        position: static
+      .viewer-mobile-ctrl {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .mobile-controls-bar {
+        display: flex;
+      }
+
+      /* On compact/mobile viewports outside fullscreen, collapse sidebar into a live bottom sheet so the 3D villa stays visible above! */
+      #modelStage:not(.is-fullscreen):not(:fullscreen):not(:-webkit-full-screen) .viewer-side {
+        display: none;
+      }
+
+      #modelStage.mobile-sheet-open:not(.is-fullscreen):not(:fullscreen):not(:-webkit-full-screen) .mobile-sheet-backdrop {
+        display: block;
+      }
+
+      #modelStage.mobile-sheet-open:not(.is-fullscreen):not(:fullscreen):not(:-webkit-full-screen) .viewer-side {
+        display: block;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: auto;
+        z-index: 9995;
+        width: 100%;
+        max-height: min(56dvh, 460px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        border-radius: 22px 22px 0 0;
+        border: 0;
+        border-top: 1.5px solid rgba(232, 193, 126, .55);
+        padding: 8px max(16px, env(safe-area-inset-right, 0px)) max(22px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+        background: linear-gradient(175deg, rgba(16, 33, 52, .98), rgba(7, 17, 29, .99));
+        box-shadow: 0 -22px 60px rgba(0, 0, 0, .68);
+        animation: mobileSheetUp .22s cubic-bezier(.22, 1, .36, 1);
+      }
+
+      #modelStage.mobile-sheet-open .mobile-sheet-handle {
+        display: flex;
+      }
+
+      #modelStage.mobile-sheet-open .fs-panel-close {
+        display: inline-flex;
       }
 
       .viewer {
-        height: clamp(460px, 66dvh, 660px);
-        min-height: 440px
+        height: clamp(430px, 64dvh, 640px);
+        min-height: 390px
       }
 
       .system-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+    }
+
+    @keyframes mobileSheetUp {
+      from {
+        transform: translateY(28px);
+        opacity: .6;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
       }
     }
 
@@ -2494,14 +2777,15 @@
       }
 
       .viewer {
-        height: clamp(460px, 68dvh, 620px);
-        min-height: 440px
+        height: clamp(420px, 64dvh, 580px);
+        min-height: 380px
       }
 
       .viewer-overlay {
         left: 10px;
-        right: 10px;
+        right: auto;
         top: 10px;
+        max-width: calc(100% - 216px);
         padding: 6px 10px;
         font-size: 10px;
         white-space: nowrap;
@@ -2510,7 +2794,7 @@
       }
 
       .viewer-presets {
-        top: 44px;
+        top: 52px;
         left: 10px;
         right: 10px;
         justify-content: flex-start;
@@ -2524,7 +2808,8 @@
 
       .viewer-presets button {
         flex: 0 0 auto;
-        padding: 8px 11px;
+        scroll-snap-align: start;
+        padding: 8px 12px;
         font-size: 11.5px;
       }
 
@@ -2550,12 +2835,12 @@
       .viewer-tools button {
         flex: 0 0 auto;
         font-size: 11.5px;
-        padding: 8px 11px;
+        padding: 8px 12px;
         white-space: nowrap;
       }
 
       .walk-hud {
-        bottom: 60px;
+        bottom: 64px;
         padding: 7px 9px;
       }
 
@@ -2563,7 +2848,7 @@
         display: none;
       }
 
-      /* Mobile Fullscreen Safe-Area & Zero-Overlap Stacking */
+      /* Mobile Fullscreen Safe-Area & Bottom-Sheet Controls Drawer (keeps live 3D villa visible above!) */
       #modelStage:fullscreen .fs-bar,
       #modelStage:-webkit-full-screen .fs-bar,
       #modelStage.is-fullscreen .fs-bar {
@@ -2581,7 +2866,7 @@
       #modelStage:fullscreen .viewer-presets,
       #modelStage:-webkit-full-screen .viewer-presets,
       #modelStage.is-fullscreen .viewer-presets {
-        top: calc(58px + env(safe-area-inset-top, 0px));
+        top: calc(60px + env(safe-area-inset-top, 0px));
       }
 
       #modelStage:fullscreen .viewer-tools,
@@ -2600,8 +2885,25 @@
       #modelStage:fullscreen .viewer-side,
       #modelStage:-webkit-full-screen .viewer-side,
       #modelStage.is-fullscreen .viewer-side {
-        padding-top: max(18px, env(safe-area-inset-top, 0px));
-        padding-bottom: max(22px, env(safe-area-inset-bottom, 0px));
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: auto;
+        width: 100%;
+        height: auto;
+        max-height: min(56dvh, 450px);
+        border-radius: 22px 22px 0 0;
+        border-left: 0;
+        border-top: 1.5px solid rgba(232, 193, 126, .55);
+        padding: 8px max(16px, env(safe-area-inset-right, 0px)) max(22px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+        box-shadow: 0 -20px 54px rgba(0, 0, 0, .72);
+      }
+
+      #modelStage:fullscreen .mobile-sheet-handle,
+      #modelStage:-webkit-full-screen .mobile-sheet-handle,
+      #modelStage.is-fullscreen .mobile-sheet-handle {
+        display: flex;
       }
 
       @media (hover: none) {
@@ -3511,8 +3813,13 @@
           <div class="viewer" id="viewerContainer">
             <canvas id="modelCanvas" aria-label="Interactive 3D architectural villa model"></canvas>
             <div class="pin-layer" id="pinLayer" aria-label="Interactive 3D room pins"></div>
-            <button type="button" class="btn gold viewer-quick-fs" id="viewerQuickFs" commandfor="modelStage"
-              command="--toggle-fullscreen" aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen</button>
+            <div class="viewer-top-actions">
+              <button type="button" class="btn viewer-mobile-ctrl" id="viewerMobileControls" commandfor="modelStage"
+                command="--toggle-mobile-controls" aria-pressed="false" aria-controls="modelControlsPanel">⚙ Controls</button>
+              <button type="button" class="btn gold viewer-quick-fs" id="viewerQuickFs" commandfor="modelStage"
+                command="--toggle-fullscreen" aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen</button>
+            </div>
+            <div class="viewer-touch-hint" id="viewerTouchHint" aria-hidden="true">👆 1 finger orbit · ✌️ 2 fingers zoom · Tap glowing pins</div>
             <div class="fs-bar" id="fsBar" aria-label="Fullscreen studio controls">
               <button type="button" class="btn gold" id="exitFullscreenBtn" commandfor="modelStage"
                 command="--exit-fullscreen" interestfor="tip-fs-exit">✕ Exit Fullscreen
@@ -3563,25 +3870,29 @@
                 <button type="button" data-walk="filter">🧪 Water Filter</button>
                 <button type="button" data-walk="veg">🥬 Veg Farm</button>
               </div>
-              <div class="walk-hud-row">
-                <button type="button" data-move="fwd" aria-label="Walk forward">▲ Forward</button>
-                <button type="button" data-move="back" aria-label="Walk backward">▼ Back</button>
-                <button type="button" data-move="left" aria-label="Strafe left">◀ Left</button>
-                <button type="button" data-move="right" aria-label="Strafe right">▶ Right</button>
-                <button type="button" id="walkFloorDown" aria-label="Step down one floor">↓ Floor</button>
-                <button type="button" id="walkFloorUp" aria-label="Step up one floor">↑ Floor</button>
-                <button type="button" class="walk-exit" id="exitWalkBtn">✕ Exit Walk</button>
+              <div class="walk-hud-pad">
+                <div class="walk-arrows">
+                  <button type="button" data-move="left" aria-label="Strafe left">◀ <span class="walk-lbl">Left</span></button>
+                  <button type="button" data-move="fwd" aria-label="Walk forward">▲ <span class="walk-lbl">Forward</span></button>
+                  <button type="button" data-move="back" aria-label="Walk backward">▼ <span class="walk-lbl">Back</span></button>
+                  <button type="button" data-move="right" aria-label="Strafe right">▶ <span class="walk-lbl">Right</span></button>
+                </div>
+                <div class="walk-meta-btns">
+                  <button type="button" id="walkFloorDown" aria-label="Step down one floor">↓ <span class="walk-lbl">Floor</span></button>
+                  <button type="button" id="walkFloorUp" aria-label="Step up one floor">↑ <span class="walk-lbl">Floor</span></button>
+                  <button type="button" class="walk-exit" id="exitWalkBtn">✕ <span class="walk-lbl">Exit Walk</span></button>
+                </div>
               </div>
               <div class="walk-hud-hint">W/A/S/D or Arrows to walk · Drag to look 360° · Shift to jog · Doors auto-open nearby</div>
             </div>
             <div class="viewer-tools" id="viewerToolsBar" role="toolbar" focusgroup="toolbar wrap"
               aria-label="3D studio actions" aria-controls="modelCanvas">
               <button type="button" id="walkthroughBtn" aria-pressed="false" interestfor="tip-tool-walk"><span class="btn-dot" aria-hidden="true"></span>🚶 Walk Inside</button>
+              <button type="button" id="toggleSlidingDoors" aria-pressed="false" interestfor="tip-tool-sliding"><span class="btn-dot is-closed" id="dotSlidingDoors" aria-hidden="true"></span>↔ Sliding Doors</button>
+              <button type="button" id="toggleSlidingDemo" aria-pressed="false" interestfor="tip-tool-slidedemo"><span class="btn-dot is-closed" id="dotSlidingDemo" aria-hidden="true"></span>🔄 Slide Sim</button>
               <button type="button" id="tourModel" aria-pressed="false" interestfor="tip-tool-tour">▶ Guided Tour</button>
               <button type="button" id="toggleMainDoor" aria-pressed="true" interestfor="tip-tool-maindoor"><span class="btn-dot is-open" id="dotMainDoor" aria-hidden="true"></span>🚪 Main Door</button>
               <button type="button" id="toggleSafetyDoors" aria-pressed="true" interestfor="tip-tool-safety"><span class="btn-dot is-open" id="dotSafetyDoors" aria-hidden="true"></span>🛡️ Safety Doors</button>
-              <button type="button" id="toggleSlidingDoors" aria-pressed="false" interestfor="tip-tool-sliding"><span class="btn-dot is-closed" id="dotSlidingDoors" aria-hidden="true"></span>↔ Sliding Doors</button>
-              <button type="button" id="toggleSlidingDemo" aria-pressed="false" interestfor="tip-tool-slidedemo"><span class="btn-dot is-closed" id="dotSlidingDemo" aria-hidden="true"></span>🔄 Slide Sim</button>
               <button type="button" id="toggleGarageDoor" aria-pressed="true" interestfor="tip-tool-garage"><span class="btn-dot is-open" id="dotGarageDoor" aria-hidden="true"></span>🚘 Garage Roll</button>
               <button type="button" id="toggleCurtains" aria-pressed="false" interestfor="tip-tool-curtains"><span class="btn-dot is-closed" id="dotCurtains" aria-hidden="true"></span>🪟 Curtains</button>
               <button type="button" id="toggleGasLock" aria-pressed="false" interestfor="tip-tool-gaslock"><span class="btn-dot is-locked" id="dotGasLock" aria-hidden="true"></span>🔒 Gas Lock</button>
@@ -3635,16 +3946,23 @@
               <span><i class="water-dot" style="background:#d97706"></i>ESE Lightning Mast, Faraday Ring &amp; 3 Copper Earth Pits</span>
             </div>
           </div>
+          <div class="mobile-controls-bar" id="mobileControlsBar" aria-label="Quick mobile 3D studio controls">
+            <button type="button" class="btn gold" id="mobileBarCustomize" commandfor="modelStage"
+              command="--toggle-mobile-controls" aria-pressed="false" aria-controls="modelControlsPanel">⚙ Live 3D Controls (Lighting · Floors · Doors)</button>
+            <button type="button" class="btn" id="mobileQuickSlideDemo" aria-pressed="false">🔄 Slide Sim</button>
+          </div>
           <p id="viewerLiveStatus" class="sr-only" role="status" aria-live="polite"></p>
         </div>
 
+        <div class="mobile-sheet-backdrop" id="mobileSheetBackdrop" aria-hidden="true"></div>
         <aside class="viewer-side" id="modelControlsPanel" aria-label="3D model controls">
+          <div class="mobile-sheet-handle" id="mobileSheetHandle" aria-hidden="true"><span></span></div>
           <div class="fs-panel-head">
             <h3>Model controls</h3>
             <button type="button" class="btn small fs-panel-close" id="closeFsControls" commandfor="modelStage"
-              command="--hide-controls" aria-label="Hide model controls">✕ Hide</button>
+              command="--hide-controls" aria-label="Hide model controls">✕ Done</button>
           </div>
-          <p>Drag to orbit · Right-drag to pan · Scroll or pinch to zoom.</p>
+          <p>Drag to orbit · Pinch or scroll to zoom · Tap pins to fly inside.</p>
 
           <label for="lightingMood">Time of day &amp; lighting</label>
           <select id="lightingMood">
@@ -3717,7 +4035,7 @@
           <input id="modelOpacity" type="range" min="15" max="95" value="38">
 
           <label>Motorized doors, curtains &amp; walk</label>
-          <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px">
+          <div class="panel-controls-grid">
             <button type="button" class="btn small gold" id="panelMainDoor" aria-pressed="true" style="width:100%">🚪 Main Door &amp; Gate: Open</button>
             <button type="button" class="btn small gold" id="panelSafetyDoors" aria-pressed="true" style="width:100%">🛡️ Floor Safety Doors: Open</button>
             <button type="button" class="btn small" id="panelSlidingDoors" aria-pressed="false" style="width:100%">↔ Suite &amp; Balcony Sliders: Private</button>

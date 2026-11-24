@@ -89,9 +89,16 @@ async function init3DViewer() {
   const canvas = document.getElementById('modelCanvas');
   if (!window.WebGLRenderingContext) throw new Error('WebGL is not available in this browser.');
 
-  /* Architectural Renderer with ACES Filmic Tone Mapping & Soft Shadows */
+  /* Responsive Mobile/Touch Device Profiling & Adaptive GPU Pixel Ratio */
+  const coarseMQ = window.matchMedia ? window.matchMedia('(pointer: coarse)') : { matches: false };
+  const isTouchDevice = () => Boolean(coarseMQ.matches || ('ontouchstart' in window) || window.innerWidth <= 900);
+  const lowCoreDevice = typeof navigator !== 'undefined' && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+  let targetDpr = Math.min(window.devicePixelRatio || 1, (isTouchDevice() || lowCoreDevice) ? 1.35 : 1.75);
+  let activeDpr = targetDpr;
+
+  /* Architectural Renderer with ACES Filmic Tone Mapping & Adaptive Soft Shadows */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setPixelRatio(activeDpr);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;
@@ -107,6 +114,11 @@ async function init3DViewer() {
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.065;
+  controls.screenSpacePanning = true;
+  controls.rotateSpeed = isTouchDevice() ? 0.74 : 1.0;
+  controls.zoomSpeed = isTouchDevice() ? 0.92 : 1.0;
+  controls.panSpeed = isTouchDevice() ? 0.72 : 1.0;
+  if (THREE.TOUCH) controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
   controls.target.set(0.4, 6.0, 2.0);
   controls.minDistance = 3.5;
   controls.maxDistance = 85;
@@ -4441,14 +4453,18 @@ async function init3DViewer() {
       tower.visible = !exploded;
     }
 
-    // Account for exploded floor vertical offset & aspect-aware framing on normal Hero view so nothing crops on any screen!
+    // Account for exploded floor vertical offset & aspect-aware framing across portrait phones, tablets & widescreens!
     const yOff = (exploded && p.floor !== 'all' && levels[p.floor]) ? (levels[p.floor].userData.targetY || 0) : 0;
     camGoalTarget = new THREE.Vector3(p.target[0], p.target[1] + yOff, p.target[2]);
     camGoalPos = new THREE.Vector3(p.pos[0], p.pos[1] + yOff, p.pos[2]);
-    if (name === 'hero') {
-      const aspect = Math.max(0.58, camera.aspect || 1.5);
-      const distScale = aspect >= 1.38 ? 1.0 : Math.pow(1.38 / aspect, 0.80);
-      camGoalPos.sub(camGoalTarget).multiplyScalar(distScale).add(camGoalTarget);
+    const aspect = Math.max(0.55, camera.aspect || 1.5);
+    if (aspect < 1.32) {
+      const isExteriorWide = p.mode === 'exterior' || p.mode === 'structural' || p.mode === 'xray' || name === 'hero' || name === 'aerial';
+      const maxPull = name === 'hero' ? 1.48 : isExteriorWide ? 1.30 : 1.15;
+      const distScale = Math.min(maxPull, Math.pow(1.32 / aspect, name === 'hero' ? 0.72 : 0.36));
+      if (distScale > 1.01) {
+        camGoalPos.sub(camGoalTarget).multiplyScalar(distScale).add(camGoalTarget);
+      }
     }
 
     const presetsBar = document.getElementById('cameraPresets');
@@ -4553,15 +4569,58 @@ async function init3DViewer() {
     }
   });
 
-  /* Resize */
+  /* Responsive Resize, Aspect-Aware FOV, Orientation Sync & Mobile Touch Shortcuts */
+  function syncResponsiveFov() {
+    const asp = Math.max(0.5, camera.aspect || 1.5);
+    const nextFov = walkMode
+      ? (asp < 0.85 ? 70 : 62)
+      : (asp < 0.78 ? 50 : asp < 1.08 ? 45 : 40);
+    if (camera.fov !== nextFov) {
+      camera.fov = nextFov;
+      camera.updateProjectionMatrix();
+    }
+  }
   const resize = () => {
     const rect = canvas.getBoundingClientRect();
     const w = Math.max(1, rect.width), h = Math.max(1, rect.height);
+    targetDpr = Math.min(window.devicePixelRatio || 1, (isTouchDevice() || lowCoreDevice) ? 1.35 : 1.75);
+    if (activeDpr > targetDpr) {
+      activeDpr = targetDpr;
+      renderer.setPixelRatio(activeDpr);
+    }
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
+    syncResponsiveFov();
     camera.updateProjectionMatrix();
+    controls.rotateSpeed = isTouchDevice() ? 0.74 : 1.0;
+    controls.panSpeed = isTouchDevice() ? 0.72 : 1.0;
+    updatePins(true);
   };
   new ResizeObserver(resize).observe(canvas);
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => { resize(); updatePins(true); }, 180);
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => { resize(); });
+  }
+  // Auto-dismiss mobile touch gesture hint on first interaction + double-tap canvas on touch to refit cleanly
+  const touchHintEl = document.getElementById('viewerTouchHint');
+  const dismissTouchHint = () => { if (touchHintEl) touchHintEl.classList.add('is-dismissed'); };
+  let lastTapTime = 0, lastTapX = 0, lastTapY = 0;
+  canvas.addEventListener('pointerdown', e => {
+    dismissTouchHint();
+    if (e.pointerType !== 'touch' || walkMode) return;
+    const now = performance.now();
+    if (now - lastTapTime < 310 && Math.hypot(e.clientX - lastTapX, e.clientY - lastTapY) < 28) {
+      lastTapTime = 0;
+      if (activeCamKey !== 'hero') goPreset('hero', { userInitiated: true });
+      else stepZoom(0.78);
+    } else {
+      lastTapTime = now;
+      lastTapX = e.clientX;
+      lastTapY = e.clientY;
+    }
+  }, { passive: true });
   resize();
 
   /* Controls Wiring: Motorized Doors, Lockable Waterproof Gas Vault & Real-Home Walkthrough */
@@ -4618,6 +4677,7 @@ async function init3DViewer() {
   const dotCurtains = document.getElementById('dotCurtains');
   const dotGasLock = document.getElementById('dotGasLock');
   const dotFloodGate = document.getElementById('dotFloodGate');
+  const mobileQuickSlideDemo = document.getElementById('mobileQuickSlideDemo');
   const walkHud = document.getElementById('walkHud');
 
   function syncDoorButtons() {
@@ -4654,6 +4714,11 @@ async function init3DViewer() {
 
     if (btnSlidingDemo) btnSlidingDemo.setAttribute('aria-pressed', String(slidingDemo));
     if (dotSlidingDemo) dotSlidingDemo.className = 'btn-dot ' + (slidingDemo ? 'is-open' : 'is-closed');
+    if (mobileQuickSlideDemo) {
+      mobileQuickSlideDemo.setAttribute('aria-pressed', String(slidingDemo));
+      mobileQuickSlideDemo.classList.toggle('gold', slidingDemo);
+      mobileQuickSlideDemo.textContent = slidingDemo ? '🔄 Slide Sim: On' : '🔄 Slide Sim';
+    }
     if (panelSlidingDemo) {
       panelSlidingDemo.setAttribute('aria-pressed', String(slidingDemo));
       panelSlidingDemo.classList.toggle('gold', slidingDemo);
@@ -4768,6 +4833,7 @@ async function init3DViewer() {
   if (panelSlidingDoors) panelSlidingDoors.onclick = toggleSlidingDoors;
   if (btnSlidingDemo) btnSlidingDemo.onclick = toggleSlidingDemo;
   if (panelSlidingDemo) panelSlidingDemo.onclick = toggleSlidingDemo;
+  if (mobileQuickSlideDemo) mobileQuickSlideDemo.onclick = toggleSlidingDemo;
   btnGarageDoor.onclick = toggleGarageDoor;
   panelGarageDoor.onclick = toggleGarageDoor;
   btnCurtains.onclick = toggleCurtains;
@@ -4816,8 +4882,8 @@ async function init3DViewer() {
     panelWalkBtn.classList.add('gold');
     panelWalkBtn.textContent = '✕ Exit Real-Home Walkthrough';
     walkHud.classList.add('is-active');
-    camera.fov = 62;
-    camera.updateProjectionMatrix();
+    dismissTouchHint();
+    syncResponsiveFov();
     controls.minDistance = 0.08;
     controls.maxDistance = 2.5;
     controls.maxPolarAngle = Math.PI * 0.85;
@@ -4835,8 +4901,7 @@ async function init3DViewer() {
     panelWalkBtn.classList.remove('gold');
     panelWalkBtn.textContent = '🚶 Real-Home Walkthrough';
     walkHud.classList.remove('is-active');
-    camera.fov = 40;
-    camera.updateProjectionMatrix();
+    syncResponsiveFov();
     controls.minDistance = 3.5;
     controls.maxDistance = 85;
     controls.maxPolarAngle = Math.PI * 0.495;
@@ -5112,12 +5177,28 @@ async function init3DViewer() {
     if (isHidden) stopLoop(); else startLoop();
   });
 
+  let emaDt = 0.016, lastDprCheck = 0;
   function animate(time = 0) {
     rafId = 0;
     if (isSkipped || isHidden) return;
-    const dt = Math.min(0.05, Math.max(0, (time - lastTime) / 1000));
+    const rawDt = Math.max(0, (time - lastTime) / 1000);
+    const dt = Math.min(0.05, rawDt);
     lastTime = time;
     const tSec = time * 0.001;
+    // Adaptive Mobile GPU Resolution Scaling: keeps touch orbit & sliding simulations buttery smooth on mid-range phones!
+    if (rawDt > 0 && rawDt < 0.25) {
+      emaDt = emaDt * 0.92 + rawDt * 0.08;
+      if (time - lastDprCheck > 900) {
+        lastDprCheck = time;
+        if (emaDt > 0.038 && activeDpr > 1.0) {
+          activeDpr = Math.max(1.0, +(activeDpr - 0.25).toFixed(2));
+          renderer.setPixelRatio(activeDpr);
+        } else if (emaDt < 0.021 && activeDpr < targetDpr) {
+          activeDpr = Math.min(targetDpr, +(activeDpr + 0.15).toFixed(2));
+          renderer.setPixelRatio(activeDpr);
+        }
+      }
+    }
 
     Object.values(levels).forEach(g => {
       g.position.y += ((g.userData.targetY || 0) - g.position.y) * Math.min(1, dt * 5.5);
@@ -5283,9 +5364,10 @@ async function init3DViewer() {
     controls.autoRotate = spinning && !tour && !walkMode && !reduced;
     controls.autoRotateSpeed = 0.72;
 
-    // Smooth Live Simulation: TVs/Gaming/Water SCADA (~16 FPS), VR Motion Racing Car Wheel/Rig, 5-Stage Color-Shifting Water Drops, Fans & MEP Flow!
+    // Smooth Live Simulation: TVs/Gaming/Water SCADA (adaptive FPS on mobile!), VR Motion Car, 5-Stage Water Drops, Fans & MEP Flow!
     if (!reduced) {
-      if (time - lastScreenTick > 62) {
+      const screenInterval = (isTouchDevice() || activeDpr < targetDpr) ? 120 : 62;
+      if (time - lastScreenTick > screenInterval) {
         lastScreenTick = time;
         updateLiveScreens(tSec);
       }
@@ -5386,15 +5468,33 @@ window.__retry3DViewer = () => {
   init3DViewer();
 };
 
-/* Always-Ready Dual-Engine 3D Fullscreen wired declaratively via Invoker Commands (`commandfor`/`command`) + CommandEvent Fallback */
+/* Always-Ready Dual-Engine 3D Fullscreen & Live Mobile Bottom-Sheet Controls wired via Invoker Commands (`commandfor`/`command`) */
 const modelStage = document.getElementById('modelStage');
 const fsToggleButtons = Array.from(document.querySelectorAll('button[commandfor="modelStage"][command="--toggle-fullscreen"]'));
+const mobileCtrlButtons = Array.from(document.querySelectorAll('button[commandfor="modelStage"][command="--toggle-mobile-controls"]'));
+const mobileSheetBackdrop = document.getElementById('mobileSheetBackdrop');
+const mobileSheetHandle = document.getElementById('mobileSheetHandle');
 const toggleFsCtrlBtn = document.getElementById('toggleFsControls');
 let onStageFullscreenSync = null;
 
 const getNativeFsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
 const isStageFullscreen = () => Boolean(modelStage) && (getNativeFsEl() === modelStage || modelStage.classList.contains('is-fullscreen'));
+const isMobileSheetOpen = () => Boolean(modelStage) && modelStage.classList.contains('mobile-sheet-open');
 
+function setMobileSheetOpen(open) {
+  if (!modelStage) return;
+  modelStage.classList.toggle('mobile-sheet-open', open);
+  mobileCtrlButtons.forEach(btn => btn.setAttribute('aria-pressed', String(open)));
+  if (open) {
+    init3DViewer();
+    // Scroll the 3D viewer to the top of the phone screen so the villa stays live & visible above the bottom sheet!
+    const vc = document.getElementById('viewerContainer');
+    if (vc && !isStageFullscreen()) {
+      vc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+  if (onStageFullscreenSync) onStageFullscreenSync();
+}
 function setFsControlsOpen(open) {
   if (!modelStage || !toggleFsCtrlBtn) return;
   modelStage.classList.toggle('fs-controls-hidden', !open);
@@ -5407,6 +5507,7 @@ function syncFullscreenUI() {
   document.body.classList.toggle('fs-lock', active);
   fsToggleButtons.forEach(btn => btn.setAttribute('aria-pressed', String(active)));
   if (active) {
+    setMobileSheetOpen(false);
     setFsControlsOpen(window.innerWidth > 1050);
   } else if (modelStage) {
     modelStage.classList.remove('fs-controls-hidden');
@@ -5442,8 +5543,33 @@ const stageCommands = {
   '--toggle-fullscreen': () => { if (isStageFullscreen()) exitFullscreen(); else enterFullscreen(); },
   '--exit-fullscreen': () => exitFullscreen(),
   '--toggle-controls': () => setFsControlsOpen(modelStage.classList.contains('fs-controls-hidden')),
-  '--hide-controls': () => setFsControlsOpen(false)
+  '--toggle-mobile-controls': () => setMobileSheetOpen(!isMobileSheetOpen()),
+  '--hide-controls': () => {
+    if (isStageFullscreen()) setFsControlsOpen(false);
+    else setMobileSheetOpen(false);
+  }
 };
+if (mobileSheetBackdrop) {
+  mobileSheetBackdrop.addEventListener('click', () => setMobileSheetOpen(false));
+}
+// Natural swipe-down-to-dismiss gesture on mobile bottom sheet handle
+if (mobileSheetHandle) {
+  let dragStartY = 0, draggingSheet = false;
+  mobileSheetHandle.addEventListener('pointerdown', e => {
+    draggingSheet = true;
+    dragStartY = e.clientY;
+    mobileSheetHandle.setPointerCapture?.(e.pointerId);
+  });
+  mobileSheetHandle.addEventListener('pointerup', e => {
+    if (!draggingSheet) return;
+    draggingSheet = false;
+    if (e.clientY - dragStartY > 48) {
+      if (isStageFullscreen()) setFsControlsOpen(false);
+      else setMobileSheetOpen(false);
+    }
+  });
+  mobileSheetHandle.addEventListener('pointercancel', () => { draggingSheet = false; });
+}
 if (!('commandForElement' in HTMLButtonElement.prototype)) {
   if (!globalThis.CommandEvent) {
     globalThis.CommandEvent = class CommandEvent extends Event {
@@ -5474,7 +5600,10 @@ if (modelStage) {
 document.addEventListener('fullscreenchange', syncFullscreenUI);
 document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && isStageFullscreen()) exitFullscreen();
+  if (e.key === 'Escape') {
+    if (isStageFullscreen()) exitFullscreen();
+    else if (isMobileSheetOpen()) setMobileSheetOpen(false);
+  }
 });
 
 /* Trigger 3D boot smoothly on viewport proximity, explicit user click, or browser idle after preloader */
