@@ -7,8 +7,12 @@
   <meta name="theme-color" content="#07111d">
   <meta name="description"
     content="Dream Home — Interactive Luxury Villa Design Studio in Chitwan, Nepal. Explore the architectural 3D model, floor plans, high-definition interiors, building systems, timeline and cost overview.">
-  <title>Dream Home — Interactive Villa Design Studio</title>
+  <meta name="author" content="Ravn Technology">
+  <title>Dream Home — Ravn Technology Villa Design Studio</title>
+  <link rel="icon" type="image/png" href="assets/ravn-favicon.png">
+  <link rel="apple-touch-icon" href="assets/ravn-favicon.png">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" as="image" href="assets/ravn-logo-128.webp" fetchpriority="high" type="image/webp">
   <link rel="preload" as="image" href="assets/exterior-photo.webp"
     imagesrcset="assets/exterior-photo-800.webp 800w, assets/exterior-photo.webp 1500w"
     imagesizes="(max-width: 1050px) 100vw, 66vw" fetchpriority="high" type="image/webp">
@@ -167,14 +171,22 @@
     .brand-mark {
       display: grid;
       place-items: center;
-      width: 41px;
-      height: 41px;
-      border: 1px solid rgba(236, 197, 129, .55);
+      width: 44px;
+      height: 44px;
+      padding: 4px;
+      border: 1px solid rgba(56, 189, 248, .42);
       border-radius: 13px;
-      background: linear-gradient(145deg, rgba(232, 193, 126, .26), rgba(232, 193, 126, .06));
-      color: var(--gold-bright);
-      font-size: 24px;
-      box-shadow: inset 0 1px rgba(255, 255, 255, .22);
+      background: radial-gradient(circle at 38% 32%, rgba(30, 58, 95, .92), rgba(7, 16, 30, .96));
+      box-shadow: inset 0 1px rgba(255, 255, 255, .18), 0 0 16px rgba(56, 189, 248, .22);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, .42));
     }
 
     .brand small {
@@ -2091,7 +2103,40 @@
       padding: 28px 0 44px;
       border-top: 1px solid var(--line);
       color: var(--muted);
-      font-size: 12.5px
+      font-size: 12.5px;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px 24px;
+    }
+
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .footer-brand img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, .38));
+    }
+
+    .footer-brand strong {
+      color: var(--gold-bright);
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      max-width: 680px;
     }
 
     /* Modern Native <dialog> Lightbox (per modern-web-guidance) */
@@ -2620,7 +2665,13 @@
       }
     }
 
-    /* Studio Preloader, Semantic <progress> Spinner & Progress Bar (per modern-web-guidance) */
+    /* Construction Studio Preloader, Semantic <progress> Ring & Progress Bar (per modern-web-guidance) */
+    @property --value {
+      syntax: "<number>";
+      inherits: true;
+      initial-value: 0;
+    }
+
     @property --arc-start {
       syntax: "<angle>";
       inherits: false;
@@ -2645,12 +2696,14 @@
       z-index: 10000;
       display: grid;
       place-items: center;
-      padding: 24px;
+      padding: 20px;
       background:
-        radial-gradient(900px 540px at 50% 30%, rgba(232, 193, 126, .14), transparent 62%),
-        radial-gradient(760px 460px at 50% 80%, rgba(44, 96, 146, .18), transparent 65%),
-        #060f1a;
-      transition: opacity .36s ease-out, scale .36s ease-out, visibility .36s;
+        linear-gradient(rgba(56, 189, 248, .045) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(90deg, rgba(56, 189, 248, .045) 1px, transparent 1px) 0 0 / 36px 36px,
+        radial-gradient(880px 520px at 50% 24%, rgba(56, 189, 248, .13), transparent 62%),
+        radial-gradient(760px 460px at 50% 82%, rgba(232, 193, 126, .14), transparent 65%),
+        #050d18;
+      transition: opacity .38s ease-out, scale .38s ease-out, visibility .38s;
     }
 
     #sitePreloader.is-done {
@@ -2661,37 +2714,107 @@
     }
 
     .preloader-card {
-      width: min(360px, 100%);
-      padding: 28px 26px 24px;
+      width: min(448px, 100%);
+      padding: 24px 24px 20px;
       border-radius: 22px;
       text-align: center;
-      background: linear-gradient(155deg, rgba(19, 38, 59, .92), rgba(8, 19, 32, .96));
+      background: linear-gradient(155deg, rgba(15, 31, 50, .95), rgba(7, 16, 29, .98));
       border: 1px solid rgba(232, 193, 126, .34);
-      box-shadow: 0 26px 70px rgba(0, 0, 0, .58), inset 0 1px rgba(255, 255, 255, .12);
+      box-shadow: 0 28px 75px rgba(0, 0, 0, .66), inset 0 1px rgba(255, 255, 255, .12);
+    }
+
+    .preloader-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
     .preloader-emblem {
       position: relative;
-      width: 68px;
-      height: 68px;
-      margin: 0 auto 14px;
+      width: 78px;
+      height: 78px;
       display: grid;
       place-items: center;
+      flex-shrink: 0;
     }
 
-    .preloader-emblem .brand-glyph {
+    .preloader-emblem .brand-logo-img {
       position: relative;
       z-index: 1;
-      font-size: 26px;
-      color: var(--gold-bright);
-      line-height: 1;
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, .48));
     }
 
-    .preloader-emblem progress.loading-spinner {
+    /* Native Semantic <progress class="progress-ring"> (per progress-ring guide) */
+    progress.progress-ring::-webkit-progress-bar {
+      display: none;
+      background: none;
+    }
+
+    progress.progress-ring::-webkit-progress-value {
+      display: none;
+      background: none;
+    }
+
+    progress.progress-ring::-moz-progress-bar {
+      display: none;
+      background: none;
+    }
+
+    progress.progress-ring::slider-fill {
+      display: none;
+      background: none;
+    }
+
+    progress.progress-ring {
+      --size: 78px;
+      --thickness: 4px;
+      --track-color: rgba(148, 163, 184, .18);
+      --fill-color: #38bdf8;
+      --value: attr(value type(<number>));
       position: absolute;
       inset: 0;
-      --size: 68px;
-      --thickness: 3px;
+      appearance: none;
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      transition: --value 0s ease-out;
+      background: conic-gradient(from -90deg, #38bdf8 0%, var(--gold-bright) calc(var(--value) * 1%), var(--track-color) 0);
+      background-clip: border-area;
+      border: var(--thickness) solid transparent;
+      background-origin: border-box;
+    }
+
+    progress.progress-ring[value="100"] {
+      background: conic-gradient(from -90deg, #10b981 0%, #34d399 100%);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      progress.progress-ring {
+        transition: --value .28s cubic-bezier(.4, 0, .2, 1);
+      }
+    }
+
+    @supports not (background-clip: border-area) {
+      progress.progress-ring {
+        mask-image: radial-gradient(transparent calc(50% - var(--thickness)), black calc(50% - var(--thickness) + 0.5px));
+        border: 0;
+      }
+    }
+
+    @media (forced-colors: active) {
+      progress.progress-ring {
+        forced-color-adjust: none;
+        background: conic-gradient(from -90deg, CanvasText calc(var(--value) * 1%), Canvas 0);
+      }
+    }
+
+    .preloader-titles {
+      text-align: left;
     }
 
     .preloader-card strong {
@@ -2699,23 +2822,203 @@
       font-size: 21px;
       letter-spacing: -.5px;
       color: var(--text);
+      line-height: 1.15;
     }
 
     .preloader-sub {
       display: block;
       font-size: 10.5px;
-      letter-spacing: 2.2px;
+      letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--gold);
       font-weight: 700;
+      margin-top: 3px;
+    }
+
+    .preloader-powered {
+      display: block;
+      font-size: 11px;
+      color: #7dd3fc;
+      font-weight: 600;
       margin-top: 2px;
     }
 
-    .preloader-status {
-      margin: 14px 0 10px;
-      font-size: 12.5px;
+    /* Animated Construction Tools Blueprint Stage */
+    .construction-stage {
+      position: relative;
+      width: 100%;
+      height: 124px;
+      margin: 8px 0 12px;
+      border-radius: 14px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(56, 189, 248, .08) 1px, transparent 1px) 0 0 / 18px 18px,
+        linear-gradient(90deg, rgba(56, 189, 248, .08) 1px, transparent 1px) 0 0 / 18px 18px,
+        linear-gradient(180deg, rgba(8, 22, 39, .95), rgba(6, 15, 27, .98));
+      border: 1px solid rgba(56, 189, 248, .24);
+      box-shadow: inset 0 2px 16px rgba(0, 0, 0, .45);
+    }
+
+    .construction-stage svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .crane-trolley {
+      animation: crane-slide 3.6s ease-in-out infinite alternate;
+    }
+
+    .crane-load {
+      animation: crane-hoist 2.4s ease-in-out infinite alternate;
+    }
+
+    .tool-hammer {
+      transform-box: fill-box;
+      transform-origin: 22% 84%;
+      animation: hammer-strike 1.15s cubic-bezier(.45, .05, .55, .95) infinite;
+    }
+
+    .tool-spark {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: spark-pop 1.15s ease-out infinite;
+    }
+
+    .tool-wrench {
+      transform-box: fill-box;
+      transform-origin: 24% 76%;
+      animation: wrench-turn 1.8s ease-in-out infinite;
+    }
+
+    .tool-gear-lg {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: gear-cw 5.2s linear infinite;
+    }
+
+    .tool-gear-sm {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: gear-ccw 3.4s linear infinite;
+    }
+
+    .tool-trowel {
+      transform-box: fill-box;
+      transform-origin: 50% 80%;
+      animation: trowel-sweep 2.1s ease-in-out infinite;
+    }
+
+    .villa-wire {
+      stroke-dasharray: 420;
+      stroke-dashoffset: 420;
+      transition: stroke-dashoffset .18s linear;
+    }
+
+    @keyframes crane-slide {
+      from { transform: translateX(0px); }
+      to { transform: translateX(52px); }
+    }
+
+    @keyframes crane-hoist {
+      from { transform: translateY(0px); }
+      to { transform: translateY(14px); }
+    }
+
+    @keyframes hammer-strike {
+      0%, 100% { transform: rotate(-28deg); }
+      38% { transform: rotate(16deg); }
+      52% { transform: rotate(-16deg); }
+      72% { transform: rotate(18deg); }
+    }
+
+    @keyframes spark-pop {
+      0%, 32%, 55%, 100% { opacity: 0; transform: scale(.4); }
+      40%, 74% { opacity: 1; transform: scale(1.15); }
+    }
+
+    @keyframes wrench-turn {
+      0%, 100% { transform: rotate(-18deg); }
+      50% { transform: rotate(22deg); }
+    }
+
+    @keyframes gear-cw {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes gear-ccw {
+      to { transform: rotate(-360deg); }
+    }
+
+    @keyframes trowel-sweep {
+      0%, 100% { transform: translateX(-8px) rotate(-10deg); }
+      50% { transform: translateX(10px) rotate(10deg); }
+    }
+
+    .build-steps {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    .build-step {
+      padding: 5px 4px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .2px;
       color: var(--muted);
-      min-height: 1.5em;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(148, 163, 184, .16);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .build-step.is-active {
+      color: #07111d;
+      background: linear-gradient(135deg, #fbe4b4, #cfa056);
+      border-color: #fff0cc;
+    }
+
+    .build-step.is-done {
+      color: #7dd3fc;
+      background: rgba(56, 189, 248, .12);
+      border-color: rgba(56, 189, 248, .42);
+    }
+
+    .preloader-bar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+
+    .preloader-status {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: left;
+      min-height: 1.4em;
+    }
+
+    .preloader-pct {
+      font-size: 12px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--gold-bright);
+      flex-shrink: 0;
+    }
+
+    .preloader-copy {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(148, 163, 184, .14);
+      font-size: 11px;
+      color: #8ca3ba;
+      letter-spacing: .3px;
     }
 
     /* Native <progress> Spinner (per spinner guide) */
@@ -2810,7 +3113,7 @@
       appearance: none;
       display: block;
       width: 100%;
-      height: 6px;
+      height: 7px;
       border: 0 solid;
       border-radius: 1e5px;
       overflow: clip;
@@ -2823,13 +3126,13 @@
     }
 
     progress.studio-progress::-webkit-progress-value {
-      background: linear-gradient(90deg, #c89a54, #f7dda8);
+      background: linear-gradient(90deg, #38bdf8, #e8c17e, #f7dda8);
       border-radius: 1e5px;
       transition: inline-size .28s ease-out;
     }
 
     progress.studio-progress::-moz-progress-bar {
-      background: linear-gradient(90deg, #c89a54, #f7dda8);
+      background: linear-gradient(90deg, #38bdf8, #e8c17e, #f7dda8);
       border-radius: 1e5px;
       transition: inline-size .28s ease-out;
     }
@@ -2876,26 +3179,141 @@
 </head>
 
 <body>
-  <!-- Studio Preloader (Minimum 5s smooth showcase while pre-warming hero, galleries & 3D villa) -->
-  <div id="sitePreloader" role="status" aria-live="polite" aria-label="Loading Dream Home studio">
+  <!-- Redesigned Construction-Tools Studio Preloader (Minimum 5s smooth showcase while pre-warming hero, galleries & 3D villa) -->
+  <div id="sitePreloader" role="status" aria-live="polite" aria-label="Constructing Dream Home 3D studio">
     <div class="preloader-card">
-      <div class="preloader-emblem">
-        <progress aria-label="Loading" class="loading-spinner"></progress>
-        <span class="brand-glyph" aria-hidden="true">⌂</span>
+      <div class="preloader-head">
+        <div class="preloader-emblem">
+          <progress id="preloaderRing" class="progress-ring" max="100" value="5" aria-label="Studio construction progress" aria-valuetext="5%"></progress>
+          <img class="brand-logo-img" src="assets/ravn-logo-128.webp" width="48" height="48" alt="" aria-hidden="true" fetchpriority="high" decoding="async">
+        </div>
+        <div class="preloader-titles">
+          <strong>Dream Home</strong>
+          <span class="preloader-sub">3D Villa Construction Studio</span>
+          <span class="preloader-powered">by Ravn Technology</span>
+        </div>
       </div>
-      <strong>Dream Home</strong>
-      <span class="preloader-sub">Interactive Villa Studio</span>
-      <p class="preloader-status" id="preloaderStatus">Preparing architectural visuals…</p>
+
+      <!-- Precision Animated Construction Tools Blueprint Scene (Tower Crane, Swinging Hammer + Sparks, Wrench & Gears, Villa Frame, Mason Trowel) -->
+      <div class="construction-stage" aria-hidden="true">
+        <svg viewBox="0 0 380 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ground / Foundation Baseline & Piles -->
+          <line x1="14" y1="104" x2="366" y2="104" stroke="#38bdf8" stroke-opacity=".42" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <g stroke="#8b98a6" stroke-width="2" stroke-opacity=".55">
+            <line x1="154" y1="104" x2="154" y2="115"/><line x1="184" y1="104" x2="184" y2="115"/>
+            <line x1="214" y1="104" x2="214" y2="115"/><line x1="244" y1="104" x2="244" y2="115"/>
+          </g>
+
+          <!-- LEFT: Architectural Tower Crane with Gliding Trolley & Hoisting Steel I-Beam -->
+          <g stroke="#e8c17e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Crane Mast Lattice -->
+            <rect x="34" y="24" width="12" height="80" fill="rgba(232,193,126,.08)"/>
+            <path d="M34 36 L46 46 M46 36 L34 46 M34 54 L46 64 M46 54 L34 64 M34 72 L46 82 M46 72 L34 82 M34 90 L46 100"/>
+            <!-- Mast Peak & Counter-Jib -->
+            <path d="M40 12 L34 24 M40 12 L46 24 M16 24 L134 24 M16 24 L40 12 L116 24"/>
+            <rect x="14" y="24" width="12" height="7" rx="1.5" fill="#d4ad6a"/>
+            <!-- Gliding Crane Trolley + Hoisting I-Beam -->
+            <g class="crane-trolley">
+              <rect x="56" y="24" width="12" height="5" rx="1" fill="#38bdf8" stroke="none"/>
+              <g class="crane-load">
+                <line x1="62" y1="29" x2="62" y2="54" stroke="#7dd3fc" stroke-width="1.3"/>
+                <path d="M59 54 C59 58 65 58 65 54" stroke="#f7dda8" stroke-width="1.5"/>
+                <rect x="49" y="58" width="26" height="5" rx="1.5" fill="#f7dda8" stroke="#b98d4a" stroke-width="1"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- CENTER: Rising Dream Home Villa Blueprint Wireframe (Draws Live 0% -> 100%!) -->
+          <g>
+            <!-- Subtle static ghost blueprint -->
+            <path d="M142 104 V54 H222 V104 M136 84 H224 M136 68 H224 M152 104 V88 H194 V104 M222 104 V38 H254 V104 M226 44 H250 M226 49 H250 M146 54 V42 H214 V54"
+              stroke="#38bdf8" stroke-opacity=".18" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- Live drawing gold/cyan wireframe -->
+            <path id="villaBuildPath" class="villa-wire"
+              d="M142 104 V54 H222 V104 M136 84 H224 M136 68 H224 M152 104 V88 H194 V104 M222 104 V38 H254 V104 M226 44 H250 M226 49 H250 M146 54 V42 H214 V54"
+              stroke="url(#buildGrad)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Glowing Seismic Isolator Dots at Plinth -->
+            <circle cx="154" cy="102" r="2.6" fill="#f97316"/><circle cx="184" cy="102" r="2.6" fill="#f97316"/>
+            <circle cx="214" cy="102" r="2.6" fill="#f97316"/><circle cx="244" cy="102" r="2.6" fill="#f97316"/>
+          </g>
+
+          <!-- RIGHT-TOP: Interlocking Rotating Engineering Gears & Oscillating Steel Wrench -->
+          <g transform="translate(274, 16)">
+            <g class="tool-gear-lg">
+              <circle cx="18" cy="18" r="10" stroke="#e8c17e" stroke-width="2.4" stroke-dasharray="4 3.2" fill="rgba(232,193,126,.1)"/>
+              <circle cx="18" cy="18" r="4" stroke="#f7dda8" stroke-width="1.6"/>
+            </g>
+            <g class="tool-gear-sm">
+              <circle cx="35" cy="28" r="6.5" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 2.6" fill="rgba(56,189,248,.1)"/>
+              <circle cx="35" cy="28" r="2.4" fill="#7dd3fc"/>
+            </g>
+            <!-- Oscillating Open-End Wrench -->
+            <g class="tool-wrench">
+              <path d="M52 38 L74 16 C77 13 83 13 86 16 L81 21 L84 24 L89 19 C91 23 89 28 85 31 C82 33 78 33 75 31 L56 44 C53 45 50 41 52 38 Z"
+                fill="#cbd5e1" stroke="#38bdf8" stroke-width="1.2"/>
+            </g>
+          </g>
+
+          <!-- RIGHT-BOTTOM: Animated Swinging Claw Hammer + Impact Sparks + Sweeping Mason Trowel -->
+          <g transform="translate(274, 62)">
+            <!-- Hammer Strike Target Nail/Beam -->
+            <rect x="26" y="34" width="24" height="5" rx="1.5" fill="#64748b"/>
+            <!-- Golden Impact Sparks -->
+            <g class="tool-spark" stroke="#f7dda8" stroke-width="1.6" stroke-linecap="round">
+              <line x1="36" y1="26" x2="31" y2="20"/>
+              <line x1="40" y1="24" x2="40" y2="17"/>
+              <line x1="44" y1="26" x2="49" y2="20"/>
+            </g>
+            <!-- Swinging Architectural Claw Hammer -->
+            <g class="tool-hammer">
+              <rect x="10" y="22" width="26" height="4.5" rx="2" transform="rotate(-24 10 24)" fill="#b98d4a" stroke="#f7dda8" stroke-width=".9"/>
+              <path d="M30 8 L45 14 L42 22 L34 19 L31 23 L26 20 L30 13 C28 11 26 9 23 10 C25 7 28 7 30 8 Z"
+                fill="#e2e8f0" stroke="#e8c17e" stroke-width="1.1"/>
+            </g>
+            <!-- Sweeping Mason Trowel & Drafting Caliper on Far Right -->
+            <g class="tool-trowel">
+              <path d="M62 34 L76 26 L88 36 L68 39 Z" fill="#94a3b8" stroke="#f7dda8" stroke-width="1.1"/>
+              <path d="M74 28 L79 20" stroke="#e8c17e" stroke-width="2.2" stroke-linecap="round"/>
+              <rect x="77" y="13" width="5.5" height="9" rx="2" transform="rotate(26 79 17)" fill="#c89a54"/>
+            </g>
+          </g>
+
+          <defs>
+            <linearGradient id="buildGrad" x1="136" y1="38" x2="254" y2="104" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="52%" stop-color="#e8c17e"/>
+              <stop offset="100%" stop-color="#f7dda8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- 5 Live Construction Phase Pills -->
+      <div class="build-steps" id="preloaderSteps" aria-hidden="true">
+        <span class="build-step is-active" data-step="0">Piles</span>
+        <span class="build-step" data-step="1">Frame</span>
+        <span class="build-step" data-step="2">MEP</span>
+        <span class="build-step" data-step="3">Interiors</span>
+        <span class="build-step" data-step="4">Ready</span>
+      </div>
+
+      <div class="preloader-bar-head">
+        <p class="preloader-status" id="preloaderStatus">Setting RCC piles &amp; seismic isolators…</p>
+        <span class="preloader-pct" id="preloaderPct" aria-hidden="true">5%</span>
+      </div>
       <progress id="preloaderBar" class="studio-progress" max="100" value="5" aria-label="Studio load progress"></progress>
+      <div class="preloader-copy">© 2026 Ravn Technology · Architectural 3D Visualization</div>
     </div>
   </div>
 
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
   <header id="siteHeader">
-    <a class="brand" href="#home">
-      <span class="brand-mark" aria-hidden="true">⌂</span>
-      <span>Dream Home<small>Interactive Villa Studio</small></span>
+    <a class="brand" href="#home" aria-label="Ravn Technology — Dream Home">
+      <span class="brand-mark">
+        <img src="assets/ravn-logo-128.webp" width="34" height="34" alt="" decoding="async" fetchpriority="high">
+      </span>
+      <span>Dream Home<small>Ravn Technology</small></span>
     </a>
     <button id="menuToggle" class="glass-menu" type="button" aria-label="Toggle navigation" aria-controls="primaryNav"
       aria-expanded="false">
@@ -3748,8 +4166,14 @@
   </main>
 
   <footer>
-    <div class="container">Dream Home · Interactive Villa Design Studio · Chitwan, Nepal · Architectural concept
-      visualization only, not construction documentation.</div>
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="assets/ravn-logo-128.webp" width="28" height="28" alt="Ravn Technology logo" loading="lazy" decoding="async">
+        <span><strong>© 2026 Ravn Technology.</strong> All rights reserved.</span>
+      </div>
+      <div class="footer-note">Dream Home · Interactive 3D Villa Design Studio · Chitwan, Nepal · Architectural concept
+        visualization only, not construction documentation.</div>
+    </div>
   </footer>
 
   <!-- Native <dialog> Modal Lightbox -->
@@ -3796,32 +4220,63 @@
       return new Promise(resolve => setTimeout(resolve, 0));
     };
 
-    /* Smart Studio Preloader Controller (Minimum 5s smooth showcase while pre-warming 3D & HD assets) */
+    /* Smart Construction-Tools Preloader Controller (Minimum 5s smooth showcase while pre-warming 3D & HD assets) */
     const preloaderCtrl = (() => {
       const MIN_MS = 5000;
       const MAX_MS = 7500;
       const startAt = performance.now();
       const el = $('sitePreloader');
       const bar = $('preloaderBar');
+      const ring = $('preloaderRing');
+      const pctEl = $('preloaderPct');
       const status = $('preloaderStatus');
+      const wire = $('villaBuildPath');
+      const stepEls = Array.from(document.querySelectorAll('#preloaderSteps .build-step'));
+      const supportsAttrNum = CSS.supports('width: attr(value type(<number>))');
       const stages = [
-        [0, 'Preparing architectural visuals…'],
-        [22, 'Decoding high-resolution elevations & floor plans…'],
-        [48, 'Sculpting interactive 3D villa & 6 ensuite interiors…'],
-        [76, 'Hydrating HD galleries, garden & 18,000 L water systems…'],
-        [95, 'Finalizing Dream Home Studio…']
+        [0,  0, 'Setting RCC piles & seismic base isolators…'],
+        [22, 1, 'Hoisting curved slabs, 62-step spiral & skylight crown…'],
+        [48, 2, 'Routing 18,000 L water, strainers, gas vault & ESE mast…'],
+        [74, 3, 'Furnishing 6 suites, spa baths, VR car & gardens…'],
+        [94, 4, 'Finalizing Ravn Technology 3D Studio…']
       ];
       let done = false, readyToFinish = false, rafTick = 0;
+
+      function setProgress(pct) {
+        const clamped = Math.max(0, Math.min(100, Math.round(pct)));
+        if (bar) {
+          bar.value = Math.max(bar.value, clamped);
+          bar.setAttribute('aria-valuetext', `${bar.value}%`);
+        }
+        const v = bar ? bar.value : clamped;
+        if (ring) {
+          ring.value = v;
+          ring.setAttribute('value', String(v));
+          ring.setAttribute('aria-valuetext', `${v}%`);
+          if (!supportsAttrNum) ring.style.setProperty('--value', String(v));
+        }
+        if (pctEl) pctEl.textContent = `${v}%`;
+        if (wire) wire.style.strokeDashoffset = String(Math.round(420 * (1 - v / 100)));
+        let activeIdx = 0, msg = stages[0][2];
+        for (const [minPct, sIdx, label] of stages) {
+          if (v >= minPct) { activeIdx = sIdx; msg = label; }
+        }
+        if (status) status.textContent = msg;
+        stepEls.forEach((s, i) => {
+          s.classList.toggle('is-done', i < activeIdx || v === 100);
+          s.classList.toggle('is-active', i === activeIdx && v < 100);
+        });
+      }
 
       function completeNow() {
         if (done) return;
         done = true;
         if (rafTick) cancelAnimationFrame(rafTick);
-        if (bar) bar.value = 100;
-        if (status) status.textContent = 'Welcome to Dream Home Studio';
+        setProgress(100);
+        if (status) status.textContent = 'Construction complete — Welcome to Dream Home';
         requestAnimationFrame(() => {
           el?.classList.add('is-done');
-          setTimeout(() => { el?.remove(); }, 420);
+          setTimeout(() => { el?.remove(); }, 440);
           window.dispatchEvent(new CustomEvent('studio:ready'));
         });
       }
@@ -3831,21 +4286,16 @@
         const elapsed = now - startAt;
         const ratio = Math.min(1, elapsed / MIN_MS);
         // Smooth ease-out progress across the full 5-second window (holds at 97% only if still waiting for ready)
-        const eased = 1 - Math.pow(1 - ratio, 2.2);
+        const eased = 1 - Math.pow(1 - ratio, 2.0);
         const pct = Math.round(eased * (readyToFinish ? 100 : 97));
-        if (bar) bar.value = Math.max(bar.value, pct);
-        if (status) {
-          let msg = stages[0][1];
-          for (const [minPct, label] of stages) if (pct >= minPct) msg = label;
-          status.textContent = msg;
-        }
+        setProgress(pct);
         if (elapsed >= MIN_MS && readyToFinish) {
           completeNow();
           return;
         }
         rafTick = requestAnimationFrame(tick);
       }
-      if (bar) bar.value = 5;
+      setProgress(5);
       rafTick = requestAnimationFrame(tick);
 
       function finish() {
