@@ -174,19 +174,32 @@
       width: 44px;
       height: 44px;
       padding: 4px;
-      border: 1px solid rgba(56, 189, 248, .42);
+      border: 1px solid rgba(232, 193, 126, .44);
       border-radius: 13px;
-      background: radial-gradient(circle at 38% 32%, rgba(30, 58, 95, .92), rgba(7, 16, 30, .96));
-      box-shadow: inset 0 1px rgba(255, 255, 255, .18), 0 0 16px rgba(56, 189, 248, .22);
+      background:
+        radial-gradient(circle at 46% 42%, rgba(214, 232, 250, .34) 0%, rgba(42, 78, 114, .68) 48%, rgba(12, 26, 42, .94) 100%);
+      box-shadow:
+        inset 0 1px rgba(255, 255, 255, .24),
+        inset 0 0 14px rgba(164, 193, 222, .16),
+        0 6px 18px rgba(0, 0, 0, .28);
       overflow: hidden;
       flex-shrink: 0;
+      transition: border-color .2s ease-out, box-shadow .2s ease-out;
+    }
+
+    .brand:hover .brand-mark {
+      border-color: var(--gold-bright);
+      box-shadow:
+        inset 0 1px rgba(255, 255, 255, .30),
+        inset 0 0 16px rgba(232, 193, 126, .20),
+        0 6px 20px rgba(0, 0, 0, .36);
     }
 
     .brand-mark img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 0 6px rgba(56, 189, 248, .42));
+      filter: drop-shadow(0 0 1.2px rgba(245, 243, 236, .62)) drop-shadow(0 2px 8px rgba(6, 15, 26, .70));
     }
 
     .brand small {
@@ -815,6 +828,25 @@
       flex-wrap: wrap;
     }
 
+    /* Always-visible Top-Right Quick Fullscreen Button inside the 3D Viewer */
+    .viewer-quick-fs {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      z-index: 6;
+      padding: 7px 13px;
+      font-size: 12px;
+      line-height: 1.2;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .42), inset 0 1px rgba(255, 255, 255, .45);
+    }
+
+    #modelStage:fullscreen .viewer-quick-fs,
+    #modelStage:-webkit-full-screen .viewer-quick-fs,
+    #modelStage.is-fullscreen .viewer-quick-fs {
+      display: none;
+    }
+
     .fs-bar button {
       padding: 8px 13px;
       font-size: 12.5px;
@@ -1008,7 +1040,7 @@
       display: flex;
       align-items: center;
       gap: 9px;
-      max-width: calc(100% - 32px);
+      max-width: calc(100% - 166px);
       background: rgba(7, 17, 29, .80);
       border: 1px solid rgba(232, 193, 126, .34);
       padding: 7px 13px;
@@ -2155,11 +2187,25 @@
       font-size: 13px;
     }
 
+    .footer-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      padding: 3px;
+      border-radius: 10px;
+      border: 1px solid rgba(232, 193, 126, .40);
+      background:
+        radial-gradient(circle at 46% 42%, rgba(214, 232, 250, .32) 0%, rgba(42, 78, 114, .66) 48%, rgba(12, 26, 42, .94) 100%);
+      box-shadow: inset 0 1px rgba(255, 255, 255, .20), 0 4px 12px rgba(0, 0, 0, .28);
+      flex-shrink: 0;
+    }
+
     .footer-brand img {
-      width: 28px;
-      height: 28px;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 0 6px rgba(56, 189, 248, .38));
+      filter: drop-shadow(0 0 1px rgba(245, 243, 236, .60)) drop-shadow(0 2px 6px rgba(6, 15, 26, .68));
     }
 
     .footer-brand strong {
@@ -2771,6 +2817,18 @@
       display: grid;
       place-items: center;
       flex-shrink: 0;
+      border-radius: 50%;
+    }
+
+    .preloader-emblem::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
+      border: 1px solid rgba(232, 193, 126, .34);
+      background:
+        radial-gradient(circle at 46% 42%, rgba(214, 232, 250, .34) 0%, rgba(42, 78, 114, .70) 50%, rgba(12, 26, 42, .96) 100%);
+      box-shadow: inset 0 1px rgba(255, 255, 255, .22), inset 0 0 16px rgba(164, 193, 222, .16);
     }
 
     .preloader-emblem .brand-logo-img {
@@ -2779,7 +2837,7 @@
       width: 48px;
       height: 48px;
       object-fit: contain;
-      filter: drop-shadow(0 0 10px rgba(56, 189, 248, .48));
+      filter: drop-shadow(0 0 1.4px rgba(245, 243, 236, .64)) drop-shadow(0 3px 10px rgba(6, 15, 26, .74));
     }
 
     /* Native Semantic <progress class="progress-ring"> (per progress-ring guide) */
@@ -3365,6 +3423,8 @@
       <a href="#details">Details</a>
     </nav>
     <div class="header-actions">
+      <button type="button" class="btn gold small" id="headerFsBtn" commandfor="modelStage"
+        command="--toggle-fullscreen" aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen 3D</button>
       <a class="btn small" href="assets/full-reference.webp" download="Dream-Home-Reference-4K.webp">↓ 4K Board</a>
     </div>
   </header>
@@ -3445,16 +3505,24 @@
             solar piping, HVAC/exhaust ventilation, sanitary drainage, and waterproof lockable LPG gas vault piped to
             every kitchen.</p>
         </div>
+        <div class="tabs">
+          <button type="button" class="btn gold" id="sectionFsBtn" commandfor="modelStage" command="--toggle-fullscreen"
+            aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen 3D</button>
+        </div>
       </div>
       <div class="model-layout" id="modelStage">
         <div class="viewer-column">
           <div class="viewer" id="viewerContainer">
             <canvas id="modelCanvas" aria-label="Interactive 3D architectural villa model"></canvas>
             <div class="pin-layer" id="pinLayer" aria-label="Interactive 3D room pins"></div>
+            <button type="button" class="btn gold viewer-quick-fs" id="viewerQuickFs" commandfor="modelStage"
+              command="--toggle-fullscreen" aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen</button>
             <div class="fs-bar" id="fsBar" aria-label="Fullscreen studio controls">
-              <button type="button" class="btn gold" id="exitFullscreenBtn" interestfor="tip-fs-exit">✕ Exit Fullscreen
+              <button type="button" class="btn gold" id="exitFullscreenBtn" commandfor="modelStage"
+                command="--exit-fullscreen" interestfor="tip-fs-exit">✕ Exit Fullscreen
                 (Esc)</button>
-              <button type="button" class="btn" id="toggleFsControls" aria-pressed="true"
+              <button type="button" class="btn" id="toggleFsControls" commandfor="modelStage"
+                command="--toggle-controls" aria-pressed="true"
                 aria-controls="modelControlsPanel" interestfor="tip-fs-controls">⚙ Model Controls</button>
             </div>
             <div class="viewer-overlay" id="viewerBadge">NORMAL FRONT VIEW · FULL ESTATE &amp; 3D ARCHITECTURAL MODEL</div>
@@ -3526,7 +3594,7 @@
               <button type="button" id="zoomIn" interestfor="tip-tool-zin">＋ Zoom</button>
               <button type="button" id="zoomOut" interestfor="tip-tool-zout">－ Zoom</button>
               <button type="button" id="fitModel" interestfor="tip-tool-fit">Fit</button>
-              <button type="button" id="fullscreenModel" aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen</button>
+              <button type="button" id="fullscreenModel" commandfor="modelStage" command="--toggle-fullscreen" aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen</button>
               <button type="button" id="resetAnimation" interestfor="tip-tool-reset">↺ Reset</button>
             </div>
             <div class="viewer-loading" id="viewerLoading">
@@ -3575,8 +3643,8 @@
         <aside class="viewer-side" id="modelControlsPanel" aria-label="3D model controls">
           <div class="fs-panel-head">
             <h3>Model controls</h3>
-            <button type="button" class="btn small fs-panel-close" id="closeFsControls"
-              aria-label="Hide model controls">✕ Hide</button>
+            <button type="button" class="btn small fs-panel-close" id="closeFsControls" commandfor="modelStage"
+              command="--hide-controls" aria-label="Hide model controls">✕ Hide</button>
           </div>
           <p>Drag to orbit · Right-drag to pan · Scroll or pinch to zoom.</p>
 
@@ -4210,7 +4278,7 @@
   <footer>
     <div class="container footer-inner">
       <div class="footer-brand">
-        <img src="assets/ravn-logo-128.webp" width="28" height="28" alt="Ravn Technology logo" loading="lazy" decoding="async">
+        <span class="footer-mark"><img src="assets/ravn-logo-128.webp" width="28" height="28" alt="Ravn Technology logo" loading="lazy" decoding="async"></span>
         <span><strong>© 2026 Ravn Technology.</strong> All rights reserved.</span>
       </div>
       <div class="footer-note">Dream Home · Interactive 3D Villa Design Studio · Chitwan, Nepal · Architectural concept
@@ -9268,67 +9336,15 @@
         announceStatus(tour ? 'Started real-home cinematic guided tour' : 'Stopped guided tour');
         startLoop();
       };
-      /* Dual-Engine Fullscreen (Native API + CSS Fullscreen Fallback) with Live Model Controls & Exit Button */
-      const modelStage = document.getElementById('modelStage');
-      const fsBtn = document.getElementById('fullscreenModel');
-      const exitFsBtn = document.getElementById('exitFullscreenBtn');
-      const toggleFsCtrlBtn = document.getElementById('toggleFsControls');
-      const closeFsCtrlBtn = document.getElementById('closeFsControls');
-
-      const getNativeFsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
-      const isStageFullscreen = () => getNativeFsEl() === modelStage || modelStage.classList.contains('is-fullscreen');
-
-      function setFsControlsOpen(open) {
-        modelStage.classList.toggle('fs-controls-hidden', !open);
-        toggleFsCtrlBtn.setAttribute('aria-pressed', String(open));
-        toggleFsCtrlBtn.textContent = open ? '⚙ Hide Controls' : '⚙ Model Controls';
-        requestAnimationFrame(() => { resize(); updatePins(true); });
-      }
-      function syncFullscreenUI() {
-        const active = isStageFullscreen();
-        document.body.classList.toggle('fs-lock', active);
-        fsBtn.setAttribute('aria-pressed', String(active));
-        if (active) {
+      /* Dual-Engine Fullscreen hook wired into top-level Invoker Commands (`#modelStage` `command` event) */
+      onStageFullscreenSync = () => {
+        if (isStageFullscreen()) {
           isSkipped = false;
-          setFsControlsOpen(window.innerWidth > 1050);
           startLoop();
-        } else {
-          modelStage.classList.remove('fs-controls-hidden');
         }
         requestAnimationFrame(() => { resize(); updatePins(true); });
         setTimeout(() => { resize(); updatePins(true); }, 140);
-      }
-      async function enterFullscreen() {
-        const req = modelStage.requestFullscreen || modelStage.webkitRequestFullscreen;
-        if (req) {
-          try {
-            await req.call(modelStage);
-            syncFullscreenUI();
-            return;
-          } catch {
-            // Fallback to CSS Fullscreen Theatre Mode if browser/iframe blocks native Fullscreen API
-          }
-        }
-        modelStage.classList.add('is-fullscreen');
-        syncFullscreenUI();
-      }
-      async function exitFullscreen() {
-        modelStage.classList.remove('is-fullscreen');
-        const exit = document.exitFullscreen || document.webkitExitFullscreen;
-        if (getNativeFsEl() && exit) {
-          try { await exit.call(document); } catch { }
-        }
-        syncFullscreenUI();
-      }
-      fsBtn.onclick = () => { if (isStageFullscreen()) exitFullscreen(); else enterFullscreen(); };
-      exitFsBtn.onclick = () => exitFullscreen();
-      toggleFsCtrlBtn.onclick = () => setFsControlsOpen(modelStage.classList.contains('fs-controls-hidden'));
-      closeFsCtrlBtn.onclick = () => setFsControlsOpen(false);
-      document.addEventListener('fullscreenchange', syncFullscreenUI);
-      document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && isStageFullscreen()) exitFullscreen();
-      });
+      };
       document.getElementById('resetAnimation').onclick = () => {
         if (walkMode) exitWalkthrough(false);
         tour = false; spinning = false; exploded = false; pinsVisible = true; arrangeFloors();
@@ -9682,6 +9698,97 @@
       document.getElementById('viewerErrorDetail').textContent = (err?.message || 'The 3D library may be blocked or WebGL may be unavailable.') + ' Serve via python3 -m http.server 8000 for local viewing.';
     }
     }
+
+    /* Always-Ready Dual-Engine 3D Fullscreen wired declaratively via Invoker Commands (`commandfor`/`command`) + CommandEvent Fallback */
+    const modelStage = document.getElementById('modelStage');
+    const fsToggleButtons = Array.from(document.querySelectorAll('button[commandfor="modelStage"][command="--toggle-fullscreen"]'));
+    const toggleFsCtrlBtn = document.getElementById('toggleFsControls');
+    let onStageFullscreenSync = null;
+
+    const getNativeFsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+    const isStageFullscreen = () => Boolean(modelStage) && (getNativeFsEl() === modelStage || modelStage.classList.contains('is-fullscreen'));
+
+    function setFsControlsOpen(open) {
+      if (!modelStage || !toggleFsCtrlBtn) return;
+      modelStage.classList.toggle('fs-controls-hidden', !open);
+      toggleFsCtrlBtn.setAttribute('aria-pressed', String(open));
+      toggleFsCtrlBtn.textContent = open ? '⚙ Hide Controls' : '⚙ Model Controls';
+      if (onStageFullscreenSync) onStageFullscreenSync();
+    }
+    function syncFullscreenUI() {
+      const active = isStageFullscreen();
+      document.body.classList.toggle('fs-lock', active);
+      fsToggleButtons.forEach(btn => btn.setAttribute('aria-pressed', String(active)));
+      if (active) {
+        setFsControlsOpen(window.innerWidth > 1050);
+      } else if (modelStage) {
+        modelStage.classList.remove('fs-controls-hidden');
+      }
+      if (onStageFullscreenSync) onStageFullscreenSync();
+    }
+    async function enterFullscreen() {
+      if (!modelStage) return;
+      init3DViewer();
+      const req = modelStage.requestFullscreen || modelStage.webkitRequestFullscreen;
+      if (req) {
+        try {
+          await req.call(modelStage);
+          syncFullscreenUI();
+          return;
+        } catch {
+          // Fallback to CSS Fullscreen Theatre Mode if browser/iframe blocks native Fullscreen API
+        }
+      }
+      modelStage.classList.add('is-fullscreen');
+      syncFullscreenUI();
+    }
+    async function exitFullscreen() {
+      if (!modelStage) return;
+      modelStage.classList.remove('is-fullscreen');
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (getNativeFsEl() && exit) {
+        try { await exit.call(document); } catch { }
+      }
+      syncFullscreenUI();
+    }
+    const stageCommands = {
+      '--toggle-fullscreen': () => { if (isStageFullscreen()) exitFullscreen(); else enterFullscreen(); },
+      '--exit-fullscreen': () => exitFullscreen(),
+      '--toggle-controls': () => setFsControlsOpen(modelStage.classList.contains('fs-controls-hidden')),
+      '--hide-controls': () => setFsControlsOpen(false)
+    };
+    if (!('commandForElement' in HTMLButtonElement.prototype)) {
+      if (!globalThis.CommandEvent) {
+        globalThis.CommandEvent = class CommandEvent extends Event {
+          constructor(type, { source, command, ...options } = {}) {
+            super(type, options);
+            this.source = source;
+            this.command = command;
+          }
+        };
+      }
+      document.addEventListener('click', event => {
+        if (event.defaultPrevented) return;
+        const button = event.composedPath().find(el => el.matches?.('button[commandfor]'));
+        if (!button) return;
+        const target = button.getRootNode().getElementById(button.getAttribute('commandfor'));
+        const command = button.getAttribute('command');
+        if (target && command) {
+          target.dispatchEvent(new CommandEvent('command', { command, source: button }));
+        }
+      });
+    }
+    if (modelStage) {
+      modelStage.addEventListener('command', event => {
+        const action = stageCommands[event.command];
+        if (action) action(event.target, event.source);
+      });
+    }
+    document.addEventListener('fullscreenchange', syncFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && isStageFullscreen()) exitFullscreen();
+    });
 
     /* Trigger 3D boot smoothly on viewport proximity, explicit user click, or browser idle after preloader */
     const modelSec = document.getElementById('model');
