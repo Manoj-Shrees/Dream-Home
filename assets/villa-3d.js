@@ -3845,10 +3845,11 @@ async function init3DViewer() {
   earth.receiveShadow = true;
   landscape.add(earth);
 
-  // Paved front arrival court & driveway
-  addBox(landscape, 20.5, 0.08, 10.6, 0.2, 0.0, 10.2, drivewayMat, false, true);
-  // Subtle paving expansion joints
-  for (let pz = 6.2; pz <= 14.8; pz += 1.7) addBox(landscape, 20.2, 0.085, 0.03, 0.2, 0.002, pz, new THREE.MeshStandardMaterial({ color: 0x99958c }), false, false);
+  // Paved front arrival court & driveway (cleanly bounded between UG water vault x=-8.65 & circular fire-pit patio x=8.56 — zero overlap!)
+  addBox(landscape, 16.8, 0.08, 10.6, -0.10, 0.0, 10.2, drivewayMat, false, true);
+  // Subtle flush paving expansion joints (2 mm proud of driveway top y=0.040 — zero Z-fighting!)
+  const jointMat = new THREE.MeshStandardMaterial({ color: 0x99958c, roughness: 0.9 });
+  for (let pz = 6.2; pz <= 14.8; pz += 1.7) addBox(landscape, 16.6, 0.004, 0.03, -0.10, 0.042, pz, jointMat, false, false);
 
   // Architectural Perimeter Boundary Wall + Full Metal Security Barriers on ALL Remaining Space + Gate Piers!
   const boundary = new THREE.Group();
@@ -3905,7 +3906,8 @@ async function init3DViewer() {
   addMetalBarrierRun(levels.roof, 1.80, -4.85, 7.82, -4.85, 10.26, 1.02, true);  // Rear Laundry/Drying roof metal barrier
   addMetalBarrierRun(levels.roof, 7.82, -4.85, 7.82, -0.45, 10.26, 1.02, true);  // Right Laundry/Drying roof metal barrier
   addMetalBarrierRun(levels.roof, 3.65, -0.45, 7.82, -0.45, 10.26, 1.02, true);  // Front Laundry wing terrace metal barrier
-  addMetalBarrierRun(boundary, 9.85, -5.65, 14.35, -5.65, 0.02, 1.48, true);     // Right side-yard metal divider barrier behind Gas Vault!
+  addMetalBarrierRun(boundary, 9.85, -5.65, 10.60, -5.65, -0.04, 1.52, true);   // Right side-yard divider (west of garden walkway gateway)
+  addMetalBarrierRun(boundary, 12.20, -5.65, 14.35, -5.65, -0.04, 1.52, true);  // Right side-yard divider (east of garden walkway gateway)
   // Gate pillars with warm architectural lanterns
   for (const gx of [-9.2, 8.2]) {
     addBox(boundary, 0.65, 2.25, 0.65, gx, 1.12, 14.5, stoneWallMat);
@@ -3953,10 +3955,10 @@ async function init3DViewer() {
     gateRightOuter.position.x = 6.04 + openRatio * (11.45 - 6.04);
   }
 
-  // Lush Organic Chitwan Tropical Trees & Garden Planters
+  // Lush Organic Chitwan Tropical Trees & Garden Planters (rooted flush at earth y = -0.04, clear of veg farm, patios & paths!)
   function addGardenTree(x, z, scale = 1) {
     const tg = new THREE.Group();
-    tg.position.set(x, 0, z);
+    tg.position.set(x, -0.04, z);
     const tr = new THREE.Mesh(new THREE.CylinderGeometry(0.16 * scale, 0.25 * scale, 2.6 * scale, 9), trunkMat);
     tr.position.y = 1.3 * scale;
     tr.castShadow = true;
@@ -3974,101 +3976,127 @@ async function init3DViewer() {
     addGarden(tg);
   }
   [
-    [-12.4, 4.5, 1.35], [-12.6, -4.5, 1.45], [-11.5, -10.5, 1.3],
-    [12.4, 3.8, 1.3], [12.8, -5.2, 1.4], [11.2, -10.5, 1.25],
-    [-13.0, 13.0, 1.0], [13.1, 13.1, 1.05]
+    [-12.4, 4.5, 1.35], [-13.1, -4.2, 1.35], [-13.4, -7.5, 1.25],
+    [12.9, 3.8, 1.30], [13.1, -4.2, 1.35], [12.8, -10.8, 1.25],
+    [-13.2, 13.1, 1.0], [13.2, 13.1, 1.0]
   ].forEach(([tx, tz, sc]) => addGardenTree(tx, tz, sc));
 
-  // Flanking front flowering beds & warm driveway bollard lamps (clear of UG water vault & fire-pit patio!)
-  for (const bx of [-8.8, 8.1]) {
+  // Flanking front driveway curb bollard lamps (grounded flush atop driveway curb y = 0.04, clear of UG vault & fire pit!)
+  for (const bx of [-8.35, 8.15]) {
     for (const bz of [7.2, 10.0, 12.8]) {
-      addGarden(addBox(landscape, 0.14, 0.56, 0.14, bx, 0.28, bz, darkBronzeMat));
-      addGarden(addBox(landscape, 0.16, 0.14, 0.16, bx, 0.62, bz, warmLedMat, false, false));
+      addGarden(addBox(landscape, 0.14, 0.56, 0.14, bx, 0.32, bz, darkBronzeMat));
+      addGarden(addBox(landscape, 0.16, 0.14, 0.16, bx, 0.67, bz, warmLedMat, false, false));
     }
   }
-  for (let i = 0; i < 6; i++) {
-    addGarden(addPlanterTree(landscape, -12.6 + (i % 3) * 0.95, 0, i < 3 ? 6.4 : 13.2, 0.65, true));
-    addGarden(addPlanterTree(landscape, 9.4 + (i % 3) * 1.15, 0, i < 3 ? 5.6 : 13.4, 0.65, i % 2 === 0));
+  // Front lawn flowering planters (grounded flush on earth y = -0.04, clear of stepping path, UG vault, fire pit & corner trees!)
+  for (const [px, pz, fl] of [
+    [-12.6, 6.4, true], [-11.65, 6.4, true], [-10.7, 6.4, true],
+    [-11.9, 13.2, true], [-10.95, 13.2, true], [-10.0, 13.2, true],
+    [9.1, 6.6, true], [9.95, 6.6, false], [12.85, 6.6, true],
+    [9.1, 13.45, false], [10.35, 13.45, true], [11.60, 13.45, false]
+  ]) {
+    addGarden(addPlanterTree(landscape, px, -0.04, pz, 0.65, fl));
   }
 
-  /* === LANDSCAPED GARDEN WITH ARCHITECTURAL BENCHES, STEPPING PATHS & SUNKEN FIRE-PIT LOUNGE === */
-  function addGardenBench(x, z, rotY = 0) {
+  /* === LANDSCAPED GARDEN WITH ZERO-GLITCH ARCHITECTURAL BENCHES, STEPPING PATHS & SUNKEN FIRE-PIT LOUNGE === */
+  function addGardenBench(x, z, rotY = 0, baseY = -0.04, scaleW = 1.0) {
     const b = new THREE.Group();
-    b.position.set(x, 0.02, z); b.rotation.y = rotY;
-    // Powder-coated dark-bronze architectural legs & armrests
-    for (const dx of [-0.95, 0, 0.95]) {
-      addBox(b, 0.08, 0.44, 0.56, dx, 0.22, 0, darkBronzeMat);
+    b.position.set(x, baseY, z); b.rotation.y = rotY;
+    const W = 2.04 * scaleW;
+    const hw = W / 2;
+    const fx = hw - 0.035;         // Outer frame center X
+    const innerW = W - 0.142;      // Clear inner slat span (stops 1 mm cleanly inside side frames — zero Z-fighting!)
+
+    // Two solid powder-coated dark-bronze side frames with continuous front & rear armrest/backrest uprights
+    for (const side of [-1, 1]) {
+      const dx = side * fx;
+      // Ground sled foot rail (y: 0.00..0.04)
+      addBox(b, 0.06, 0.04, 0.56, dx, 0.02, 0, darkBronzeMat);
+      // Front vertical leg + armrest post (y: 0.04..0.64 — supports front of armrest solidly!)
+      addBox(b, 0.06, 0.60, 0.06, dx, 0.34, 0.23, darkBronzeMat);
+      // Rear vertical leg + backrest post (y: 0.04..0.90 — single continuous post, zero coplanar overlap!)
+      addBox(b, 0.06, 0.86, 0.06, dx, 0.47, -0.23, darkBronzeMat);
+      // Horizontal side seat rail spanning strictly between front & rear posts (z: -0.20..+0.20)
+      addBox(b, 0.06, 0.045, 0.40, dx, 0.40, 0, darkBronzeMat);
+      // Teak armrest cap resting flush on front post (y: 0.64..0.685) & meeting rear post cleanly
+      addBox(b, 0.08, 0.045, 0.47, dx, 0.6625, 0.035, woodMat);
     }
-    for (const dx of [-0.95, 0.95]) {
-      addBox(b, 0.08, 0.68, 0.08, dx, 0.56, -0.26, darkBronzeMat);
-      addBox(b, 0.09, 0.06, 0.56, dx, 0.66, 0, woodMat);
-    }
-    // 4 warm slatted teak seat planks
+    // Center under-seat support leg + longitudinal cross-stretcher (strictly below seat slats!)
+    addBox(b, 0.055, 0.40, 0.40, 0, 0.20, 0, darkBronzeMat);
+    addBox(b, innerW, 0.04, 0.04, 0, 0.38, 0, darkBronzeMat);
+
+    // 4 warm slatted teak seat planks inset cleanly between outer side frames (y: 0.4225..0.4675)
     for (let s = 0; s < 4; s++) {
-      addBox(b, 2.08, 0.055, 0.11, 0, 0.46, -0.18 + s * 0.13, woodMat);
+      addBox(b, innerW, 0.045, 0.10, 0, 0.445, -0.155 + s * 0.11, woodMat);
     }
-    // 3 angled slatted teak backrest planks
+    // 3 angled slatted teak backrest planks cleanly mounted ahead of rear uprights
     for (let r = 0; r < 3; r++) {
-      const slat = addBox(b, 2.06, 0.10, 0.05, 0, 0.64 + r * 0.14, -0.27 - r * 0.02, woodMat);
-      slat.rotation.x = -0.16;
+      const slat = addBox(b, innerW, 0.092, 0.036, 0, 0.59 + r * 0.122, -0.186 - r * 0.011, woodMat);
+      slat.rotation.x = -0.09;
     }
-    // Cream weatherproof seat cushion + subtle under-bench warm LED glow
-    addBox(b, 1.76, 0.07, 0.42, 0, 0.52, 0.03, upholsteryMat, false, false);
-    addBox(b, 1.78, 0.03, 0.04, 0, 0.41, 0.25, warmLedMat, false, false);
+    // Weatherproof cream seat cushion resting cleanly atop seat slats (y: 0.470..0.532 — zero clipping!)
+    addBox(b, innerW - 0.04, 0.062, 0.39, 0, 0.501, 0.02, upholsteryMat, false, false);
+    // Warm recessed under-bench architectural LED accent bar
+    addBox(b, innerW - 0.08, 0.024, 0.03, 0, 0.395, 0.21, warmLedMat, false, false);
     return addGarden(b);
   }
 
-  // 1. Rear Garden Stone Patio, Stepping-Stone Lawn Walkway & 3 Architectural Park Benches
-  addGarden(addBox(landscape, 7.6, 0.08, 3.8, -1.8, 0.01, -9.8, drivewayMat, false, true));
-  addGarden(addBox(landscape, 7.7, 0.04, 3.9, -1.8, 0.005, -9.8, goldMat, false, false));
-  // Stepping stones leading from rear Living/Dining terrace to garden benches
-  for (let i = 0; i < 6; i++) {
-    addGarden(addBox(landscape, 1.35, 0.07, 0.46, -2.2 + Math.sin(i * 0.45) * 0.35, 0.015, -5.65 - i * 0.62, stoneWallMat, false, true));
+  // 1. Rear Garden Stone Patio, Stepping-Stone Lawn Walkways & 4 Architectural Park Benches
+  // Patio grounded flush from earth (-0.04) up to topY = +0.05; gold border rim stepped 3 cm below top (zero Z-fighting!)
+  addGarden(addBox(landscape, 7.6, 0.09, 3.8, -1.8, 0.005, -9.8, drivewayMat, false, true));
+  addGarden(addBox(landscape, 7.74, 0.06, 3.94, -1.8, -0.01, -9.8, goldMat, false, false));
+  // Stepping stones leading cleanly from rear terrace (clear of rear trench z=-5.65, grease trap x=-2.2 & rear patio z=-7.9!)
+  for (let i = 0; i < 3; i++) {
+    addGarden(addBox(landscape, 1.35, 0.07, 0.44, -0.45, -0.005, -6.15 - i * 0.60, stoneWallMat, false, true));
   }
-  // Right-side garden stepping-stone path (matching Site Plan!)
-  for (let sz = -9.6; sz <= 6.2; sz += 1.25) {
-    addGarden(addBox(landscape, 1.05, 0.07, 0.56, 11.4, 0.015, sz, stoneWallMat, false, true));
+  // Right-side garden stepping-stone path (passes cleanly through the 1.60 m right divider gateway at z=-5.65!)
+  for (let sz = -9.50; sz <= 4.95; sz += 1.20) {
+    addGarden(addBox(landscape, 1.05, 0.07, 0.54, 11.4, -0.005, sz, stoneWallMat, false, true));
   }
-  // Three sculptural slatted-teak garden benches with low stone tea table & flower beds
-  addGardenBench(-2.1, -10.85, 0);          // Rear central patio bench facing villa
-  addGardenBench(0.65, -9.55, -Math.PI / 2); // Rear perpendicular conversation bench
-  addGardenBench(6.2, -9.6, -0.45);          // Rear-right garden lawn reading bench
-  addGardenBench(-11.4, -1.2, Math.PI / 2);  // Left shaded garden walkway bench
-  addGarden(addBox(landscape, 1.15, 0.38, 0.68, -2.1, 0.22, -9.45, stoneWallMat));
-  addGarden(addBox(landscape, 1.05, 0.05, 0.58, -2.1, 0.43, -9.45, walnutMat));
+  // Four sculptural slatted-teak garden benches seated flush on their exact patio or lawn elevation
+  addGardenBench(-2.1, -10.85, 0, 0.05, 1.0);          // Rear central patio bench facing villa (topY = 0.05)
+  addGardenBench(0.85, -9.65, -Math.PI / 2, 0.05, 1.0); // Rear perpendicular conversation bench (topY = 0.05)
+  addGardenBench(6.2, -9.8, -0.45, -0.04, 1.0);         // Rear-right garden lawn reading bench (earth = -0.04)
+  addGardenBench(-11.6, -1.2, Math.PI / 2, -0.04, 1.0); // Left shaded garden walkway bench (earth = -0.04)
+  // Low stone & walnut tea table seated flush atop rear stone patio (y: 0.05..0.48)
+  addGarden(addBox(landscape, 1.15, 0.38, 0.68, -2.1, 0.24, -9.35, stoneWallMat));
+  addGarden(addBox(landscape, 1.20, 0.05, 0.72, -2.1, 0.455, -9.35, walnutMat));
 
-  // Rear garden bougainvillea & lavender flower beds + warm garden pathway bollards
-  for (const [fx, fz] of [[-6.5, -9.5], [-5.2, -11.4], [2.8, -11.2], [8.8, -10.4], [-9.2, -7.8]]) {
-    const bush = new THREE.Mesh(new THREE.IcosahedronGeometry(0.68, 1), foliageDark);
-    bush.position.set(fx, 0.42, fz); addGarden(bush);
+  // Rear garden bougainvillea & lavender flower beds (strictly on open grass — clear of patio, veg farm, septic & bollards!)
+  for (const [fx, fz] of [[-6.55, -10.65], [3.05, -11.35], [8.85, -10.65], [-7.05, -7.45], [3.45, -7.45]]) {
+    const bush = new THREE.Mesh(new THREE.IcosahedronGeometry(0.62, 1), foliageDark);
+    bush.position.set(fx, 0.36, fz); addGarden(bush);
     for (let bi = 0; bi < 4; bi++) {
-      const fl = new THREE.Mesh(new THREE.DodecahedronGeometry(0.24, 0), bi % 2 ? bougMat : lavenderMat);
-      fl.position.set(fx + (bi - 1.5) * 0.25, 0.72 + (bi % 2) * 0.14, fz + (bi % 2 ? 0.22 : -0.18));
+      const fl = new THREE.Mesh(new THREE.DodecahedronGeometry(0.22, 0), bi % 2 ? bougMat : lavenderMat);
+      fl.position.set(fx + (bi - 1.5) * 0.23, 0.66 + (bi % 2) * 0.13, fz + (bi % 2 ? 0.20 : -0.16));
       addGarden(fl);
     }
   }
-  for (const [bx, bz] of [[-4.8, -7.8], [0.8, -7.8], [-5.4, -11.2], [2.2, -11.2], [10.4, -3.5], [10.4, 1.5]]) {
-    addGarden(addBox(landscape, 0.13, 0.52, 0.13, bx, 0.26, bz, darkBronzeMat));
+  // Warm garden pathway bollards (grounded flush at earth y = -0.04, clear of right trench drain x=10.25 & flower beds!)
+  for (const [bx, bz] of [[-5.95, -7.55], [2.35, -7.55], [-5.95, -12.05], [2.35, -12.05], [12.35, -3.20], [12.35, 1.55]]) {
+    addGarden(addBox(landscape, 0.13, 0.54, 0.13, bx, 0.23, bz, darkBronzeMat));
     addGarden(addBox(landscape, 0.15, 0.12, 0.15, bx, 0.56, bz, warmLedMat, false, false));
   }
 
-  // 2. Front-Right Circular Sunken Fire-Pit Lounge with Curved Stone Benches (Matches Site Plan!)
+  // 2. Front-Right Circular Sunken Fire-Pit Lounge with 3 Fitted Teak Benches (Matches Site Plan, Zero Driveway Overlap!)
   const fpX = 11.1, fpZ = 10.1;
-  const fpPatio = new THREE.Mesh(new THREE.CylinderGeometry(2.45, 2.52, 0.10, 36), drivewayMat);
-  fpPatio.position.set(fpX, 0.03, fpZ); fpPatio.receiveShadow = true; addGarden(fpPatio);
+  const fpPatio = new THREE.Mesh(new THREE.CylinderGeometry(2.48, 2.54, 0.12, 36), drivewayMat);
+  fpPatio.position.set(fpX, 0.02, fpZ); fpPatio.receiveShadow = true; addGarden(fpPatio);
+  const fpRim = new THREE.Mesh(new THREE.CylinderGeometry(2.58, 2.60, 0.06, 36), goldMat);
+  fpRim.position.set(fpX, -0.01, fpZ); addGarden(fpRim);
   const fpBowl = new THREE.Mesh(new THREE.CylinderGeometry(0.66, 0.54, 0.42, 24), stoneWallMat);
-  fpBowl.position.set(fpX, 0.24, fpZ); addGarden(fpBowl);
-  const fpEmbers = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.14, 16), fireEmberMat);
-  fpEmbers.position.set(fpX, 0.44, fpZ); addGarden(fpEmbers);
+  fpBowl.position.set(fpX, 0.29, fpZ); addGarden(fpBowl);
+  const fpEmbers = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.10, 16), fireEmberMat);
+  fpEmbers.position.set(fpX, 0.48, fpZ); addGarden(fpEmbers);
   const fireLight = new THREE.PointLight(0xff8432, 16, 11, 1.8);
   fireLight.position.set(fpX, 0.95, fpZ); addGarden(fireLight);
-  // Three curved teak-topped benches ringing the fire pit
+  // Three compact slatted-teak benches seated flush atop circular stone patio (topY = 0.08, all legs well inside R=2.48!)
   for (let bIdx = 0; bIdx < 3; bIdx++) {
     const ba = bIdx * (Math.PI * 2 / 3) + 0.5;
-    addGardenBench(fpX + Math.cos(ba) * 1.72, fpZ + Math.sin(ba) * 1.72, -ba - Math.PI / 2);
+    addGardenBench(fpX + Math.cos(ba) * 1.76, fpZ + Math.sin(ba) * 1.76, -ba - Math.PI / 2, 0.08, 0.78);
   }
 
-  // 3. ORGANIC KITCHEN VEGETABLE FARM & MINI GREENHOUSE PATCH (Sunlit Rear-Left Lawn: x: -12.4..-7.4, z: -12.8..-8.8!)
+  // 3. ORGANIC KITCHEN VEGETABLE FARM & MINI GREENHOUSE PATCH (Sunlit Rear-Left Lawn: x: -12.7..-7.5, z: -13.0..-8.9!)
   const vegFarm = new THREE.Group();
   vegFarm.position.set(-10.1, 0.0, -10.95);
   const soilMat = new THREE.MeshStandardMaterial({ color: 0x3b281c, roughness: 0.96 });
@@ -4077,8 +4105,8 @@ async function init3DViewer() {
   const vegBrightGreen = new THREE.MeshStandardMaterial({ color: 0x4ea832, roughness: 0.82 });
   const vegDarkGreen = new THREE.MeshStandardMaterial({ color: 0x266b28, roughness: 0.86 });
   const barrelMat = new THREE.MeshStandardMaterial({ color: 0x1e5c45, roughness: 0.45 });
-  // Gravel garden courtyard pad & low bamboo/teak garden border rails
-  addBox(vegFarm, 5.2, 0.045, 4.1, 0, 0.022, 0, stoneWallMat, false, true);
+  // Gravel garden courtyard pad grounded solidly to earth (-0.04..+0.045) & low bamboo/teak garden border rails
+  addBox(vegFarm, 5.2, 0.085, 4.1, 0, 0.0025, 0, stoneWallMat, false, true);
   for (const [fx, fz, fw, fd] of [[0, -2.02, 5.2, 0.06], [0, 2.02, 5.2, 0.06], [-2.58, 0, 0.06, 4.1]]) {
     addBox(vegFarm, fw, 0.42, fd, fx, 0.22, fz, woodMat, false, false);
   }
@@ -4239,13 +4267,15 @@ async function init3DViewer() {
     waterFilter: { floor: 'all', mode: 'xray', pos: [-14.2, 3.2, 14.8], target: [-10.4, -0.6, 10.0], badge: '5-STAGE WATER PURIFICATION SIMULATION · LIVE TDS SCADA', title: 'Live 5-Stage Water Filtration Plant & Purification Simulation', desc: 'Watch raw water visibly transform from amber silt → Vortex Pre-Filter → Sand FRP → Activated Carbon → Hard-Water Softener → UV-C 254nm Quartz & RO Membrane into crystal-pure 28 ppm water with live digital SCADA telemetry.' },
     stormDrains: { floor: 'all', mode: 'xray', pos: [17.8, 11.4, 19.6], target: [0.4, 0.2, 2.5], badge: 'STORMWATER DRAINING & STRAINER LINES · TRENCHES · GREASE TRAP', title: 'Stormwater Draining & Strainer Line Network (X-Ray)', desc: 'Full monsoon protection: front gate & garage stainless trench grates, 3-side perimeter trench drains, 4 corner silt/leaf catch-basin strainers, baffled kitchen/BBQ grease trap, rainwater vortex mesh pre-filter, 4 inline brass Y-strainers & front-right non-return outfall valve.' },
     water: { floor: 'all', mode: 'xray', pos: [-13.8, 8.6, -14.8], target: [-0.4, 5.2, -2.0], badge: 'FULL 3D MEP SHOWCASE · CONCEALED WALL-ALIGNED PIPING', title: 'Complete 3D MEP Showcase: Wall-Aligned Water, Strainers, Vents & Gas', desc: 'All concealed 90° wall-aligned piping (100% invisible to naked eyes in Standard view) revealed in X-Ray: 18,000 L Cold Water (Blue), 500 L Solar Hot (Orange), Sanitary DWV (Violet), Rainwater + Mesh Filter (Teal), Storm Trenches & Grease Trap (Aqua), HVAC/Exhaust Vents (Silver-Cyan) & LPG Gas (Yellow).' },
-    vegFarm: { floor: 'all', mode: 'exterior', pos: [-15.2, 4.4, -15.6], target: [-10.1, 0.65, -10.95], badge: 'ORGANIC KITCHEN VEGETABLE FARM · RAISED BEDS & GREENHOUSE', title: 'Organic Kitchen Vegetable Farm & Seed-Starter Greenhouse', desc: 'Sunlit rear-left vegetable garden with 3 raised cedar beds (tomatoes & chilies on bamboo trellises, cabbages & leafy greens, carrots & kitchen herbs), micro-drip irrigation fed by a rainwater barrel, mini glass cold-frame greenhouse & teak composter.' },
-    garden: { floor: 'all', mode: 'exterior', pos: [-6.8, 4.2, -12.4], target: [-0.8, 0.9, -9.4], badge: 'REAR LANDSCAPED GARDEN · TEAK BENCHES & WALKWAY', title: 'Rear Garden Patio & Architectural Teak Benches', desc: 'Travertine stepping-stone garden walkway, four slatted-teak & dark-bronze benches with warm under-seat LED glow, low stone tea table & bougainvillea beds.' },
-    firePit: { floor: 'all', mode: 'exterior', pos: [5.6, 4.0, 14.0], target: [11.1, 0.6, 10.1], badge: 'FRONT-RIGHT PATIO · SUNKEN FIRE-PIT LOUNGE', title: 'Circular Sunken Fire-Pit Lounge & Curved Benches', desc: 'Front-right circular stone patio featuring a glowing ember fire pit surrounded by three curved teak-topped conversation benches and tropical palms.' },
+    vegFarm: { floor: 'all', mode: 'exterior', pos: [-13.6, 3.8, -12.9], target: [-10.1, 0.55, -10.95], badge: 'ORGANIC KITCHEN VEGETABLE FARM · RAISED BEDS & GREENHOUSE', title: 'Organic Kitchen Vegetable Farm & Seed-Starter Greenhouse', desc: 'Sunlit rear-left vegetable garden with 3 raised cedar beds (tomatoes & chilies on bamboo trellises, cabbages & leafy greens, carrots & kitchen herbs), micro-drip irrigation fed by a rainwater barrel, mini glass cold-frame greenhouse & teak composter.' },
+    garden: { floor: 'all', mode: 'exterior', pos: [-5.8, 3.6, -12.8], target: [-1.50, 0.65, -9.80], badge: 'REAR LANDSCAPED GARDEN · TEAK BENCHES & WALKWAY', title: 'Rear Garden Patio & Architectural Teak Benches', desc: 'Travertine stepping-stone garden walkway, four slatted-teak & dark-bronze benches with warm under-seat LED glow, low stone tea table & bougainvillea beds.' },
+    firePit: { floor: 'all', mode: 'exterior', pos: [6.4, 3.7, 13.4], target: [11.1, 0.65, 10.1], badge: 'FRONT-RIGHT PATIO · SUNKEN FIRE-PIT LOUNGE', title: 'Circular Sunken Fire-Pit Lounge & Curved Benches', desc: 'Front-right circular stone patio featuring a glowing ember fire pit surrounded by three fitted teak-topped conversation benches and tropical palms.' },
     aerial: { floor: 'all', mode: 'exterior', pos: [-12.5, 27.5, 25.5], target: [-0.2, 5.2, 0.2], badge: 'AERIAL ESTATE · PARTY SHED · ERV HVAC · SOLAR · GARDEN', title: 'Aerial Property Overview', desc: 'Complete 16-aana estate showing the rooftop Party Shed, BBQ pergola with exhaust hood, Laundry Wing, 3,000 L tanks, ERV HVAC, spinning roof turbo-vent, Solar PV, gas vault, garden & perimeter wall.' }
   };
   let camGoalPos = null, camGoalTarget = null;
-  let activeCamKey = 'hero', pinsVisible = true, walkMode = false;
+  let activeCamKey = 'hero', pinFloorLock = 'all', pinsVisible = true, walkMode = false;
+  let rafId = 0, isSkipped = false, isHidden = document.hidden, lastScreenTick = 0;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const liveStatusEl = document.getElementById('viewerLiveStatus');
   const mepLegendEl = document.getElementById('mepLiveLegend');
   const safetyLegendEl = document.getElementById('safetyLiveLegend');
@@ -4294,7 +4324,7 @@ async function init3DViewer() {
     { id: 'spaBaths', icon: '🛁', title: 'Spa Baths & WCs', sub: 'Tub & Rain Shower · Frosted · Curtains', pos: new THREE.Vector3(-0.05, 8.15, -2.75), level: 'second' },
     { id: 'familyOffice', icon: '💼', title: 'Family & Office', sub: 'Live TV · CAD Desk · 3 Beds', pos: new THREE.Vector3(-2.80, 4.90, 1.70), level: 'first' },
     { id: 'livingKitchen', icon: '🛋️', title: 'Living & Kitchen', sub: 'Live 4K TV · Gas Hob · RO Tap', pos: new THREE.Vector3(-3.20, 1.55, -2.50), level: 'ground' },
-    { id: 'garageCars', icon: '🚘', title: 'Rolls-Royce & Benz', sub: 'Phantom & AMG 2-Car Garage', pos: new THREE.Vector3(-3.20, 1.45, 3.85), level: 'ground' },
+    { id: 'garageCars', icon: '🚘', title: 'Rolls-Royce & Benz', sub: 'Phantom · AMG · Inner Door', pos: new THREE.Vector3(-3.20, 1.45, 3.85), level: 'ground' },
     { id: 'gasVault', icon: '🔒', title: 'Lockable Gas Vault', sub: 'Waterproof LPG → Kitchens', pos: new THREE.Vector3(8.95, 1.65, -3.25), level: 'all' },
     { id: 'stormDrains', icon: '🌊', title: 'Storm & Strainers', sub: 'Trenches · Grease Trap · Y-Filter', pos: new THREE.Vector3(10.25, 0.55, 5.45), level: 'all' },
     { id: 'waterFilter', icon: '🧪', title: '5-Stage Water Filter', sub: 'Live UV/RO Sim · 28 ppm', pos: new THREE.Vector3(-10.85, 0.85, 10.20), level: 'all' },
@@ -4306,10 +4336,21 @@ async function init3DViewer() {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'pin-3d';
+    btn.dataset.pin = spec.id;
     btn.setAttribute('aria-label', `Fly camera to ${spec.title} — ${spec.sub}`);
     btn.innerHTML = `<span class="pin-dot" aria-hidden="true">${spec.icon}</span><span class="pin-label"><strong>${spec.title}</strong><span>${spec.sub}</span></span>`;
     btn.addEventListener('pointerdown', e => e.stopPropagation());
-    btn.addEventListener('click', e => { e.stopPropagation(); goPreset(spec.id); });
+    btn.addEventListener('wheel', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      canvas.dispatchEvent(new WheelEvent('wheel', {
+        deltaX: e.deltaX, deltaY: e.deltaY, deltaZ: e.deltaZ,
+        deltaMode: e.deltaMode, clientX: e.clientX, clientY: e.clientY,
+        ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey, metaKey: e.metaKey,
+        bubbles: true, cancelable: true
+      }));
+    }, { passive: false });
+    btn.addEventListener('click', e => { e.stopPropagation(); goPreset(spec.id, { userInitiated: true, fromPin: true }); });
     pinLayer.appendChild(btn);
     return { spec, btn, vec: new THREE.Vector3() };
   });
@@ -4321,15 +4362,13 @@ async function init3DViewer() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (!w || !h) return;
     const curLevel = document.getElementById('modelLevel').value;
-    const sig = `${w}|${h}|${curLevel}|${activeCamKey}|${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}|${controls.target.x.toFixed(2)},${controls.target.y.toFixed(2)},${controls.target.z.toFixed(2)}|${levels.roof.position.y.toFixed(2)}`;
+    const sig = `${w}|${h}|${curLevel}|${pinFloorLock}|${activeCamKey}|${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}|${controls.target.x.toFixed(2)},${controls.target.y.toFixed(2)},${controls.target.z.toFixed(2)}|${levels.roof.position.y.toFixed(2)}`;
     if (!force && sig === lastPinSig) return;
     lastPinSig = sig;
-    const activePreset = CAM_PRESETS[activeCamKey];
-    const presetFloor = activePreset ? activePreset.floor : 'all';
     pinNodes.forEach(({ spec, btn, vec }) => {
-      // Hide unrelated distant outdoor/other-floor pins when inspecting a specific floor/interior room (prevents pins floating over slabs!)
+      // Hide unrelated other-floor pins only while locked onto a floor preset; orbiting/zooming unlocks all pins immediately!
       const levelOk = (curLevel === 'all' || spec.level === 'all' || spec.level === curLevel)
-        && (presetFloor === 'all' || spec.level === presetFloor || spec.id === activeCamKey);
+        && (pinFloorLock === 'all' || spec.level === pinFloorLock || spec.id === activeCamKey);
       if (!levelOk) { btn.style.display = 'none'; return; }
       vec.copy(spec.pos);
       if (spec.level !== 'all' && levels[spec.level]) vec.y += levels[spec.level].position.y;
@@ -4344,7 +4383,7 @@ async function init3DViewer() {
       btn.style.display = '';
       btn.style.left = `${px}px`;
       btn.style.top = `${py}px`;
-      btn.classList.toggle('pin-flip', px > w * 0.66);
+      btn.classList.toggle('pin-flip', px > w * 0.62);
       btn.classList.toggle('active', spec.id === activeCamKey && activeCamKey !== 'hero');
     });
   }
@@ -4383,11 +4422,12 @@ async function init3DViewer() {
     if (mepLegendEl) mepLegendEl.classList.toggle('is-visible', xray || activeCamKey === 'gasVault');
     if (safetyLegendEl) safetyLegendEl.classList.toggle('is-visible', isStruct);
   }
-  function goPreset(name) {
+  function goPreset(name, opts = {}) {
     const p = CAM_PRESETS[name];
     if (!p) return;
     if (walkMode) exitWalkthrough(false);
     activeCamKey = name;
+    pinFloorLock = p.floor || 'all';
     tour = false;
     spinning = false;
     document.getElementById('tourModel').setAttribute('aria-pressed', 'false');
@@ -4411,11 +4451,25 @@ async function init3DViewer() {
       camGoalPos.sub(camGoalTarget).multiplyScalar(distScale).add(camGoalTarget);
     }
 
-    document.querySelectorAll('#cameraPresets button').forEach(b => {
-      const isAct = b.dataset.cam === name;
-      b.classList.toggle('active', isAct);
-      b.setAttribute('aria-pressed', String(isAct));
-    });
+    const presetsBar = document.getElementById('cameraPresets');
+    let activePresetBtn = null;
+    if (presetsBar) {
+      presetsBar.querySelectorAll('button').forEach(b => {
+        const isAct = b.dataset.cam === name;
+        b.classList.toggle('active', isAct);
+        b.setAttribute('aria-pressed', String(isAct));
+        if (isAct) activePresetBtn = b;
+      });
+      // Smoothly scroll the horizontal preset bar so the selected pin/preset pill is always centered in view (zero page scroll jump!)
+      if (activePresetBtn && presetsBar.scrollWidth > presetsBar.clientWidth) {
+        const targetLeft = Math.max(0, activePresetBtn.offsetLeft - (presetsBar.clientWidth - activePresetBtn.clientWidth) / 2);
+        if (typeof presetsBar.scrollTo === 'function') {
+          presetsBar.scrollTo({ left: targetLeft, behavior: reduced ? 'auto' : 'smooth' });
+        } else {
+          presetsBar.scrollLeft = targetLeft;
+        }
+      }
+    }
     document.getElementById('viewerBadge').textContent = p.badge;
     if (captionTextEl) captionTextEl.innerHTML = `<strong>${p.title}</strong>${p.desc}`;
 
@@ -4457,16 +4511,47 @@ async function init3DViewer() {
     }
     if (mepLegendEl) mepLegendEl.classList.toggle('is-visible', (currentMepMode === 'xray' || currentMepMode === 'mepIsolate') || name === 'gasVault');
     if (safetyLegendEl) safetyLegendEl.classList.toggle('is-visible', currentMepMode === 'structural');
+
+    // Bring 3D viewer smoothly into view when jumping from sections below or clicking a clipped pin/preset
+    if (opts.scrollToViewer || opts.userInitiated) {
+      const vc = document.getElementById('viewerContainer');
+      if (vc && !isStageFullscreen()) {
+        const rect = vc.getBoundingClientRect();
+        const clipped = rect.top < 54 || rect.bottom > window.innerHeight + 24;
+        if (opts.scrollToViewer || clipped) {
+          vc.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+        }
+      }
+      announceStatus(`Camera moved to ${p.title}`);
+    }
+
+    // Snap immediately if user prefers reduced motion, otherwise wake loop & glide smoothly straight to the pin point
+    if (reduced && camGoalPos && camGoalTarget) {
+      camera.position.copy(camGoalPos);
+      controls.target.copy(camGoalTarget);
+      camGoalPos = camGoalTarget = null;
+      controls.update();
+      renderer.render(scene, camera);
+    } else {
+      isSkipped = false;
+      startLoop();
+    }
     updatePins(true);
   }
   document.getElementById('cameraPresets').addEventListener('click', e => {
     const b = e.target.closest('[data-cam]');
-    if (b) goPreset(b.dataset.cam);
+    if (b) goPreset(b.dataset.cam, { userInitiated: true });
   });
-  document.getElementById('jumpGame3D')?.addEventListener('click', () => goPreset('gameRoom'));
-  document.getElementById('jumpParty3D')?.addEventListener('click', () => goPreset('rooftopParty'));
-  document.getElementById('jumpLaundry3D')?.addEventListener('click', () => goPreset('laundry'));
-  controls.addEventListener('start', () => { camGoalPos = camGoalTarget = null; });
+  document.getElementById('jumpGame3D')?.addEventListener('click', () => goPreset('gameRoom', { scrollToViewer: true, userInitiated: true }));
+  document.getElementById('jumpParty3D')?.addEventListener('click', () => goPreset('rooftopParty', { scrollToViewer: true, userInitiated: true }));
+  document.getElementById('jumpLaundry3D')?.addEventListener('click', () => goPreset('laundry', { scrollToViewer: true, userInitiated: true }));
+  controls.addEventListener('start', () => {
+    camGoalPos = camGoalTarget = null;
+    if (pinFloorLock !== 'all') {
+      pinFloorLock = 'all';
+      updatePins(true);
+    }
+  });
 
   /* Resize */
   const resize = () => {
@@ -4815,15 +4900,31 @@ async function init3DViewer() {
     Object.values(levels).forEach((g, i) => { g.userData.targetY = exploded ? i * 2.7 : 0; });
     tower.visible = !exploded && document.getElementById('modelLevel').value === 'all';
   }
-  document.getElementById('zoomIn').onclick = () => { camera.position.sub(controls.target).multiplyScalar(0.84).add(controls.target); };
-  document.getElementById('zoomOut').onclick = () => { camera.position.sub(controls.target).multiplyScalar(1.19).add(controls.target); };
-  document.getElementById('fitModel').onclick = () => goPreset('hero');
+  function stepZoom(factor) {
+    camGoalPos = camGoalTarget = null;
+    const offset = camera.position.clone().sub(controls.target);
+    const curDist = offset.length();
+    const minD = controls.minDistance || 3.5;
+    const maxD = controls.maxDistance || 85;
+    const nextDist = THREE.MathUtils.clamp(curDist * factor, minD, maxD);
+    if (curDist > 0.001) offset.multiplyScalar(nextDist / curDist);
+    camera.position.copy(controls.target).add(offset);
+    controls.update();
+    renderer.render(scene, camera);
+    updatePins(true);
+    startLoop();
+  }
+  document.getElementById('zoomIn').onclick = () => stepZoom(0.84);
+  document.getElementById('zoomOut').onclick = () => stepZoom(1.19);
+  document.getElementById('fitModel').onclick = () => goPreset('hero', { userInitiated: true });
   document.getElementById('explodeModel').onclick = () => {
     if (walkMode) exitWalkthrough(false);
     exploded = !exploded;
     arrangeFloors();
     document.getElementById('explodeModel').setAttribute('aria-pressed', String(exploded));
     announceStatus(exploded ? 'Floors exploded vertically' : 'Floors stacked back together');
+    updatePins(true);
+    startLoop();
   };
   document.getElementById('togglePins').onclick = () => {
     pinsVisible = !pinsVisible;
@@ -4836,6 +4937,8 @@ async function init3DViewer() {
     spinning = !spinning; tour = false; camGoalPos = null;
     document.getElementById('rotateModel').setAttribute('aria-pressed', String(spinning));
     document.getElementById('tourModel').setAttribute('aria-pressed', 'false');
+    announceStatus(spinning ? 'Auto-rotate enabled' : 'Auto-rotate paused');
+    startLoop();
   };
 
   /* Multi-Stop Real-Home Cinematic Guided Tour (Walks exterior -> living/kitchen -> spa baths -> live game room -> gas vault -> full MEP X-Ray!) */
@@ -4889,9 +4992,11 @@ async function init3DViewer() {
   };
   document.getElementById('modelLevel').onchange = e => {
     const v = e.target.value;
+    pinFloorLock = 'all';
     Object.entries(levels).forEach(([k, g]) => { g.visible = v === 'all' || v === k; });
     tower.visible = v === 'all' && !exploded;
     updatePins(true);
+    startLoop();
   };
 
   const exteriorPalettes = {
@@ -4940,17 +5045,18 @@ async function init3DViewer() {
     cutawayShells.forEach(s => { s.visible = mode !== 'cutaway'; });
     interiorDecor.forEach(d => { d.visible = true; });
   }
-  document.getElementById('lightingMood').addEventListener('change', e => applyMood(e.target.value));
-  document.getElementById('facadeColor').addEventListener('change', applyColors);
-  document.getElementById('interiorColor').addEventListener('change', applyColors);
-  document.getElementById('modelDisplay').addEventListener('change', applyDisplay);
-  document.getElementById('waterSystemMode').addEventListener('change', e => applyWaterMode(e.target.value));
-  document.getElementById('modelOpacity').addEventListener('input', applyDisplay);
+  document.getElementById('lightingMood').addEventListener('change', e => { applyMood(e.target.value); startLoop(); });
+  document.getElementById('facadeColor').addEventListener('change', () => { applyColors(); startLoop(); });
+  document.getElementById('interiorColor').addEventListener('change', () => { applyColors(); startLoop(); });
+  document.getElementById('modelDisplay').addEventListener('change', () => { applyDisplay(); startLoop(); });
+  document.getElementById('waterSystemMode').addEventListener('change', e => { applyWaterMode(e.target.value); startLoop(); });
+  document.getElementById('modelOpacity').addEventListener('input', () => { applyDisplay(); startLoop(); });
   document.getElementById('gardenVisibility').addEventListener('change', e => {
     const m = e.target.value;
     landscape.visible = m !== 'off';
     boundary.visible = m === 'all' || m === 'boundary';
     gardenObjects.forEach(o => { o.visible = m === 'all' || m === 'garden'; });
+    startLoop();
   });
   document.getElementById('resetColors').onclick = () => {
     document.getElementById('lightingMood').value = 'golden';
@@ -4963,6 +5069,8 @@ async function init3DViewer() {
     landscape.visible = true; boundary.visible = true;
     gardenObjects.forEach(o => { o.visible = true; });
     applyMood('golden'); applyColors(); applyDisplay(); applyWaterMode('standard');
+    announceStatus('Appearance reset to default golden hour');
+    startLoop();
   };
 
   applyMood('golden');
@@ -4971,8 +5079,6 @@ async function init3DViewer() {
   applyWaterMode('standard');
 
   /* Efficient Background Processing (per modern-web-guidance) */
-  let rafId = 0, isSkipped = false, isHidden = document.hidden, lastScreenTick = 0;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const modelSection = document.getElementById('model');
   const _walkFwd = new THREE.Vector3(), _walkRight = new THREE.Vector3(), _walkMove = new THREE.Vector3();
   const _tourPosA = new THREE.Vector3(), _tourPosB = new THREE.Vector3(), _tourTgtA = new THREE.Vector3(), _tourTgtB = new THREE.Vector3();
@@ -5245,13 +5351,15 @@ async function init3DViewer() {
   window.clearTimeout(loadTimeoutId);
   resize();
   if (pendingPreset) {
-    goPreset(pendingPreset);
+    goPreset(pendingPreset, { scrollToViewer: true, userInitiated: true });
     pendingPreset = null;
   } else {
     goPreset('hero');
-    camera.position.copy(camGoalPos);
-    controls.target.copy(camGoalTarget);
-    camGoalPos = camGoalTarget = null;
+    if (camGoalPos && camGoalTarget) {
+      camera.position.copy(camGoalPos);
+      controls.target.copy(camGoalTarget);
+      camGoalPos = camGoalTarget = null;
+    }
   }
   controls.update();
   renderer.render(scene, camera);
@@ -5383,9 +5491,9 @@ if (modelSec) {
 document.querySelectorAll('a[href="#model"]').forEach(link => {
   link.addEventListener('click', () => init3DViewer());
 });
-document.getElementById('jumpGame3D')?.addEventListener('click', () => { pendingPreset = 'gameRoom'; init3DViewer(); });
-document.getElementById('jumpParty3D')?.addEventListener('click', () => { pendingPreset = 'rooftopParty'; init3DViewer(); });
-document.getElementById('jumpLaundry3D')?.addEventListener('click', () => { pendingPreset = 'laundry'; init3DViewer(); });
+document.getElementById('jumpGame3D')?.addEventListener('click', () => { if (!bootSucceeded) { pendingPreset = 'gameRoom'; init3DViewer(); } });
+document.getElementById('jumpParty3D')?.addEventListener('click', () => { if (!bootSucceeded) { pendingPreset = 'rooftopParty'; init3DViewer(); } });
+document.getElementById('jumpLaundry3D')?.addEventListener('click', () => { if (!bootSucceeded) { pendingPreset = 'laundry'; init3DViewer(); } });
 window.addEventListener('studio:prewarm', () => {
   setTimeout(() => init3DViewer(), 120);
 }, { once: true });

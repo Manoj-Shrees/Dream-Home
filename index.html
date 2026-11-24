@@ -1229,11 +1229,12 @@
       position: absolute;
       left: 0;
       top: 0;
+      width: 30px;
+      height: 30px;
       transform: translate(-50%, -50%);
       pointer-events: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 0;
+      display: grid;
+      place-items: center;
       padding: 0;
       border: 0;
       background: transparent;
@@ -1276,7 +1277,9 @@
     }
 
     .pin-label {
-      margin-left: 6px;
+      position: absolute;
+      left: calc(100% + 7px);
+      top: 50%;
       padding: 6px 10px;
       border-radius: 10px;
       background: rgba(6, 15, 27, .96);
@@ -1287,7 +1290,7 @@
       text-align: left;
       pointer-events: none;
       opacity: 0;
-      transform: translateX(-6px) scale(.96);
+      transform: translate(-6px, -50%) scale(.96);
       transition: opacity .16s ease-out, transform .16s ease-out;
     }
 
@@ -1310,30 +1313,26 @@
     .pin-3d:focus-visible .pin-label,
     .pin-3d.active .pin-label {
       opacity: 1;
-      transform: translateX(0) scale(1);
-    }
-
-    .pin-3d.pin-flip {
-      flex-direction: row-reverse
+      transform: translate(0, -50%) scale(1);
     }
 
     .pin-3d.pin-flip .pin-label {
-      margin-left: 0;
-      margin-right: 6px;
-      transform: translateX(6px) scale(.96);
+      left: auto;
+      right: calc(100% + 7px);
+      transform: translate(6px, -50%) scale(.96);
       text-align: right
     }
 
     .pin-3d.pin-flip:hover .pin-label,
     .pin-3d.pin-flip:focus-visible .pin-label,
     .pin-3d.pin-flip.active .pin-label {
-      transform: translateX(0) scale(1)
+      transform: translate(0, -50%) scale(1)
     }
 
     @media (hover:none) {
-      .pin-label {
+      .pin-3d.active .pin-label {
         opacity: 1;
-        transform: none
+        transform: translate(0, -50%) scale(1)
       }
     }
 
