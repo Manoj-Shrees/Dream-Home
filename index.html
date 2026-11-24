@@ -8158,6 +8158,32 @@
       const bridgeSlabGeo = new THREE.ExtrudeGeometry(bridgeShape, { depth: 0.24, bevelEnabled: false });
       const bridgeTopGeo = new THREE.ExtrudeGeometry(bridgeShape, { depth: 0.022, bevelEnabled: false });
 
+      // Helper: Continuous Frameless Tempered-Glass Safety Barrier + Dual Champagne-Gold Handrails along any Landing Perimeter Polyline!
+      function addGlassBarrierPolyline(parent, baseY, pts, h = 0.94, withMid = true) {
+        for (let i = 0; i < pts.length - 1; i++) {
+          const [x0, z0] = pts[i], [x1, z1] = pts[i + 1];
+          const dx = x1 - x0, dz = z1 - z0, segLen = Math.hypot(dx, dz);
+          if (segLen < 0.03) continue;
+          const mx = (x0 + x1) / 2, mz = (z0 + z1) / 2, rotY = -Math.atan2(dz, dx);
+          const pane = addBox(parent, segLen + 0.012, h - 0.06, 0.036, mx, baseY + (h - 0.02) / 2, mz, railGlassMat, false, false);
+          pane.rotation.y = rotY;
+          const topR = addBox(parent, segLen + 0.04, 0.042, 0.048, mx, baseY + h, mz, goldMat, false, false);
+          topR.rotation.y = rotY;
+          if (withMid) {
+            const midR = addBox(parent, segLen + 0.02, 0.018, 0.024, mx, baseY + h * 0.50, mz, goldMat, false, false);
+            midR.rotation.y = rotY;
+          }
+          // Intermediate slim vertical baluster for spans > 0.85 m
+          if (segLen > 0.85) {
+            addBox(parent, 0.022, h, 0.022, mx, baseY + h / 2, mz, goldMat, false, false);
+          }
+        }
+        pts.forEach(([px, pz], idx) => {
+          const isEnd = (idx === 0 || idx === pts.length - 1);
+          addBox(parent, isEnd ? 0.042 : 0.034, h, isEnd ? 0.042 : 0.034, px, baseY + h / 2, pz, goldMat, false, false);
+        });
+      }
+
       deckTops.forEach((topY, bi) => {
         // Precision-cut rear circulation landing deck bridging left wing (x=1.55) <-> atrium back <-> right pavilion (x=6.72) — ZERO step overlap!
         const bDeck = new THREE.Mesh(bridgeSlabGeo, whiteMat);
@@ -8172,10 +8198,20 @@
           addCurvedBalconySector(spiralBackCore, topY, -Math.PI * 0.72, -Math.PI * 0.36, 0.24, stairInnerR, ATRIUM_R - 0.04, true, true);
         }
 
-        // Single Clean Left Side-Bridge Guardrail ONLY where open drop exists (x=1.68..2.62 at z=2.38, joining solid left wall to left atrium pier — ZERO stray rails near right door!)
-        addBox(spiralBackCore, 0.92, 0.90, 0.036, 2.15, topY + 0.46, 2.38, railGlassMat, false, false);
-        addBox(spiralBackCore, 0.96, 0.042, 0.048, 2.15, topY + 0.93, 2.38, goldMat, false, false);
-        addBox(spiralBackCore, 0.042, 0.92, 0.042, 2.61, topY + 0.47, 2.38, goldMat, false, false);
+        // 100% FALL-FREE CONTINUOUS FRAMELESS GLASS GUARDRAILS ON EVERY OPEN LANDING & BRIDGE EDGE!
+        // Left side-bridge + diagonal chamfer seamlessly joining Flight 2/3/4 outer stair glass balustrade (zero open drop!)
+        if (bi === 0) {
+          addGlassBarrierPolyline(spiralBackCore, topY, [[1.64, 2.38], [2.62, 2.38]], 0.94, true);
+        } else {
+          addGlassBarrierPolyline(spiralBackCore, topY, [[1.64, 2.38], [2.62, 2.38], [3.11, 1.69]], 0.94, true);
+        }
+        // Right corridor open-drop glass barriers: 1F & 2F seal front-right stairwell edge + rear spine return; Roof (bi===3) encloses the ENTIRE right perimeter!
+        if (bi === 1 || bi === 2) {
+          addGlassBarrierPolyline(spiralBackCore, topY, [[5.68, 1.36], [6.50, 1.36], [6.62, 1.88]], 0.94, true);
+          addGlassBarrierPolyline(spiralBackCore, topY, [[6.28, 0.88], [6.30, 0.56], [6.72, 0.56]], 0.94, true);
+        } else if (bi === 3) {
+          addGlassBarrierPolyline(spiralBackCore, topY, [[6.28, 0.88], [6.30, 0.56], [6.74, 0.56], [6.74, 1.96], [6.60, 1.96], [6.50, 1.36], [5.68, 1.36]], 0.94, true);
+        }
 
         // REAL OPEN Left Main-Wing Doorway + Interactive Hinged Armored Safety Door seated 100% FLUSH inside x=1.55 wall cutout (z=1.64)!
         addSafetyDoor(spiralBackCore, 1.55, topY, 1.64, 1.16, bi === 3 ? 1.80 : 2.18, Math.PI / 2, 1);
@@ -8270,6 +8306,60 @@
       );
       glassCyl.position.set(CX, 7.35, CZ);
       tower.add(glassCyl);
+
+      // BALANCED FULL-HEIGHT CURVED STRUCTURAL GLASS ATRIUM ENCLOSURE WALLS ON BOTH REAR-RIGHT & REAR-LEFT FLANKS (100% Fall-Free Weather-Sealed Tower!)
+      // 1. Rear-Right Curved Glass Facade: sweeps cleanly from inside rightPier (0.58π) to Right Doorway front jamb (0.72π -> 6.71, 1.84)
+      const rearRightGlass = new THREE.Mesh(
+        new THREE.CylinderGeometry(ATRIUM_R, ATRIUM_R, 12.74, 24, 1, true, Math.PI * 0.58, Math.PI * 0.145),
+        atriumGlassMat
+      );
+      rearRightGlass.position.set(CX, 7.41, CZ);
+      tower.add(rearRightGlass);
+      // 2. Upper Roof & Sky-Bridge Rear-Right Curved Glass Closure (y=10.24..13.78, 0.72π..0.87π): seals the open Roof quadrant above sideWing cleanly to the walnut spine!
+      const upperRearRightGlass = new THREE.Mesh(
+        new THREE.CylinderGeometry(ATRIUM_R, ATRIUM_R, 3.56, 20, 1, true, Math.PI * 0.725, Math.PI * 0.145),
+        atriumGlassMat
+      );
+      upperRearRightGlass.position.set(CX, 12.02, CZ);
+      tower.add(upperRearRightGlass);
+      // 3. Mirror Rear-Left Curved Glass Facade: balances the tower symmetrically from inside leftPier (-0.50π) around to left bridge edge (-0.66π -> 2.30, 2.26)
+      const rearLeftGlass = new THREE.Mesh(
+        new THREE.CylinderGeometry(ATRIUM_R, ATRIUM_R, 12.74, 24, 1, true, -Math.PI * 0.66, Math.PI * 0.16),
+        atriumGlassMat
+      );
+      rearLeftGlass.position.set(CX, 7.41, CZ);
+      tower.add(rearLeftGlass);
+
+      // Slim Vertical Champagne-Gold Mullions & Curved Floor-Level Architectural Transom Bars framing BOTH rear glass flanks!
+      for (const th of [Math.PI * 0.64, Math.PI * 0.72, -Math.PI * 0.58, -Math.PI * 0.66]) {
+        const mx = CX + Math.sin(th) * (ATRIUM_R + 0.015), mz = CZ + Math.cos(th) * (ATRIUM_R + 0.015);
+        const mul = addBox(tower, 0.052, 12.74, 0.068, mx, 7.41, mz, goldMat, false, false);
+        mul.rotation.y = th;
+      }
+      for (const th of [Math.PI * 0.79, Math.PI * 0.865]) {
+        const mx = CX + Math.sin(th) * (ATRIUM_R + 0.015), mz = CZ + Math.cos(th) * (ATRIUM_R + 0.015);
+        const mul = addBox(tower, 0.052, 3.56, 0.068, mx, 12.02, mz, goldMat, false, false);
+        mul.rotation.y = th;
+      }
+      for (const ty of [3.74, 6.99, 10.24, 12.74]) {
+        // Curved champagne-gold structural transom bands on Rear-Right & Rear-Left glass walls
+        for (const [t0, t1] of [[Math.PI * 0.58, Math.PI * 0.725], [-Math.PI * 0.66, -Math.PI * 0.50]]) {
+          const tPts = [];
+          for (let i = 0; i <= 10; i++) {
+            const th = t0 + (i / 10) * (t1 - t0);
+            tPts.push(new THREE.Vector3(CX + Math.sin(th) * (ATRIUM_R + 0.015), ty, CZ + Math.cos(th) * (ATRIUM_R + 0.015)));
+          }
+          tower.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tPts), 16, 0.032, 6, false), goldMat));
+        }
+        if (ty >= 10.24) {
+          const uPts = [];
+          for (let i = 0; i <= 10; i++) {
+            const th = Math.PI * 0.725 + (i / 10) * (Math.PI * 0.145);
+            uPts.push(new THREE.Vector3(CX + Math.sin(th) * (ATRIUM_R + 0.015), ty, CZ + Math.cos(th) * (ATRIUM_R + 0.015)));
+          }
+          tower.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(uPts), 16, 0.032, 6, false), goldMat));
+        }
+      }
 
       // Only 4 Ultra-Clean Slim Vertical Champagne-Gold Mullions across the front panoramic curve (matching home photo!)
       for (const angleDeg of [-38, -12, 14, 40]) {
@@ -8366,8 +8456,31 @@
       }
       const oculusHub = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.055, 24), goldMat);
       oculusHub.position.set(CX, crownTopY + 0.035, CZ); crownGroup.add(oculusHub);
-      // Direct Stair-Top Glass Sky-Bridge + Precision-Cut Top Curved Atrium Balcony Landing (y = 12.74, FLUSH join from Flight 4 to Party Shed!)
+      // Direct Stair-Top Glass Sky-Bridge + Precision-Cut Top Curved Atrium Balcony Landing (y = 12.74, FLUSH join from Flight 4 to Party Shed + Outer Safety Glass Guardrail!)
       addCurvedBalconySector(crownGroup, 12.74, -Math.PI * 0.96, -Math.PI * 0.58, 0.22, stairInnerR, ATRIUM_R - 0.04, true, true);
+      // Outer curved tempered-glass safety guardrail enclosing the Sky-Bridge top landing rim (r = stairOuterR, -0.96π .. -0.58π)
+      {
+        const sbSegs = 12, sbA0 = -Math.PI * 0.96, sbA1 = -Math.PI * 0.58;
+        const sbTop = [], sbMid = [];
+        for (let i = 0; i <= sbSegs; i++) {
+          const a = sbA0 + (i / sbSegs) * (sbA1 - sbA0);
+          const px = CX + Math.cos(a) * stairOuterR, pz = CZ + Math.sin(a) * stairOuterR;
+          sbTop.push(new THREE.Vector3(px, 12.74 + 0.94, pz));
+          sbMid.push(new THREE.Vector3(px, 12.74 + 0.47, pz));
+          if (i < sbSegs) {
+            const aN = sbA0 + ((i + 1) / sbSegs) * (sbA1 - sbA0);
+            const nx = CX + Math.cos(aN) * stairOuterR, nz = CZ + Math.sin(aN) * stairOuterR;
+            const dx = nx - px, dz = nz - pz;
+            const p = addBox(crownGroup, Math.hypot(dx, dz) + 0.012, 0.88, 0.034, (px + nx) / 2, 12.74 + 0.46, (pz + nz) / 2, railGlassMat, false, false);
+            p.rotation.y = -Math.atan2(dz, dx);
+          }
+          if (i === 0 || i === sbSegs || i % 4 === 0) {
+            addBox(crownGroup, 0.034, 0.92, 0.034, px, 12.74 + 0.47, pz, goldMat, false, false);
+          }
+        }
+        crownGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(sbTop), 28, 0.038, 8, false), goldMat));
+        crownGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(sbMid), 24, 0.018, 6, false), goldMat));
+      }
       addBox(crownGroup, 1.65, 0.22, 1.65, 2.15, 12.63, 2.95, whiteMat, true, true);
       addBox(crownGroup, 1.60, 0.025, 1.56, 2.15, 12.745, 2.95, marbleMat, false, true);
       addBox(crownGroup, 1.55, 0.90, 0.04, 2.08, 13.20, 3.74, railGlassMat, false, false);
@@ -8472,35 +8585,47 @@
           }
           stairGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hPts), segs * 2, thick, 8, false), goldMat));
         }
-        // Wall-Mounted Outer Handrail ONLY along the curved front panoramic glass arc (sin(ang) > -0.18, z > 3.11 — cleanly between left & right piers, NEVER crosses any doorway!)
-        const outerPts = [];
-        const outerAngles = [];
-        for (let i = 0; i <= segs; i++) {
-          const t = i / segs;
-          const ang = a0 + t * da;
-          if (Math.sin(ang) > -0.18) {
-            const ry = y0 + t * dy + 0.92;
-            outerPts.push(new THREE.Vector3(CX + Math.cos(ang) * (stairOuterR + 0.02), ry, CZ + Math.sin(ang) * (stairOuterR + 0.02)));
-            outerAngles.push({ ang, ry });
+        // 4. FULL-LENGTH OUTER TEMPERED-GLASS SAFETY BALUSTRADE + DUAL CHAMPAGNE-GOLD HANDRAILS (100% Fall-Free End-to-End on ALL 4 Flights, >17 cm clear of doorways!)
+        for (let i = 0; i < glassSteps; i++) {
+          const t0 = i / glassSteps, t1 = (i + 1) / glassSteps;
+          const aS = a0 + t0 * da, aE = a0 + t1 * da;
+          const p0x = CX + Math.cos(aS) * stairOuterR, p0z = CZ + Math.sin(aS) * stairOuterR, p0y = y0 + t0 * dy;
+          const p1x = CX + Math.cos(aE) * stairOuterR, p1z = CZ + Math.sin(aE) * stairOuterR, p1y = y0 + t1 * dy;
+          const dx = p1x - p0x, dz = p1z - p0z;
+          const oPanel = addBox(stairGroup, Math.hypot(dx, dz) + 0.014, 0.88, 0.034, (p0x + p1x) / 2, (p0y + p1y) / 2 + 0.46, (p0z + p1z) / 2, railGlassMat, false, false);
+          oPanel.rotation.y = -Math.atan2(dz, dx);
+        }
+        for (const [rad, yOff, thick] of [
+          [stairOuterR, 0.94, 0.038],
+          [stairOuterR, 0.47, 0.018],
+          [stairOuterR, -0.02, 0.026]
+        ]) {
+          const oPts = [];
+          for (let i = 0; i <= segs; i++) {
+            const t = i / segs;
+            const ang = a0 + t * da;
+            oPts.push(new THREE.Vector3(CX + Math.cos(ang) * rad, y0 + t * dy + yOff, CZ + Math.sin(ang) * rad));
           }
+          stairGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(oPts), segs * 2, thick, 8, false), goldMat));
         }
-        if (outerPts.length >= 4) {
-          stairGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outerPts), outerPts.length * 2, 0.034, 8, false), goldMat));
-          // Precision champagne-gold standoff wall brackets anchoring the outer handrail cleanly to the curved glass cylinder (ends + every 6th segment!)
-          outerAngles.forEach(({ ang, ry }, oi) => {
-            if (oi === 0 || oi === outerAngles.length - 1 || oi % 6 === 0) {
-              const brk = addBox(stairGroup, 0.24, 0.032, 0.032, CX + Math.cos(ang) * (stairOuterR + 0.13), ry, CZ + Math.sin(ang) * (stairOuterR + 0.13), goldMat, false, false);
-              brk.rotation.y = -ang;
-            }
-          });
-        }
-        // Cleanly Seated Vertical Inner Balusters ONLY strictly between start & end (ZERO duplicate overlapping corner posts at floor balcony or gfBarrierGrp joins!)
+        // Cleanly Seated Vertical Inner & Outer Balusters + Horizontal Glass-Cylinder Standoff Tie-Brackets for structural balance!
         const balCount = Math.max(8, Math.round(steps * 0.85));
-        for (let i = 1; i < balCount; i++) {
+        for (let i = 0; i <= balCount; i++) {
           const t = i / balCount;
           const ang = a0 + t * da;
           const y = y0 + t * dy;
-          addBox(stairGroup, 0.022, 0.92, 0.022, CX + Math.cos(ang) * stairInnerR, y + 0.47, CZ + Math.sin(ang) * stairInnerR, goldMat, false, false);
+          const isEnd = (i === 0 || i === balCount);
+          // Inner balusters strictly between start & end (sharing corner posts with curved balconies / gfBarrierGrp)
+          if (!isEnd) {
+            addBox(stairGroup, 0.022, 0.92, 0.022, CX + Math.cos(ang) * stairInnerR, y + 0.47, CZ + Math.sin(ang) * stairInnerR, goldMat, false, false);
+          }
+          // Outer balusters end-to-end (heavier newel posts at landing joins!)
+          addBox(stairGroup, isEnd ? 0.042 : 0.022, 0.92, isEnd ? 0.042 : 0.022, CX + Math.cos(ang) * stairOuterR, y + 0.47, CZ + Math.sin(ang) * stairOuterR, goldMat, false, false);
+          // Structural brushed-gold tie-brackets bracing outer handrail directly to the curved glass cylinder facade!
+          if (!isEnd && i % 3 === 0 && Math.sin(ang) > -0.50) {
+            const brk = addBox(stairGroup, 0.24, 0.030, 0.030, CX + Math.cos(ang) * (stairOuterR + 0.13), y + 0.93, CZ + Math.sin(ang) * (stairOuterR + 0.13), goldMat, false, false);
+            brk.rotation.y = -ang;
+          }
         }
       });
 
@@ -8553,11 +8678,10 @@
       addACUnit(sideWing, 7.95, 2.84, -1.94, 0, 0.86); // GF Right Pavilion Bed 1 Split-Inverter AC
       addBedSuite(sideWing, 7.95, 3.75, 0.05, -Math.PI / 2, 0.76);
       addACUnit(sideWing, 7.95, 6.22, -1.94, 0, 0.86); // 1F Right Pavilion Bed 4 Split-Inverter AC
-      // 2ND FLOOR CURVED RIGHT SUN TERRACE ON sideWing TOP SLAB (y = 6.99 — Frameless Glass Perimeter Balustrade + Teak Inlay + Lounge Chair + Planter!)
+      // 2ND FLOOR CURVED RIGHT SUN TERRACE ON sideWing TOP SLAB (y = 6.99 — Joins curved atrium glass wall flush at (7.10, 2.46) + full rear safety barrier!)
       const swTerraceY = 6.99;
       const swRailCurve2D = new THREE.Path();
-      swRailCurve2D.moveTo(6.74, 2.02);
-      swRailCurve2D.lineTo(6.74, 2.46);
+      swRailCurve2D.moveTo(7.10, 2.46);
       swRailCurve2D.lineTo(8.38, 2.46);
       swRailCurve2D.quadraticCurveTo(9.74, 2.46, 9.74, 1.28);
       swRailCurve2D.lineTo(9.74, -0.70);
@@ -8577,6 +8701,8 @@
         const p = swRailPts[i];
         addBox(sideWing, 0.036, 0.91, 0.036, p.x, swTerraceY + 0.46, p.y, goldMat, false, false);
       }
+      // Rear 2F Sun Terrace Glass Safety Return closing (6.72, 0.50) -> (6.72, -0.45) -> (7.85, -0.45) flush into Bedroom 6 outer wall!
+      addGlassBarrierPolyline(sideWing, swTerraceY, [[6.72, 0.50], [6.72, -0.45], [7.85, -0.45]], 0.94, true);
       addBox(sideWing, 2.15, 0.03, 3.65, 8.22, swTerraceY + 0.015, 0.10, woodMat, false, true); // Warm slatted teak terrace pad
       addBox(sideWing, 0.68, 0.36, 0.68, 8.45, swTerraceY + 0.19, 0.72, woodMat, true, false); // Outdoor teak lounge chair
       addBox(sideWing, 0.60, 0.12, 0.60, 8.45, swTerraceY + 0.42, 0.72, upholsteryMat, false, false);
