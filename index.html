@@ -12,6 +12,8 @@
   <link rel="icon" type="image/png" href="assets/ravn-favicon.png">
   <link rel="apple-touch-icon" href="assets/ravn-favicon.png">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js" crossorigin>
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/controls/OrbitControls.js" crossorigin>
   <link rel="preload" as="image" href="assets/ravn-logo-128.webp" fetchpriority="high" type="image/webp">
   <link rel="preload" as="image" href="assets/exterior-photo.webp"
     imagesrcset="assets/exterior-photo-800.webp 800w, assets/exterior-photo.webp 1500w"
@@ -4330,12 +4332,20 @@
     'use strict';
     const $ = id => document.getElementById(id);
 
-    /* Non-blocking main-thread yield helper (scheduler.yield() with setTimeout fallback per break-up-long-tasks) */
+    /* Non-blocking main-thread yield helper (scheduler.yield() with bounded timeout fallback so background tabs never stall) */
     window.yieldToMain = function yieldToMain() {
+      const fallback = new Promise(resolve => setTimeout(resolve, 0));
       if ('scheduler' in window && 'yield' in window.scheduler) {
-        return window.scheduler.yield();
+        try {
+          return Promise.race([
+            window.scheduler.yield(),
+            new Promise(resolve => setTimeout(resolve, 60))
+          ]);
+        } catch {
+          return fallback;
+        }
       }
-      return new Promise(resolve => setTimeout(resolve, 0));
+      return fallback;
     };
 
     /* Smart Construction-Tools Preloader Controller (Minimum 5s smooth showcase while pre-warming 3D & HD assets) */
@@ -4395,7 +4405,24 @@
         requestAnimationFrame(() => {
           el?.classList.add('is-done');
           setTimeout(() => { el?.remove(); }, 440);
+          window.__studioReady = true;
           window.dispatchEvent(new CustomEvent('studio:ready'));
+          setTimeout(() => {
+            if (typeof window.__start3DViewer === 'function') {
+              window.__start3DViewer();
+            } else {
+              const ldr = $('viewerLoading');
+              if (ldr && getComputedStyle(ldr).display !== 'none' && !window.__studio3DModuleLoaded) {
+                ldr.style.display = 'none';
+                const fb = $('viewerFallback');
+                if (fb) fb.style.display = 'flex';
+                const em = $('viewerErrorMessage');
+                const ed = $('viewerErrorDetail');
+                if (em) em.textContent = 'Interactive 3D module did not initialize.';
+                if (ed) ed.textContent = 'Please refresh the page, check browser ES-module support, or serve this folder locally via python3 -m http.server 8000.';
+              }
+            }
+          }, 3500);
         });
       }
 
@@ -5019,6 +5046,7 @@
       } catch { }
 
       // Trigger background 3D villa construction while the 5s preloader is smoothly animating
+      window.__studioPrewarmed = true;
       window.dispatchEvent(new CustomEvent('studio:prewarm'));
 
       // Hydrate off-screen sections in non-blocking yielded slices during the 5s window
@@ -5131,7 +5159,13 @@
     }, { rootMargin: '-24% 0px -60% 0px' });
     document.querySelectorAll('main section[id]').forEach(s => navObserver.observe(s));
 
-    $('retry3D').addEventListener('click', () => window.location.reload());
+    $('retry3D').addEventListener('click', () => {
+      if (typeof window.__retry3DViewer === 'function') {
+        window.__retry3DViewer();
+      } else {
+        window.location.reload();
+      }
+    });
 
     /* Upfront ARIA Wiring + Fallback Positioning for interestfor / popover="hint" Tooltips (per modern-web-guidance) */
     (function setupInterestTooltips() {
@@ -5225,30 +5259,79 @@
       import('https://unpkg.com/interestfor@latest').catch(() => { });
     }
 
-    /* On-Demand / Idle-Deferred 3D Engine Boot (Zero Startup Contention & Chunked Non-Blocking Build!) */
+    /* On-Demand / Pre-Warmed 3D Engine Boot (Zero Startup Contention, Multi-CDN Fallback & Chunked Non-Blocking Build!) */
+    window.__studio3DModuleLoaded = true;
     const yieldMain = () => window.yieldToMain ? window.yieldToMain() : new Promise(r => setTimeout(r, 0));
-    let bootStarted = false, pendingPreset = null;
+    let bootStarted = false, bootSucceeded = false, pendingPreset = null;
+
+    async function loadThreeEngine(statusEl) {
+      const withTimeout = (promise, ms, label) => Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timed out`)), ms))
+      ]);
+      const mirrors = [
+        {
+          label: 'Loading Three.js rendering engine…',
+          ms: 8000,
+          load: () => Promise.all([
+            import('three'),
+            import('three/addons/controls/OrbitControls.js')
+          ])
+        },
+        {
+          label: 'Switching to backup 3D engine mirror (esm.sh)…',
+          ms: 9000,
+          load: () => Promise.all([
+            import('https://esm.sh/three@0.160.1'),
+            import('https://esm.sh/three@0.160.1/examples/jsm/controls/OrbitControls.js')
+          ])
+        },
+        {
+          label: 'Switching to backup 3D engine mirror (unpkg)…',
+          ms: 9000,
+          load: () => Promise.all([
+            import('https://unpkg.com/three@0.160.1/build/three.module.js'),
+            import('https://unpkg.com/three@0.160.1/examples/jsm/controls/OrbitControls.js?module')
+          ])
+        }
+      ];
+      let lastErr = null;
+      for (const mirror of mirrors) {
+        try {
+          if (statusEl) statusEl.textContent = mirror.label;
+          const [THREE, orbitMod] = await withTimeout(mirror.load(), mirror.ms, mirror.label);
+          if (THREE && orbitMod?.OrbitControls) return [THREE, orbitMod];
+          throw new Error('Incomplete 3D module export');
+        } catch (err) {
+          lastErr = err;
+          console.warn('3D mirror failed, trying next:', err);
+        }
+      }
+      throw lastErr || new Error('Unable to load Three.js from any CDN mirror.');
+    }
 
     async function init3DViewer() {
-      if (bootStarted) return;
+      if (bootStarted || bootSucceeded) return;
       bootStarted = true;
+      const loaderEl = document.getElementById('viewerLoading');
+      const fallbackEl = document.getElementById('viewerFallback');
+      if (loaderEl) loaderEl.style.display = 'flex';
+      if (fallbackEl) fallbackEl.style.display = 'none';
       const loadTimeoutId = window.setTimeout(() => {
+        if (bootSucceeded) return;
         const loader = document.getElementById('viewerLoading');
         if (loader && getComputedStyle(loader).display !== 'none') {
+          bootStarted = false;
           loader.style.display = 'none';
           document.getElementById('viewerFallback').style.display = 'flex';
           document.getElementById('viewerErrorMessage').textContent = '3D engine loading timed out.';
-          document.getElementById('viewerErrorDetail').textContent = 'Check internet access to cdn.jsdelivr.net or serve this folder locally via python3 -m http.server 8000.';
+          document.getElementById('viewerErrorDetail').textContent = 'Check internet access to cdn.jsdelivr.net / esm.sh / unpkg.com, or click Retry 3D viewer.';
         }
-      }, 16000);
+      }, 28000);
 
       try {
       const statusEl = document.getElementById('modelLoadStatus');
-      if (statusEl) statusEl.textContent = 'Loading Three.js rendering engine…';
-      const [THREE, { OrbitControls }] = await Promise.all([
-        import('three'),
-        import('three/addons/controls/OrbitControls.js')
-      ]);
+      const [THREE, { OrbitControls }] = await loadThreeEngine(statusEl);
       if (statusEl) statusEl.textContent = 'Sculpting curved villa geometry & spiral atrium…';
       await yieldMain();
       const canvas = document.getElementById('modelCanvas');
@@ -10262,17 +10345,27 @@
       controls.update();
       renderer.render(scene, camera);
       updatePins(true);
+      bootSucceeded = true;
       document.getElementById('viewerLoading').style.display = 'none';
+      document.getElementById('viewerFallback').style.display = 'none';
       startLoop();
     } catch (err) {
       window.clearTimeout(loadTimeoutId);
+      bootStarted = false;
       console.error('3D model unavailable:', err);
       document.getElementById('viewerLoading').style.display = 'none';
       document.getElementById('viewerFallback').style.display = 'flex';
       document.getElementById('viewerErrorMessage').textContent = 'The interactive 3D model could not start.';
-      document.getElementById('viewerErrorDetail').textContent = (err?.message || 'The 3D library may be blocked or WebGL may be unavailable.') + ' Serve via python3 -m http.server 8000 for local viewing.';
+      document.getElementById('viewerErrorDetail').textContent = (err?.message || 'The 3D library may be blocked or WebGL may be unavailable.') + ' Click Retry 3D viewer or serve via python3 -m http.server 8000 for local viewing.';
     }
     }
+
+    window.__start3DViewer = init3DViewer;
+    window.__retry3DViewer = () => {
+      if (bootSucceeded) return;
+      bootStarted = false;
+      init3DViewer();
+    };
 
     /* Always-Ready Dual-Engine 3D Fullscreen wired declaratively via Invoker Commands (`commandfor`/`command`) + CommandEvent Fallback */
     const modelStage = document.getElementById('modelStage');
@@ -10383,11 +10476,19 @@
     document.getElementById('jumpParty3D')?.addEventListener('click', () => { pendingPreset = 'rooftopParty'; init3DViewer(); });
     document.getElementById('jumpLaundry3D')?.addEventListener('click', () => { pendingPreset = 'laundry'; init3DViewer(); });
     window.addEventListener('studio:prewarm', () => {
-      setTimeout(() => init3DViewer(), 250);
+      setTimeout(() => init3DViewer(), 120);
     }, { once: true });
     window.addEventListener('studio:ready', () => {
       init3DViewer();
     }, { once: true });
+    // Eliminate classic-script vs deferred-module race: start pre-warming immediately if studio:prewarm/studio:ready already fired (or after 350ms safety kick)
+    if (window.__studioReady) {
+      init3DViewer();
+    } else if (window.__studioPrewarmed) {
+      setTimeout(() => init3DViewer(), 80);
+    } else {
+      setTimeout(() => init3DViewer(), 350);
+    }
   </script>
 </body>
 
