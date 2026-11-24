@@ -5848,6 +5848,37 @@
         return frame;
       }
 
+      function addSlidingBalconyDoor(parent, x, y, z, width, height, rotY = 0, openSide = 1) {
+        // Real Architectural Open Walk-Through Sliding Glass Balcony Doorway (Overhead twin bronze track, flush sill, slid-back glass leaf & champagne-gold pull handles!)
+        const d = new THREE.Group();
+        d.position.set(x, y, z); d.rotation.y = rotY;
+        const hw = width / 2;
+        // Dark-bronze perimeter frame (top twin sliding track, flush floor sill track & side jambs)
+        addBox(d, width + 0.08, 0.08, 0.16, 0, height - 0.04, 0, darkBronzeMat, false, false);
+        addBox(d, width + 0.08, 0.032, 0.14, 0, 0.016, 0, darkBronzeMat, false, false);
+        addBox(d, 0.07, height, 0.14, -hw, height / 2, 0, darkBronzeMat, false, false);
+        addBox(d, 0.07, height, 0.14, hw, height / 2, 0, darkBronzeMat, false, false);
+        // Fixed outer glass leaf occupying 44% on the parked side + slid-back overlapping sliding glass leaf (leaving 56% completely OPEN walk-through access to the balcony!)
+        const leafW = width * 0.44;
+        const leafH = height - 0.11;
+        const parkX = -openSide * (hw - leafW / 2 - 0.04);
+        // Fixed pane (rear track)
+        addBox(d, leafW, leafH, 0.036, parkX, leafH / 2 + 0.03, -0.028, atriumGlassMat, false, false);
+        addBox(d, 0.042, leafH, 0.046, parkX + openSide * (leafW / 2), leafH / 2 + 0.03, -0.028, darkBronzeMat, false, false);
+        // Slid-open sliding leaf neatly overlapping the parked leaf (front track, offset 14 cm inward for unmistakable open-door realism!)
+        const slideX = parkX + openSide * 0.14;
+        addBox(d, leafW, leafH, 0.036, slideX, leafH / 2 + 0.03, 0.032, atriumGlassMat, false, false);
+        addBox(d, 0.044, leafH, 0.052, slideX + openSide * (leafW / 2), leafH / 2 + 0.03, 0.032, darkBronzeMat, false, false);
+        addBox(d, 0.044, leafH, 0.052, slideX - openSide * (leafW / 2), leafH / 2 + 0.03, 0.032, darkBronzeMat, false, false);
+        addBox(d, leafW, 0.044, 0.052, slideX, leafH + 0.02, 0.032, darkBronzeMat, false, false);
+        // Tall brushed champagne-gold vertical pull handles on BOTH interior & exterior faces of the sliding leaf!
+        const hx = slideX + openSide * (leafW / 2 - 0.09);
+        addBox(d, 0.032, 0.78, 0.045, hx, Math.min(1.12, leafH * 0.52), 0.072, goldMat, false, false);
+        addBox(d, 0.032, 0.78, 0.045, hx, Math.min(1.12, leafH * 0.52), -0.012, goldMat, false, false);
+        parent.add(d);
+        return d;
+      }
+
       function updateSafetyDoors(openRatio) {
         for (let i = 0; i < safetyDoors.length; i++) {
           const d = safetyDoors[i];
@@ -6226,11 +6257,19 @@
         addBox(gf, 0.10, 0.34, 0.10, -8.44, 2.08, sz, darkBronzeMat, false, false);
         addBox(gf, 0.09, 0.06, 0.09, -8.46, 2.26, sz, warmLedMat, false, false);
       }
-      // Rear living/dining glass bay behind garage
-      addBox(gf, 9.2, 3.1, 0.2, -3.2, 1.75, -5.05, atriumGlassMat, false, false);
-      for (let x = -7.6; x <= 1.2; x += 2.2) addBox(gf, 0.1, 3.1, 0.12, x, 1.75, -5.05, darkBronzeMat);
-      // Left & rear-right solid architectural walls (outer left shell opens in Interior Cutaway; right wall split cleanly at z=0.98..2.30 for flush GF spiral doorway!)
-      cutawayShells.push(addBox(gf, 0.35, 3.25, 10.0, -8.25, 1.78, -0.1, whiteMat));
+      // Rear living/dining glass bay with REAL OPEN 2.0 m sliding garden patio door (x=-3.10) giving direct garden access!
+      addBox(gf, 3.60, 3.1, 0.14, -5.90, 1.75, -5.05, atriumGlassMat, false, false);
+      addBox(gf, 3.60, 3.1, 0.14, -0.30, 1.75, -5.05, atriumGlassMat, false, false);
+      for (const mx of [-7.6, -5.9, -4.1, -2.1, -0.3, 1.4]) addBox(gf, 0.10, 3.1, 0.14, mx, 1.75, -5.05, darkBronzeMat);
+      addSlidingBalconyDoor(gf, -3.10, 0.26, -5.05, 2.00, 2.90, 0, 1);
+      // Left exterior wall split cleanly at z=-0.82..+0.62 with REAL OPEN sliding glass door out to Covered Left Garden Veranda!
+      const gfLeftWallGrp = new THREE.Group();
+      addBox(gfLeftWallGrp, 0.35, 3.25, 4.28, -8.25, 1.78, -2.96, whiteMat); // Rear section (-5.10..-0.82)
+      addBox(gfLeftWallGrp, 0.35, 3.25, 4.28, -8.25, 1.78, 2.76, whiteMat);  // Front section (+0.62..+4.90)
+      addBox(gfLeftWallGrp, 0.35, 0.42, 1.46, -8.25, 3.19, -0.10, whiteMat); // Flush header above veranda door
+      addSlidingBalconyDoor(gfLeftWallGrp, -8.25, 0.26, -0.10, 1.44, 2.72, Math.PI / 2, 1);
+      gf.add(gfLeftWallGrp);
+      cutawayShells.push(gfLeftWallGrp);
       addBox(gf, 0.26, 3.25, 6.02, 1.55, 1.78, -2.03, whiteMat); // Rear section (-5.04..+0.98)
       addBox(gf, 0.26, 3.25, 1.85, 1.55, 1.78, 3.225, whiteMat); // Front section (+2.30..+4.15)
       addBox(gf, 0.26, 0.22, 1.32, 1.55, 3.30, 1.64, whiteMat);  // Doorway header above GF safety door!
@@ -6681,11 +6720,26 @@
           addPlanterTree(owner, px, y + 0.35, pz, 0.85 + (j % 2) * 0.22, j % 2 === 0);
         });
 
-        // Recessed Floor-to-Ceiling Bronze Glazed Facade & Warm Lit Interiors (First & Second floors, plus enclosed front Gaming/Media Studio on Roof)
-        // Front recessed panoramic glazing + bronze mullions
-        addBox(owner, 8.2, wallH, 0.14, -3.2, wallY, 3.65, atriumGlassMat, false, false);
-        for (let mx = -7.2; mx <= 0.8; mx += 2.0) {
-          addBox(owner, 0.09, wallH, 0.16, mx, wallY, 3.65, darkBronzeMat);
+        // Recessed Floor-to-Ceiling Bronze Glazed Front Facade WITH REAL OPEN SLIDING BALCONY DOORS FOR EVERY FRONT ROOM (1F Lounge & Office, 2F Private Lounge, Roof Gaming Studio & Media Lounge!)
+        const doorBaseY = y + 0.35;
+        const doorH = idx < 2 ? 2.68 : 1.90;
+        if (idx < 2) {
+          // Fixed glass panes flanking TWO real open sliding doors onto the Front Curved Balcony (Left lounge door x=-4.55, Right office/gallery door x=-0.40)
+          addBox(owner, 1.70, wallH, 0.12, -6.50, wallY, 3.65, atriumGlassMat, false, false); // x=-7.35..-5.65
+          addBox(owner, 2.05, wallH, 0.12, -2.425, wallY, 3.65, atriumGlassMat, false, false); // x=-3.45..-1.40
+          addBox(owner, 0.90, wallH, 0.12, 1.05, wallY, 3.65, atriumGlassMat, false, false);   // x=+0.60..+1.50
+          addSlidingBalconyDoor(owner, -4.55, doorBaseY, 3.65, 2.20, doorH, 0, 1);  // Family Lounge / Private Lounge TV 2 -> Front Balcony!
+          addSlidingBalconyDoor(owner, -0.40, doorBaseY, 3.65, 2.00, doorH, 0, -1); // Executive Office / 2F Gallery -> Front Balcony!
+          // Flush top transom header strip above sliding doors
+          addBox(owner, 8.85, wallH - doorH, 0.14, -2.92, doorBaseY + doorH + (wallH - doorH) / 2, 3.65, darkBronzeMat, false, false);
+        } else {
+          // Roof front facade: REAL OPEN sliding doors from Gaming Studio (x=-4.85) AND Media Lounge TV 3 (x=-0.55) directly onto Front Sky-Deck Balcony!
+          addBox(owner, 1.50, wallH, 0.12, -6.60, wallY, 3.65, atriumGlassMat, false, false); // x=-7.35..-5.85
+          addBox(owner, 2.30, wallH, 0.12, -2.70, wallY, 3.65, atriumGlassMat, false, false); // x=-3.85..-1.55
+          addBox(owner, 1.05, wallH, 0.12, 0.975, wallY, 3.65, atriumGlassMat, false, false); // x=+0.45..+1.50
+          addSlidingBalconyDoor(owner, -4.85, doorBaseY, 3.65, 2.00, doorH, 0, 1);  // Gaming Studio -> Front Sky-Deck Balcony!
+          addSlidingBalconyDoor(owner, -0.55, doorBaseY, 3.65, 2.00, doorH, 0, -1); // Media Lounge TV 3 -> Front Sky-Deck Balcony!
+          addBox(owner, 8.85, wallH - doorH, 0.14, -2.92, doorBaseY + doorH + (wallH - doorH) / 2, 3.65, darkBronzeMat, false, false);
         }
         // Warm illuminated interior ceiling glow (strictly inside enclosed front studio on Roof so ZERO floating glow slab over open-air BBQ pergola!)
         if (idx < 2) {
@@ -6693,27 +6747,26 @@
         } else {
           addBox(owner, 8.6, 0.06, 3.85, -3.2, y + 0.35 + wallH - 0.04, 1.62, interiorGlowMat, false, false);
         }
-        // USABLE LEFT BALCONY ACCESS: Floor-to-ceiling bronze glazed sliding balcony doors along x = -7.45 (toggled cleanly by Interior Cutaway!)
+        // USABLE LEFT BALCONY ACCESS: REAL OPEN SLIDING GLASS BALCONY DOORS ALONG x = -7.45 FOR EVERY LEFT-SIDE ROOM (Bed 2, Master Suite, Family Lounge, Private Lounge & Gaming Studio!)
         const leftGlazeWall = new THREE.Group();
         if (idx < 2) {
-          addBox(leftGlazeWall, 0.24, wallH, 1.05, -7.45, wallY, -4.55, whiteMat, true, true); // Rear corner pier
-          addBox(leftGlazeWall, 0.24, wallH, 1.05, -7.45, wallY, 3.15, whiteMat, true, true);  // Front corner pier
-          addBox(leftGlazeWall, 0.12, wallH, 6.70, -7.45, wallY, -0.70, atriumGlassMat, false, false); // Wide panoramic left balcony sliding doors
-          for (const mz of [-4.0, -2.35, -0.70, 0.95, 2.60]) {
-            addBox(leftGlazeWall, 0.16, wallH, 0.09, -7.45, wallY, mz, darkBronzeMat, false, false);
-          }
-          for (const hz of [-2.18, 1.12]) {
-            addBox(leftGlazeWall, 0.06, 0.88, 0.04, -7.54, y + 1.48, hz, goldMat, false, false);
-          }
+          addBox(leftGlazeWall, 0.24, wallH, 1.05, -7.45, wallY, -4.55, whiteMat, true, true); // Rear corner pier (-5.07..-4.02)
+          addBox(leftGlazeWall, 0.24, wallH, 1.05, -7.45, wallY, 3.15, whiteMat, true, true);  // Front corner pier (+2.62..+3.67)
+          addBox(leftGlazeWall, 0.12, wallH, 0.37, -7.45, wallY, -3.84, atriumGlassMat, false, false); // Fixed narrow sidelight
+          addBox(leftGlazeWall, 0.12, wallH, 1.80, -7.45, wallY, -0.55, atriumGlassMat, false, false); // Center fixed glass mullion pier between rooms (-1.45..+0.35)
+          addBox(leftGlazeWall, 0.16, wallH, 0.10, -7.45, wallY, -0.35, darkBronzeMat, false, false);  // Partition divider mullion
+          // TWO REAL OPEN SLIDING BALCONY DOORS directly onto the 1.9 m Extended Left Balcony:
+          addSlidingBalconyDoor(leftGlazeWall, -7.45, doorBaseY, -2.55, 2.20, doorH, Math.PI / 2, 1); // Bed 2 (1F) / Grand Master Suite (2F) -> Left Balcony!
+          addSlidingBalconyDoor(leftGlazeWall, -7.45, doorBaseY, 1.45, 2.20, doorH, Math.PI / 2, -1); // Family Lounge (1F) / Private Lounge (2F) -> Left Balcony!
+          addBox(leftGlazeWall, 0.14, wallH - doorH, 6.70, -7.45, doorBaseY + doorH + (wallH - doorH) / 2, -0.70, darkBronzeMat, false, false);
         } else {
-          // On Roof: glazed left wall encloses ONLY the Gaming Studio (z=-0.35..+3.65), leaving the BBQ Pergola open to the left Sunset Terrace!
-          addBox(leftGlazeWall, 0.22, wallH, 0.55, -7.45, wallY, -0.08, whiteMat, true, true);
-          addBox(leftGlazeWall, 0.22, wallH, 0.55, -7.45, wallY, 3.38, whiteMat, true, true);
-          addBox(leftGlazeWall, 0.12, wallH, 3.10, -7.45, wallY, 1.65, atriumGlassMat, false, false);
-          for (const mz of [0.22, 1.65, 3.08]) {
-            addBox(leftGlazeWall, 0.16, wallH, 0.09, -7.45, wallY, mz, darkBronzeMat, false, false);
-          }
-          addBox(leftGlazeWall, 0.06, 0.78, 0.04, -7.54, y + 1.32, 1.82, goldMat, false, false);
+          // On Roof: REAL OPEN sliding balcony door from Gaming Studio (z=1.45, cleanly between Arcade & VR Car!) straight onto Roof Left Sunset Bar Terrace!
+          addBox(leftGlazeWall, 0.22, wallH, 0.55, -7.45, wallY, -0.08, whiteMat, true, true); // Rear pier (-0.35..+0.20)
+          addBox(leftGlazeWall, 0.22, wallH, 0.55, -7.45, wallY, 3.38, whiteMat, true, true);  // Front pier (+3.10..+3.65)
+          addBox(leftGlazeWall, 0.12, wallH, 0.40, -7.45, wallY, 0.40, atriumGlassMat, false, false);
+          addBox(leftGlazeWall, 0.12, wallH, 0.80, -7.45, wallY, 2.70, atriumGlassMat, false, false);
+          addSlidingBalconyDoor(leftGlazeWall, -7.45, doorBaseY, 1.45, 1.70, doorH, Math.PI / 2, 1); // Gaming Studio -> Roof Sunset Bar Balcony!
+          addBox(leftGlazeWall, 0.14, wallH - doorH, 3.00, -7.45, doorBaseY + doorH + (wallH - doorH) / 2, 1.65, darkBronzeMat, false, false);
         }
         owner.add(leftGlazeWall);
         cutawayShells.push(leftGlazeWall);
@@ -6844,8 +6897,9 @@
           addACUnit(floorFurn, -0.22, fy + 2.46, -0.44, Math.PI, 0.90); // 1F Bedroom 3 Split-Inverter AC
           addCurtainPair(floorFurn, -0.35, fy, -4.78, 3.2, 2.72, 0);
           addWallArt(floorFurn, -0.22, fy + 1.65, -3.72, 1.10, 0.72, 0, 2);
-          // REAR-RIGHT BEHIND-SPIRAL FIRST-FLOOR WING: Ensuite Bathroom 4 (for Bed 4) + Quiet Study Alcove with Swivel Chair!
+          // REAR-RIGHT BEHIND-SPIRAL FIRST-FLOOR WING: Ensuite Bathroom 4 (for Bed 4) + Quiet Study Alcove + Flush Spiral Access Corridor Slab!
           addBox(owner, 6.2, 0.32, 4.45, 4.85, y + 0.18, -2.65, whiteMat, true, true);
+          addBox(owner, 1.44, 0.24, 1.35, 2.32, y + 0.23, 0.18, whiteMat, true, true); // Flush corridor deck joining spiral landing (z=0.78) to rear-right study/Bath 4!
           addBox(owner, 5.4, wallH, 0.14, 4.95, wallY, -4.82, atriumGlassMat, false, false);
           for (const bx of [2.3, 4.0, 5.7, 7.4]) addBox(owner, 0.08, wallH, 0.16, bx, wallY, -4.82, darkBronzeMat);
           cutawayShells.push(addBox(owner, 0.20, wallH, 2.45, 7.85, wallY, -3.62, whiteMat));
@@ -6891,18 +6945,26 @@
           // Master Spa Ensuite (BOTH freestanding soaking tub AND full frosted-glass walk-in rain/handheld shower + toilet curtain!)
           addSpaBath(floorFurn, -0.05, fy, -2.75);
 
-          // BEDROOM 6 SUITE + ENSUITE BATHROOM 6 RIGHT BEHIND THE SPIRAL STAIRCASE (Wall art + Split-Inverter AC + cove ceiling!)
+          // BEDROOM 6 SUITE + ENSUITE BATHROOM 6 RIGHT BEHIND THE SPIRAL STAIRCASE (With REAL OPEN Sliding Balcony Door out to 2F Curved Right Sun Terrace & Flush Spiral Access Corridor!)
           addBox(owner, 6.2, 0.34, 4.45, 4.85, y + 0.18, -2.65, whiteMat, true, true);
+          addBox(owner, 1.44, 0.24, 1.35, 2.32, y + 0.23, 0.18, whiteMat, true, true); // Flush corridor deck joining spiral landing (z=0.78) to Bedroom 6!
           addBox(owner, 5.4, wallH, 0.14, 4.95, wallY, -4.82, atriumGlassMat, false, false);
           for (const bx of [2.3, 4.0, 5.7, 7.4]) addBox(owner, 0.08, wallH, 0.16, bx, wallY, -4.82, darkBronzeMat);
-          cutawayShells.push(addBox(owner, 0.22, wallH, 4.4, 7.85, wallY, -2.65, whiteMat));
+          // Bedroom 6 Right Exterior Wall split cleanly at z=-2.10..-0.60 with a REAL OPEN 1.50 m Sliding Glass Door onto the 2F Curved Right Sun Terrace!
+          const bed6RightWall = new THREE.Group();
+          addBox(bed6RightWall, 0.22, wallH, 2.75, 7.85, wallY, -3.475, whiteMat); // Rear section (-4.85..-2.10)
+          addBox(bed6RightWall, 0.22, wallH, 0.22, 7.85, wallY, -0.49, whiteMat);  // Front pier (-0.60..-0.38)
+          addBox(bed6RightWall, 0.22, wallH - 2.68, 1.52, 7.85, y + 0.35 + 2.68 + (wallH - 2.68) / 2, -1.35, whiteMat); // Flush lintel header
+          addSlidingBalconyDoor(bed6RightWall, 7.85, y + 0.35, -1.35, 1.50, 2.68, -Math.PI / 2, 1); // Bedroom 6 -> 2F Curved Right Sun Terrace!
+          owner.add(bed6RightWall);
+          cutawayShells.push(bed6RightWall);
           addBedSuite(floorFurn, 5.85, fy, -2.55, Math.PI, 0.88);
           addCurtainPair(floorFurn, 5.85, fy, -4.68, 3.2, 2.72, 0);
           addWallArt(floorFurn, 5.85, fy + 1.72, -1.48, 1.25, 0.78, Math.PI, 0);
           addACUnit(floorFurn, 5.85, fy + 2.46, -1.44, Math.PI, 0.90); // 2F Bedroom 6 Behind Spiral Split-Inverter AC
           addCeilingDecor(floorFurn, 5.85, fy + 2.74, -2.65, 3.0, 3.2, { fan: true, fanSpeed: 2.1 });
-          addBox(floorFurn, 0.48, 2.35, 2.15, 7.50, fy + 1.18, -2.75, walnutMat, false, false);
-          addBox(floorFurn, 0.05, 2.20, 0.05, 7.24, fy + 1.18, -1.72, warmLedMat, false, false);
+          addBox(floorFurn, 0.48, 2.35, 1.85, 7.50, fy + 1.18, -3.62, walnutMat, false, false); // Wardrobe cleanly clear of Bed 6 sliding balcony door!
+          addBox(floorFurn, 0.05, 2.20, 0.05, 7.24, fy + 1.18, -2.72, warmLedMat, false, false);
           addEnsuiteBath(floorFurn, 2.98, fy, -2.75, Math.PI, 0.92);
           interiorWalls.push(addBox(owner, 0.14, wallH - 0.15, 2.6, 4.18, wallY, -3.50, partitionMat, false, false));
         } else {
@@ -8141,55 +8203,65 @@
         }
       }
 
-      // Precision-Cut Shaped Rear Circulation Deck Builder (ZERO rectangular slab protruding into ANY spiral step, full solid threshold under both doorways!)
+      // Precision-Cut Smooth Rear Circulation Deck (GF/1F/2F) & Roof Deck (bi=3) — ZERO sharp wedges, ZERO excess zigzag barriers, ZERO overlapping rails!
       const bridgeShape = new THREE.Shape();
-      bridgeShape.moveTo(1.54, 0.90);
-      bridgeShape.lineTo(6.30, 0.90);
-      bridgeShape.lineTo(6.30, 0.56);
-      bridgeShape.lineTo(6.76, 0.56);
-      bridgeShape.lineTo(6.76, 1.98);
-      bridgeShape.lineTo(6.60, 1.98);
-      bridgeShape.lineTo(6.50, 1.36);
+      bridgeShape.moveTo(1.54, 0.78);
+      bridgeShape.lineTo(6.74, 0.78);
+      bridgeShape.lineTo(6.74, 1.56);
       bridgeShape.lineTo(5.68, 1.36);
       bridgeShape.lineTo(3.11, 1.69);
-      bridgeShape.lineTo(2.62, 2.38);
+      bridgeShape.lineTo(2.30, 2.38);
       bridgeShape.lineTo(1.54, 2.38);
       bridgeShape.closePath();
       const bridgeSlabGeo = new THREE.ExtrudeGeometry(bridgeShape, { depth: 0.24, bevelEnabled: false });
       const bridgeTopGeo = new THREE.ExtrudeGeometry(bridgeShape, { depth: 0.022, bevelEnabled: false });
 
-      // Helper: Continuous Frameless Tempered-Glass Safety Barrier + Dual Champagne-Gold Handrails along any Landing Perimeter Polyline!
+      // Roof landing terminates cleanly flush inside upperRearRightGlass & walnut spine (no protruding roof stub or U-barrier!)
+      const roofBridgeShape = new THREE.Shape();
+      roofBridgeShape.moveTo(1.54, 0.78);
+      roofBridgeShape.lineTo(5.72, 0.78);
+      roofBridgeShape.lineTo(5.68, 1.36);
+      roofBridgeShape.lineTo(3.11, 1.69);
+      roofBridgeShape.lineTo(2.30, 2.38);
+      roofBridgeShape.lineTo(1.54, 2.38);
+      roofBridgeShape.closePath();
+      const roofBridgeSlabGeo = new THREE.ExtrudeGeometry(roofBridgeShape, { depth: 0.24, bevelEnabled: false });
+      const roofBridgeTopGeo = new THREE.ExtrudeGeometry(roofBridgeShape, { depth: 0.022, bevelEnabled: false });
+
+      // Flush architectural white rear return wall (x=6.28..6.72, z=0.86, GF..2F top) closing the rear gap cleanly beside the fluted walnut spine (ZERO rail clipping slats!)
+      addBox(spiralBackCore, 0.46, 10.24, 0.20, 6.50, 5.12, 0.86, whiteMat, true, true);
+
+      // Helper: Clean Frameless Tempered-Glass Safety Barrier + Dual Champagne-Gold Handrails (used ONLY where genuine open drop exists!)
       function addGlassBarrierPolyline(parent, baseY, pts, h = 0.94, withMid = true) {
         for (let i = 0; i < pts.length - 1; i++) {
           const [x0, z0] = pts[i], [x1, z1] = pts[i + 1];
           const dx = x1 - x0, dz = z1 - z0, segLen = Math.hypot(dx, dz);
           if (segLen < 0.03) continue;
           const mx = (x0 + x1) / 2, mz = (z0 + z1) / 2, rotY = -Math.atan2(dz, dx);
-          const pane = addBox(parent, segLen + 0.012, h - 0.06, 0.036, mx, baseY + (h - 0.02) / 2, mz, railGlassMat, false, false);
+          const pane = addBox(parent, segLen, h - 0.06, 0.034, mx, baseY + (h - 0.02) / 2, mz, railGlassMat, false, false);
           pane.rotation.y = rotY;
-          const topR = addBox(parent, segLen + 0.04, 0.042, 0.048, mx, baseY + h, mz, goldMat, false, false);
+          const topR = addBox(parent, segLen + 0.02, 0.040, 0.046, mx, baseY + h, mz, goldMat, false, false);
           topR.rotation.y = rotY;
           if (withMid) {
-            const midR = addBox(parent, segLen + 0.02, 0.018, 0.024, mx, baseY + h * 0.50, mz, goldMat, false, false);
+            const midR = addBox(parent, segLen, 0.016, 0.022, mx, baseY + h * 0.50, mz, goldMat, false, false);
             midR.rotation.y = rotY;
           }
-          // Intermediate slim vertical baluster for spans > 0.85 m
-          if (segLen > 0.85) {
-            addBox(parent, 0.022, h, 0.022, mx, baseY + h / 2, mz, goldMat, false, false);
+          if (segLen > 1.05) {
+            addBox(parent, 0.020, h, 0.020, mx, baseY + h / 2, mz, goldMat, false, false);
           }
         }
         pts.forEach(([px, pz], idx) => {
           const isEnd = (idx === 0 || idx === pts.length - 1);
-          addBox(parent, isEnd ? 0.042 : 0.034, h, isEnd ? 0.042 : 0.034, px, baseY + h / 2, pz, goldMat, false, false);
+          addBox(parent, isEnd ? 0.036 : 0.030, h, isEnd ? 0.036 : 0.030, px, baseY + h / 2, pz, goldMat, false, false);
         });
       }
 
       deckTops.forEach((topY, bi) => {
-        // Precision-cut rear circulation landing deck bridging left wing (x=1.55) <-> atrium back <-> right pavilion (x=6.72) — ZERO step overlap!
-        const bDeck = new THREE.Mesh(bridgeSlabGeo, whiteMat);
+        // Precision-cut rear circulation landing deck — smooth bevels, ZERO step overlap, ZERO sharp spikes!
+        const bDeck = new THREE.Mesh(bi === 3 ? roofBridgeSlabGeo : bridgeSlabGeo, whiteMat);
         bDeck.rotation.x = Math.PI / 2; bDeck.position.y = topY; bDeck.castShadow = true; bDeck.receiveShadow = true;
         spiralBackCore.add(bDeck);
-        const bTop = new THREE.Mesh(bridgeTopGeo, marbleMat);
+        const bTop = new THREE.Mesh(bi === 3 ? roofBridgeTopGeo : bridgeTopGeo, marbleMat);
         bTop.rotation.x = Math.PI / 2; bTop.position.y = topY + 0.011; bTop.receiveShadow = true;
         spiralBackCore.add(bTop);
 
@@ -8198,20 +8270,8 @@
           addCurvedBalconySector(spiralBackCore, topY, -Math.PI * 0.72, -Math.PI * 0.36, 0.24, stairInnerR, ATRIUM_R - 0.04, true, true);
         }
 
-        // 100% FALL-FREE CONTINUOUS FRAMELESS GLASS GUARDRAILS ON EVERY OPEN LANDING & BRIDGE EDGE!
-        // Left side-bridge + diagonal chamfer seamlessly joining Flight 2/3/4 outer stair glass balustrade (zero open drop!)
-        if (bi === 0) {
-          addGlassBarrierPolyline(spiralBackCore, topY, [[1.64, 2.38], [2.62, 2.38]], 0.94, true);
-        } else {
-          addGlassBarrierPolyline(spiralBackCore, topY, [[1.64, 2.38], [2.62, 2.38], [3.11, 1.69]], 0.94, true);
-        }
-        // Right corridor open-drop glass barriers: 1F & 2F seal front-right stairwell edge + rear spine return; Roof (bi===3) encloses the ENTIRE right perimeter!
-        if (bi === 1 || bi === 2) {
-          addGlassBarrierPolyline(spiralBackCore, topY, [[5.68, 1.36], [6.50, 1.36], [6.62, 1.88]], 0.94, true);
-          addGlassBarrierPolyline(spiralBackCore, topY, [[6.28, 0.88], [6.30, 0.56], [6.72, 0.56]], 0.94, true);
-        } else if (bi === 3) {
-          addGlassBarrierPolyline(spiralBackCore, topY, [[6.28, 0.88], [6.30, 0.56], [6.74, 0.56], [6.74, 1.96], [6.60, 1.96], [6.50, 1.36], [5.68, 1.36]], 0.94, true);
-        }
+        // ONE Clean Straight Left Side-Bridge Glass Guardrail (x=1.66..2.30 at z=2.38, joining solid left wall flush to rearLeftGlass — ZERO diagonal excess or walkway obstruction!)
+        addGlassBarrierPolyline(spiralBackCore, topY, [[1.66, 2.38], [2.30, 2.38]], 0.94, true);
 
         // REAL OPEN Left Main-Wing Doorway + Interactive Hinged Armored Safety Door seated 100% FLUSH inside x=1.55 wall cutout (z=1.64)!
         addSafetyDoor(spiralBackCore, 1.55, topY, 1.64, 1.16, bi === 3 ? 1.80 : 2.18, Math.PI / 2, 1);
@@ -8223,21 +8283,21 @@
             addBox(spiralBackCore, 0.03, 0.02, 1.26, 1.21 - st * 0.32, sy + 0.065, 1.64, warmLedMat, false, false);
           }
         }
-        // REAL SOLID ARCHITECTURAL WALL + CUT-OUT DOORWAY AT x = 6.72 (z=1.24 — Flush with sideWing glass plane x=6.70, >14 cm clear of spiral circle r=2.42, ZERO wall-through-door or stair clash!)
+        // REAL SOLID ARCHITECTURAL WALL + FLUSH RIGHT DOORWAY AT x = 6.72 (z=1.32 — Wide-open unobstructed passage, rear jamb flush with z=0.86 wall return, front jamb flush with rearRightGlass!)
         if (bi < 3) {
           const rWallH = bi === 0 ? 2.70 : 3.25;
           const rDoorH = 2.12;
           const rLintelH = Math.max(0.24, rWallH - rDoorH - 0.06);
-          addBox(spiralBackCore, 0.22, rWallH, 0.24, 6.72, topY + rWallH / 2, 0.59, whiteMat, true, true);  // Rear jamb wall (z=0.47..0.71)
-          addBox(spiralBackCore, 0.22, rWallH, 0.22, 6.72, topY + rWallH / 2, 1.88, whiteMat, true, true);  // Front jamb wall (z=1.77..1.99)
-          addBox(spiralBackCore, 0.22, rLintelH, 1.08, 6.72, topY + rWallH - rLintelH / 2, 1.24, whiteMat, true, true); // Flush top lintel header!
-          addSafetyDoor(spiralBackCore, 6.72, topY, 1.24, 1.06, rDoorH, -Math.PI / 2, -1);
+          addBox(spiralBackCore, 0.22, rWallH, 0.16, 6.72, topY + rWallH / 2, 0.72, whiteMat, true, true);  // Rear jamb wall (z=0.64..0.80)
+          addBox(spiralBackCore, 0.22, rWallH, 0.16, 6.72, topY + rWallH / 2, 1.92, whiteMat, true, true);  // Front jamb wall (z=1.84..2.00)
+          addBox(spiralBackCore, 0.22, rLintelH, 1.08, 6.72, topY + rWallH - rLintelH / 2, 1.32, whiteMat, true, true); // Flush top lintel header!
+          addSafetyDoor(spiralBackCore, 6.72, topY, 1.32, 1.04, rDoorH, -Math.PI / 2, -1);
           // Ground Floor Right Marble Transition Steps descending smoothly from atrium (1.04) onto sideWing GF Bed 1 floor (0.34)!
           if (bi === 0) {
             for (let st = 0; st < 3; st++) {
               const sy = 0.36 + (2 - st) * 0.22;
-              addBox(spiralBackCore, 0.30, 0.19, 1.12, 6.96 + st * 0.28, sy, 1.24, marbleMat, true, true);
-              addBox(spiralBackCore, 0.03, 0.02, 1.04, 7.11 + st * 0.28, sy + 0.075, 1.24, warmLedMat, false, false);
+              addBox(spiralBackCore, 0.30, 0.19, 1.12, 6.96 + st * 0.28, sy, 1.32, marbleMat, true, true);
+              addBox(spiralBackCore, 0.03, 0.02, 1.04, 7.11 + st * 0.28, sy + 0.075, 1.32, warmLedMat, false, false);
             }
           }
         }
@@ -8585,46 +8645,48 @@
           }
           stairGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hPts), segs * 2, thick, 8, false), goldMat));
         }
-        // 4. FULL-LENGTH OUTER TEMPERED-GLASS SAFETY BALUSTRADE + DUAL CHAMPAGNE-GOLD HANDRAILS (100% Fall-Free End-to-End on ALL 4 Flights, >17 cm clear of doorways!)
+        // 4. FULL-LENGTH OUTER TEMPERED-GLASS SAFETY BALUSTRADE + DUAL CHAMPAGNE-GOLD HANDRAILS (Seated strictly on the stair ribbon r=2.39, t=0.02..0.98 — ZERO hanging posts or doorway overlap!)
+        const outerBalR = stairOuterR - 0.03;
+        const tStart = 0.02, tEnd = 0.98;
         for (let i = 0; i < glassSteps; i++) {
-          const t0 = i / glassSteps, t1 = (i + 1) / glassSteps;
+          const t0 = tStart + (i / glassSteps) * (tEnd - tStart);
+          const t1 = tStart + ((i + 1) / glassSteps) * (tEnd - tStart);
           const aS = a0 + t0 * da, aE = a0 + t1 * da;
-          const p0x = CX + Math.cos(aS) * stairOuterR, p0z = CZ + Math.sin(aS) * stairOuterR, p0y = y0 + t0 * dy;
-          const p1x = CX + Math.cos(aE) * stairOuterR, p1z = CZ + Math.sin(aE) * stairOuterR, p1y = y0 + t1 * dy;
+          const p0x = CX + Math.cos(aS) * outerBalR, p0z = CZ + Math.sin(aS) * outerBalR, p0y = y0 + t0 * dy;
+          const p1x = CX + Math.cos(aE) * outerBalR, p1z = CZ + Math.sin(aE) * outerBalR, p1y = y0 + t1 * dy;
           const dx = p1x - p0x, dz = p1z - p0z;
-          const oPanel = addBox(stairGroup, Math.hypot(dx, dz) + 0.014, 0.88, 0.034, (p0x + p1x) / 2, (p0y + p1y) / 2 + 0.46, (p0z + p1z) / 2, railGlassMat, false, false);
+          const oPanel = addBox(stairGroup, Math.hypot(dx, dz) + 0.012, 0.88, 0.032, (p0x + p1x) / 2, (p0y + p1y) / 2 + 0.46, (p0z + p1z) / 2, railGlassMat, false, false);
           oPanel.rotation.y = -Math.atan2(dz, dx);
         }
         for (const [rad, yOff, thick] of [
-          [stairOuterR, 0.94, 0.038],
-          [stairOuterR, 0.47, 0.018],
-          [stairOuterR, -0.02, 0.026]
+          [outerBalR, 0.94, 0.036],
+          [outerBalR, 0.47, 0.017],
+          [outerBalR, -0.01, 0.024]
         ]) {
           const oPts = [];
           for (let i = 0; i <= segs; i++) {
-            const t = i / segs;
+            const t = tStart + (i / segs) * (tEnd - tStart);
             const ang = a0 + t * da;
             oPts.push(new THREE.Vector3(CX + Math.cos(ang) * rad, y0 + t * dy + yOff, CZ + Math.sin(ang) * rad));
           }
           stairGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(oPts), segs * 2, thick, 8, false), goldMat));
         }
-        // Cleanly Seated Vertical Inner & Outer Balusters + Horizontal Glass-Cylinder Standoff Tie-Brackets for structural balance!
+        // Cleanly Seated Vertical Inner & Outer Balusters (seated squarely ON the helical stair ribbon — ZERO hanging/floating corner posts!)
         const balCount = Math.max(8, Math.round(steps * 0.85));
         for (let i = 0; i <= balCount; i++) {
-          const t = i / balCount;
-          const ang = a0 + t * da;
-          const y = y0 + t * dy;
           const isEnd = (i === 0 || i === balCount);
-          // Inner balusters strictly between start & end (sharing corner posts with curved balconies / gfBarrierGrp)
+          const tIn = i / balCount;
+          const angIn = a0 + tIn * da, yIn = y0 + tIn * dy;
           if (!isEnd) {
-            addBox(stairGroup, 0.022, 0.92, 0.022, CX + Math.cos(ang) * stairInnerR, y + 0.47, CZ + Math.sin(ang) * stairInnerR, goldMat, false, false);
+            addBox(stairGroup, 0.022, 0.92, 0.022, CX + Math.cos(angIn) * stairInnerR, yIn + 0.47, CZ + Math.sin(angIn) * stairInnerR, goldMat, false, false);
           }
-          // Outer balusters end-to-end (heavier newel posts at landing joins!)
-          addBox(stairGroup, isEnd ? 0.042 : 0.022, 0.92, isEnd ? 0.042 : 0.022, CX + Math.cos(ang) * stairOuterR, y + 0.47, CZ + Math.sin(ang) * stairOuterR, goldMat, false, false);
-          // Structural brushed-gold tie-brackets bracing outer handrail directly to the curved glass cylinder facade!
-          if (!isEnd && i % 3 === 0 && Math.sin(ang) > -0.50) {
-            const brk = addBox(stairGroup, 0.24, 0.030, 0.030, CX + Math.cos(ang) * (stairOuterR + 0.13), y + 0.93, CZ + Math.sin(ang) * (stairOuterR + 0.13), goldMat, false, false);
-            brk.rotation.y = -ang;
+          const tOut = tStart + (i / balCount) * (tEnd - tStart);
+          const angOut = a0 + tOut * da, yOut = y0 + tOut * dy;
+          addBox(stairGroup, isEnd ? 0.034 : 0.020, 0.92, isEnd ? 0.034 : 0.020, CX + Math.cos(angOut) * outerBalR, yOut + 0.47, CZ + Math.sin(angOut) * outerBalR, goldMat, false, false);
+          // Structural brushed-gold tie-brackets bracing outer handrail directly to the curved glass cylinder facade (strictly where outer glass exists!)
+          if (!isEnd && i % 3 === 0 && Math.sin(angOut) > -0.45) {
+            const brk = addBox(stairGroup, 0.27, 0.028, 0.028, CX + Math.cos(angOut) * (outerBalR + 0.14), yOut + 0.93, CZ + Math.sin(angOut) * (outerBalR + 0.14), goldMat, false, false);
+            brk.rotation.y = -angOut;
           }
         }
       });
@@ -8701,8 +8763,8 @@
         const p = swRailPts[i];
         addBox(sideWing, 0.036, 0.91, 0.036, p.x, swTerraceY + 0.46, p.y, goldMat, false, false);
       }
-      // Rear 2F Sun Terrace Glass Safety Return closing (6.72, 0.50) -> (6.72, -0.45) -> (7.85, -0.45) flush into Bedroom 6 outer wall!
-      addGlassBarrierPolyline(sideWing, swTerraceY, [[6.72, 0.50], [6.72, -0.45], [7.85, -0.45]], 0.94, true);
+      // Rear 2F Sun Terrace Glass Safety Return cleanly inset beside the doorway wall ((6.86, 0.66) -> (6.86, -0.45) -> (7.74, -0.45) — ZERO wall/rail crossing!)
+      addGlassBarrierPolyline(sideWing, swTerraceY, [[6.86, 0.66], [6.86, -0.45], [7.74, -0.45]], 0.94, true);
       addBox(sideWing, 2.15, 0.03, 3.65, 8.22, swTerraceY + 0.015, 0.10, woodMat, false, true); // Warm slatted teak terrace pad
       addBox(sideWing, 0.68, 0.36, 0.68, 8.45, swTerraceY + 0.19, 0.72, woodMat, true, false); // Outdoor teak lounge chair
       addBox(sideWing, 0.60, 0.12, 0.60, 8.45, swTerraceY + 0.42, 0.72, upholsteryMat, false, false);
