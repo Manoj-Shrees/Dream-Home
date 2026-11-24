@@ -2043,20 +2043,28 @@
       text-transform: capitalize
     }
 
-    /* 12-Tile Full Board */
+    /* 12-Tile Full Board — Zero Nested-Scroll Trap & Smooth Clamped Pan/Zoom */
     .tile-viewport {
+      position: relative;
       width: 100%;
       overflow: hidden;
       background: #0b1826;
       border: 1px solid var(--line);
       border-radius: 16px;
-      touch-action: none;
-      cursor: grab;
+      touch-action: pan-y pinch-zoom;
+      cursor: zoom-in;
       min-height: 240px;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    .tile-viewport:active {
-      cursor: grabbing
+    .tile-viewport.is-zoomed {
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .tile-viewport.is-zoomed.is-dragging {
+      cursor: grabbing;
     }
 
     .tile-grid {
@@ -2064,7 +2072,13 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       width: 100%;
       aspect-ratio: 16 / 9;
-      transform-origin: center;
+      transform-origin: center center;
+      will-change: transform;
+      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .tile-viewport.is-dragging .tile-grid {
+      transition: none;
     }
 
     .tile-grid img {
@@ -2072,7 +2086,26 @@
       width: 100%;
       height: 100%;
       object-fit: fill;
-      min-width: 0
+      min-width: 0;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
+    .tile-zoom-pill {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 4;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(8, 19, 32, 0.84);
+      border: 1px solid rgba(232, 193, 126, 0.42);
+      color: #f4efe6;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
     }
 
     /* Spec Cards & Footer */
@@ -3438,6 +3471,8 @@
               <button type="button" aria-pressed="false" data-cam="bbqKitchen" interestfor="tip-cam-bbq">BBQ Kitchen</button>
               <button type="button" aria-pressed="false" data-cam="rooftopParty" interestfor="tip-cam-party">Party Shed</button>
               <button type="button" aria-pressed="false" data-cam="laundry" interestfor="tip-cam-laundry">Laundry Wing</button>
+              <button type="button" aria-pressed="false" data-cam="spiralBalcony" interestfor="tip-cam-spiralbalcony">Spiral Balconies</button>
+              <button type="button" aria-pressed="false" data-cam="leftBalcony" interestfor="tip-cam-leftbalcony">Left Balconies</button>
               <button type="button" aria-pressed="false" data-cam="spiralBack" interestfor="tip-cam-spiral">Behind Spiral</button>
               <button type="button" aria-pressed="false" data-cam="stairTop" interestfor="tip-cam-stairtop">Stair-Top Skylight</button>
               <button type="button" aria-pressed="false" data-cam="structuralSafety" interestfor="tip-cam-safety">Foundation &amp; Safety</button>
@@ -3662,6 +3697,10 @@
           monsoon-proof steel &amp; timber shed with festoon lights, spinning ceiling fan, mini-bar &amp; live karaoke equalizer TV.</div>
         <div id="tip-cam-laundry" class="ui-tip" popover="hint"><strong>Laundry &amp; Drying Wing</strong>Enclosed
           washer/dryer room, covered monsoon drying shed, hot/cold risers &amp; Rooftop WC.</div>
+        <div id="tip-cam-spiralbalcony" class="ui-tip" popover="hint"><strong>Floor-Cut Spiral &amp; Balcony Barriers</strong>Inspect
+          the 4 precision-cut floor-joined helical flights, curved indoor atrium mezzanine balconies &amp; curved under-stair glass gallery barrier below.</div>
+        <div id="tip-cam-leftbalcony" class="ui-tip" popover="hint"><strong>Extended Usable Left Balcony Wing</strong>1.9 m
+          wraparound side terraces on every floor (GF Veranda, 1F Bistro, 2F Sun-Loungers, Roof Sunset Bar) with closed bronze-louver rear privacy end.</div>
         <div id="tip-cam-spiral" class="ui-tip" popover="hint"><strong>Behind Spiral · Bed 6 &amp; Baths</strong>Bedroom
           6 + Ensuite 6, Ground Guest WC, Ensuites 1 &amp; 4, framed art &amp; spiral landings.</div>
         <div id="tip-cam-stairtop" class="ui-tip" popover="hint"><strong>Stair-Top Flush Skylight Oculus</strong>Sleek flat-topped white drum crown with flush recessed low-iron glass skylight oculus, passive louvers, Party Shed sky-bridge &amp; discreet rear ESE lightning mast.</div>
@@ -3708,18 +3747,19 @@
       <!-- Dedicated Architectural Explanations for Spiral Back Core, 3D Interiors, MEP & Multi-Hazard Disaster Safety -->
       <div class="arch-callout-grid cols-4">
         <article class="arch-callout">
-          <div class="eyebrow">Spiral Atrium Back Side</div>
-          <h3>What is behind the Glass Spiral Staircase?</h3>
-          <p>The rear side of the spiral staircase is the villa's <strong>vertical circulation bridge &amp; concealed
-              MEP core</strong>—linking all 4 levels seamlessly without cluttering the front glass façade:</p>
+          <div class="eyebrow">Floor-Cut Spiral &amp; Extended Left Wing</div>
+          <h3>Precision-Cut Spiral Balconies &amp; Usable Left Terraces</h3>
+          <p>The spiral atrium &amp; western wing are engineered for <strong>flush floor-to-floor joins, indoor balcony
+              safety &amp; usable outdoor living</strong> on every level:</p>
           <ul>
-            <li><strong>Floor Landing Bridges &amp; Doorways:</strong> Curved white landings with glass balustrades
-              bridge the spiral stair into both the left main wing (Living/Lounges/Master) and right pavilion (Guest WC,
-              Bedrooms 1/4/6, Study &amp; Rooftop Laundry).</li>
-            <li><strong>Backlit Walnut Feature Spine:</strong> Fluted timber &amp; travertine architectural backing with
-              warm cove LEDs frames the chandelier from the front.</li>
-            <li><strong>Concealed MEP Chase / Lift Shaft:</strong> Houses cold/hot water risers, rainwater downpipes,
-              electrical ducts, and optional future compact home-lift space.</li>
+            <li><strong>Floor-Cut Curved Atrium Balconies:</strong> Four precision-cut helical flights (66 marble/walnut
+              steps) join flush into curved indoor mezzanine balcony landings with glass/gold rails &amp; a curved
+              under-stair gallery balcony barrier below!</li>
+            <li><strong>Extended 1.9 m Wraparound Left Balconies:</strong> Usable GF Covered Veranda w/ colonnade, 1F
+              Bistro Coffee Terrace, 2F Master Sun-Loungers, Roof Sunset Bar-Rail &amp; Party Yoga Deck closed neatly at
+              the rear-left end by a champagne-gold bronze louver privacy screen.</li>
+            <li><strong>Concealed MEP Chase &amp; Safety Doors:</strong> Armored biometric safety doors connect both
+              wings cleanly while hiding all water, vent &amp; gas risers behind the fluted walnut spine.</li>
           </ul>
         </article>
 
@@ -4110,8 +4150,9 @@
         <div>
           <div class="eyebrow">Complete 4K reference board</div>
           <h2>Explore all 12 seamless tiles</h2>
-          <p>Pan and zoom the complete architectural board sliced cleanly from the sharpened 4K master (3840 × 2160) so
-            every panel loads fast and stays legible.</p>
+          <p>Explore the sharpened 4K architectural master board (3840 × 2160) sliced into 12 seamless panels. Normal
+            page scrolling passes right over smoothly — use <strong>＋ / －</strong>, <strong>double-click</strong>, or
+            <strong>Ctrl + Scroll</strong> to zoom, then drag to pan cleanly inside bounds.</p>
         </div>
         <div class="tabs">
           <button type="button" id="tileMinus" aria-label="Zoom out board">−</button>
@@ -4123,6 +4164,7 @@
       </div>
       <div class="tile-viewport" id="tileViewport">
         <div class="tile-grid" id="tileGrid"></div>
+        <div class="tile-zoom-pill" id="tileZoomPill" aria-live="polite">100% · Scroll page normally · ＋/－ or Ctrl+Scroll to zoom</div>
       </div>
     </section>
 
@@ -4235,7 +4277,7 @@
       const supportsAttrNum = CSS.supports('width: attr(value type(<number>))');
       const stages = [
         [0,  0, 'Setting RCC piles & seismic base isolators…'],
-        [22, 1, 'Hoisting curved slabs, 62-step spiral & skylight crown…'],
+        [22, 1, 'Hoisting curved slabs, 66-step floor-cut spiral & left balconies…'],
         [48, 2, 'Routing 18,000 L water, strainers, gas vault & ESE mast…'],
         [74, 3, 'Furnishing 6 suites, spa baths, VR car & gardens…'],
         [94, 4, 'Finalizing Ravn Technology 3D Studio…']
@@ -4392,95 +4434,99 @@
       },
       ground: {
         name: 'Ground floor',
-        meta: ['≈ 1,350 sq ft', 'Rolls-Royce & Benz Garage', 'Piped Gas Kitchen & Safety Doors'],
-        desc: 'Matched 1-to-1 to the 3D ground level: Living (85" Live TV 1, motorized curtains), 8–10 seat Dining, 4-burner piped Gas Kitchen with island chimney hood & RO tap, 2-Car Garage with rolling door & hydraulic flood barrier, 62-step Spiral Atrium with 4 marble transition steps & biometric safety doors, Guest Suite + Guest WC, and external waterproof lockable LPG Vault.',
+        meta: ['≈ 1,420 sq ft', 'Left Covered Veranda', 'Floor-Cut Spiral & Barrier'],
+        desc: 'Matched 1-to-1 to the 3D ground level: Living (85" Live TV 1, motorized curtains), 8–10 seat Dining, 4-burner piped Gas Kitchen with island chimney hood & RO tap, 2-Car Garage (Rolls-Royce & Benz + flood barrier), new Covered Left Garden Veranda with 3 colonnade columns & closed rear louver screen, plus the 4-flight Floor-Cut Spiral Atrium with curved under-stair glass gallery barrier below & biometric safety doors.',
         rooms: [
+          'Extended Left Covered Garden Veranda (1.2 m shaded travertine walkway, 3 colonnade columns, closed bronze louver screen & teak bench)',
           'Main Living Room (85" Live TV 1, Fluted Marble Wall, Cove Fan & Motorized Curtains) — 5.4 × 4.8 m',
-          'Dining Room (8–10 Seater Marble Table & Gold Chandelier) — 4.2 × 3.9 m',
-          'Piped Gas Kitchen (3.6 × 3.6 m — 4-Burner Hob, Island Chimney Hood, RO Tap & Leak Sensor) + Walk-in Pantry (2.0 × 2.4 m)',
+          'Dining Room (8–10 Seater) & Piped Gas Kitchen (4-Burner Hob, Island Chimney Hood, RO Tap, Leak Sensor & Pantry)',
           '2-Car Covered Garage (5.5 × 5.5 m — Rolls-Royce Phantom & Mercedes-Benz AMG, Rolling Door & Hydraulic Flood Barrier)',
-          'Grand Arrival Foyer (2.7 × 3.6 m) · Bi-Parting Sliding Glass Door · 62-Step Spiral Atrium & Armored Safety Doors',
+          'Grand Arrival Foyer · Floor-Cut 66-Step Spiral Atrium · Curved Under-Stair Glass Balcony Barrier & Armored Safety Doors',
           'Bedroom 1 (Guest Ensuite · 3.6 × 4.2 m), Guest WC (1.8 × 1.7 m) & External Waterproof Lockable LPG Vault (24 cm Plinth)'
         ],
         cells: [
-          ['Dining / 4.2 × 3.9 m', 0, 0, 1.85, 1.65],
-          ['Gas Kitchen + Hood / 3.6 × 3.6 m · RO Tap', 1.85, 0, 2.1, 1.65],
-          ['Pantry / 2.0 × 2.4 m', 3.95, 0, 1.0, 1.65],
-          ['Locked LPG Vault / 24cm Plinth', 4.95, 0, 1.05, 1.65],
-          ['Living (Live TV 1) / 5.4 × 4.8 m · Curtains', 0, 1.65, 2.4, 1.65],
-          ['62-Step Spiral / Atrium + Safety Doors', 2.4, 1.65, 1.8, 1.65],
-          ['Guest WC / 1.8 × 1.7 m', 4.2, 1.65, 1.8, 1.2],
-          ['2-Car Garage (RR & Benz) / Rolling + Flood Gate', 0, 3.3, 2.4, 1.7],
-          ['Foyer + Sliding / Entry · 2.7 × 3.6 m', 2.4, 3.3, 1.5, 1.7],
-          ['Bedroom 1 (Ensuite) / 3.6 × 4.2 m', 3.9, 2.85, 2.1, 2.15]
+          ['Left Veranda / Colonnade & Closed End', 0, 0, 0.9, 3.3],
+          ['Dining / 4.2 × 3.9 m', 0.9, 0, 1.5, 1.65],
+          ['Gas Kitchen + Hood / 3.6 × 3.6 m · RO', 2.4, 0, 1.85, 1.65],
+          ['Pantry / 2.0×2.4m', 4.25, 0, 0.85, 1.65],
+          ['LPG Vault / 24cm Plinth', 5.1, 0, 0.9, 1.65],
+          ['Living (Live TV 1) / 5.4 × 4.8 m · Curtains', 0.9, 1.65, 1.9, 1.65],
+          ['Spiral Atrium + / Under-Stair Barrier', 2.8, 1.65, 1.65, 1.65],
+          ['Guest WC / 1.8×1.7m', 4.45, 1.65, 1.55, 1.2],
+          ['2-Car Garage (RR & Benz) / Rolling + Flood Gate', 0, 3.3, 2.8, 1.7],
+          ['Foyer + Entry / 2-Story Open', 2.8, 3.3, 1.4, 1.7],
+          ['Bedroom 1 (Ensuite) / 3.6 × 4.2 m', 4.2, 2.85, 1.8, 2.15]
         ]
       },
       first: {
         name: 'First floor',
-        meta: ['≈ 1,300 sq ft', '3 Ensuite Bedrooms', 'Family TV & Office w/ Chairs'],
-        desc: 'Private family living level with open spiral landing bridges & biometric safety doors connecting both wings cleanly: 3 ensuite bedrooms with exhaust ventilation, acoustic Family TV Lounge with motorized curtains, Executive Family Office with ergonomic swivel + 2 guest chairs & dual CAD monitors, and sweeping planted curved balcony.',
+        meta: ['≈ 1,420 sq ft', '1.9 m Left Bistro Balcony', 'Floor-Cut Spiral Balcony'],
+        desc: 'Private family level featuring the brand-new 1.9 m Extended Usable Wraparound Left Balcony (bistro coffee seating, reading bench, sliding glass balcony doors & closed bronze-louver rear privacy end), Floor-Cut Curved Spiral Atrium Mezzanine Balcony with glass/gold guardrails & biometric safety doors, 3 ensuite bedrooms, acoustic Family TV Lounge & Executive Family Office with swivel + 2 guest chairs.',
         rooms: [
-          'Bedroom 2 (Ensuite + Bath 2 · Motorized Curtains) — 4.2 × 3.9 m',
-          'Bedroom 3 (Ensuite + Bath 3 · Motorized Curtains) — 4.2 × 3.9 m',
+          'Extended 1.9 m Wraparound Left Balcony (Usable Coffee Bistro Table, Lounge Armchairs, Reading Bench, Sliding Glass Doors & Closed Louver End)',
+          'Bedroom 2 (Ensuite + Bath 2 · Sliding Balcony Door & Curtains) & Bedroom 3 (Ensuite + Bath 3) — 4.2 × 3.9 m each',
           'Bedroom 4 (Right Pavilion Ensuite + Bath 4) — 3.6 × 4.2 m',
           'Family TV Lounge (Acoustic Walnut Wall, Cove Fan & Motorized Curtains) — 6.0 × 4.8 m',
           'Executive Family Office (Walnut Desk, Swivel + 2 Guest Chairs & Dual Live CAD Displays) — 3.8 × 3.0 m',
-          'Open Spiral Bridge Landings with Biometric Safety Doors & Curved LED Balcony (5.4 × 2.7 m · Scupper Strainer)'
+          'Precision-Cut Spiral Atrium Curved Indoor Mezzanine Balcony Landing (Glass/Gold Guardrails + Biometric Safety Doors)'
         ],
         cells: [
-          ['Bedroom 2 / 4.2 × 3.9 m', 0, 0, 2.35, 1.75],
-          ['Baths 2 & 3 / WC + Rain', 2.35, 0, 1.3, 1.75],
-          ['Bedroom 3 / 4.2 × 3.9 m', 3.65, 0, 2.35, 1.75],
-          ['Family TV Lounge / 6.0 × 4.8 m · Curtains', 0, 1.75, 2.55, 1.85],
-          ['Spiral Bridge / Safety Doors · MEP', 2.55, 1.75, 1.55, 1.85],
-          ['Executive Office / Swivel + 2 Chairs', 4.1, 1.75, 1.9, 1.45],
-          ['Curved LED Balcony / 5.4 × 2.7 m · Strainer', 0, 3.6, 3.6, 1.4],
-          ['Bedroom 4 (Ensuite) / 3.6 × 4.2 m', 3.6, 3.2, 2.4, 1.8]
+          ['1.9 m Extended Left Balcony / Bistro Terrace · Closed End', 0, 0, 1.05, 3.6],
+          ['Bedroom 2 / 4.2 × 3.9 m', 1.05, 0, 1.85, 1.75],
+          ['Baths 2 & 3 / WC + Rain', 2.9, 0, 1.15, 1.75],
+          ['Bedroom 3 / 4.2 × 3.9 m', 4.05, 0, 1.95, 1.75],
+          ['Family TV Lounge / 6.0 × 4.8 m · Glazed', 1.05, 1.75, 1.95, 1.85],
+          ['Spiral Balcony / Floor-Cut Join', 3.0, 1.75, 1.35, 1.85],
+          ['Executive Office / Swivel + 2 Chairs', 4.35, 1.75, 1.65, 1.45],
+          ['Wraparound Curved LED Front Balcony / Glass Rail & Strainer', 0, 3.6, 3.85, 1.4],
+          ['Bedroom 4 (Ensuite) / 3.6 × 4.2 m', 3.85, 3.2, 2.15, 1.8]
         ]
       },
       second: {
         name: 'Second floor',
-        meta: ['≈ 1,300 sq ft', 'Master + Luxury Spa Bath', 'Bed 6 Behind Spiral'],
-        desc: 'Elevated sanctuary matching the 3D upper level: Grand Master Suite with illuminated Walk-in Robe and Luxury Spa Ensuite (freestanding soaking tub with candle caddy, concealed-cistern bidet WC, halo mirror & rain shower), Private Lounge (TV 2) with motorized curtains, and Bedroom 6 + Ensuite 6 positioned cleanly directly behind the spiral landing.',
+        meta: ['≈ 1,420 sq ft', '1.9 m Sunset Lounger Deck', 'Master + Bed 6 Behind Spiral'],
+        desc: 'Elevated sanctuary matched 1-to-1 to the 3D upper level: Grand Master Suite opening via sliding glass doors onto the 1.9 m Extended Left Master Sunset Sun-Lounger Balcony (closed rear bronze-louver privacy end), illuminated Walk-in Robe, Luxury Master Spa Ensuite, Private Lounge (TV 2), Floor-Cut Curved Spiral Indoor Balcony Landing, and Bedroom 6 + Ensuite 6 directly behind the spiral atrium.',
         rooms: [
+          'Extended 1.9 m Left Master Sunset Balcony (2 Teak Sun-Loungers, Side Table, Lounge Armchair, Sliding Doors & Closed Bronze Louver Privacy End)',
           'Grand Master Bedroom Suite (Wall Art, Gold Pendants, Cove Fan & Motorized Drapes) — 5.4 × 4.2 m',
-          'Illuminated Walk-in Robe (2.4 × 2.4 m) & Luxury Master Spa Ensuite (3.6 × 2.4 m — Tub, Bidet WC, Twin Vanity & Rain Shower)',
-          'Private Lounge (TV 2 · Motorized Curtains & Balcony Access) — 5.4 × 4.8 m',
-          'Bedroom 6 (3.6 × 4.2 m) + Ensuite 6 directly behind the Spiral Atrium (completing all 6 suites)',
-          'Open Spiral Landing Bridges with Biometric Safety Doors & Concealed MEP/Shear Spine',
-          'Panoramic Curved LED Balcony — 5.4 × 2.7 m with Stainless Dome Scupper Strainer'
+          'Illuminated Walk-in Robe (2.4 × 2.4 m) & Luxury Master Spa Ensuite (3.6 × 2.4 m — Soaking Tub, Bidet WC, Twin Vanity & Rain Shower)',
+          'Private Lounge (TV 2 · Motorized Curtains & Wraparound Balcony Access) — 5.4 × 4.8 m',
+          'Bedroom 6 (3.6 × 4.2 m) + Ensuite 6 directly behind the Floor-Cut Spiral Atrium Balcony Landing',
+          'Panoramic Curved Front & Side LED Balcony with Continuous Frameless Glass Balustrade & Dome Scupper Strainer'
         ],
         cells: [
-          ['Master Suite / 5.4 × 4.2 m · Fan', 0, 0, 2.65, 1.8],
-          ['Walk-in Robe / 2.4 × 2.4 m', 2.65, 0, 1.35, 1.8],
-          ['Master Spa Bath / Tub · Bidet WC · Rain', 4.0, 0, 2.0, 1.8],
-          ['Private Lounge (TV 2) / 5.4 × 4.8 m', 0, 1.8, 2.55, 1.8],
-          ['Spiral Bridge / Safety Doors · MEP', 2.55, 1.8, 1.55, 1.8],
-          ['Ensuite 6 / Behind Spiral', 4.1, 1.8, 1.9, 1.3],
-          ['Panoramic Balcony / 5.4 × 2.7 m', 0, 3.6, 3.6, 1.4],
-          ['Bedroom 6 (Behind Spiral) / 3.6 × 4.2 m', 3.6, 3.1, 2.4, 1.9]
+          ['1.9 m Extended Left Balcony / Sunset Loungers · Closed End', 0, 0, 1.05, 3.6],
+          ['Master Suite / 5.4 × 4.2 m · Fan', 1.05, 0, 2.05, 1.8],
+          ['Walk-in Robe / 2.4 × 2.4 m', 3.1, 0, 1.15, 1.8],
+          ['Master Spa Bath / Tub · Bidet WC', 4.25, 0, 1.75, 1.8],
+          ['Private Lounge (TV 2) / 5.4 × 4.8 m', 1.05, 1.8, 1.95, 1.8],
+          ['Spiral Balcony / Floor-Cut Join', 3.0, 1.8, 1.35, 1.8],
+          ['Ensuite 6 / Behind Spiral', 4.35, 1.8, 1.65, 1.3],
+          ['Wraparound Curved LED Front Balcony / Continuous Glass Rail', 0, 3.6, 3.85, 1.4],
+          ['Bedroom 6 (Behind Spiral) / 3.6 × 4.2 m', 3.85, 3.1, 2.15, 1.9]
         ]
       },
       roof: {
         name: 'Rooftop sky-deck',
-        meta: ['≈ 1,250 sq ft Sky-Deck', 'VR Car Game Room & Party Shed', 'BBQ · Laundry · Rear ESE Mast'],
-        desc: 'All-weather Chitwan sky-deck matched 1-to-1 to the 3D rooftop: direct Glass Sky-Bridge from the flush-skylight spiral crown into the monsoon-proof Party Shed, enclosed RGB Gaming Studio with hydraulic VR Motion Sim-Racing Car & Arcade, piped 4-burner Gas BBQ pergola with stainless canopy hood, screened Laundry & Monsoon Drying Shed, 3,000 L tanks, 500 L solar heater, ERV HVAC, metal barriers & discreet rear ESE lightning mast.',
+        meta: ['≈ 1,380 sq ft Sky-Deck', 'Left Sunset Bar & Yoga Deck', 'Floor-Cut Spiral Sky-Bridge'],
+        desc: 'All-weather Chitwan sky-deck matched 1-to-1 to the 3D rooftop: Extended 1.9 m Left Sunset Bar-Rail (3 barstools + BBQ herb bench + closed bronze-louver rear end), upper Party Shed with extended left teak Yoga Terrace & direct Floor-Cut Spiral Top Balcony Sky-Bridge, enclosed VR Motion Car RGB Gaming Studio, piped Gas BBQ pergola with hood, screened Laundry & Drying Wing, Solar PV, ERV HVAC & discreet rear ESE lightning mast.',
         rooms: [
+          'Extended 1.9 m Left Rooftop Balcony (Sunset Viewing Bar Counter + 3 Barstools, BBQ Herb Bench, Closed Louver End & Upper Yoga Terrace)',
           'Gas BBQ Chef Kitchen Pergola — 6.0 × 4.2 m (4-burner piped gas grill, stainless canopy hood, prep sink & 8-seat dining)',
           'Enclosed RGB Gaming Studio — 4.2 × 4.0 m (Hydraulic VR Motion Car Cockpit, Retro Arcade, Triple 240Hz PC, Nanoleaf & TV 3)',
-          'All-Weather Party Shed & Mini-Bar — 6.0 × 4.8 m (monsoon steel/timber roof, festoon lights, karaoke TV, fan, yoga deck & Sky-Bridge)',
+          'All-Weather Party Shed & Mini-Bar — 6.0 × 4.8 m (monsoon steel/timber roof, festoon lights, karaoke TV, fan & Floor-Cut Spiral Sky-Bridge)',
           'Screened Laundry Room (2.2 × 2.4 m), UV Polycarbonate Monsoon Drying Shed (3.0 × 2.4 m) & Rooftop Guest WC (1.8 × 1.7 m)',
-          '3,000 L Stainless Reserve Tanks, 500 L Solar Heater, 5–8 kW Solar PV, ERV Fresh-Air HVAC & Spinning Roof Turbo-Vent',
-          'Flush Glass Skylight Spiral Crown (flat modernist top), Metal Safety Barriers, Copper Faraday Ring & Discreet Rear ESE Lightning Mast'
+          '3,000 L Tanks, 500 L Solar Heater, 5–8 kW Solar PV, ERV HVAC, Flush Skylight Spiral Crown, Copper Faraday Ring & Rear ESE Mast'
         ],
         cells: [
-          ['Gas BBQ Pergola + Hood / 6.0 × 4.2 m · 8-Seat', 0, 0, 3.75, 1.65],
-          ['Laundry Room / 2.2 × 2.4 m', 3.75, 0, 2.25, 1.15],
-          ['Gaming Studio (VR Car / Arcade · Triple 240Hz PC)', 0, 1.65, 3.75, 1.65],
-          ['Monsoon Drying Shed / 3.0 × 2.4 m · UV Roof', 3.75, 1.15, 2.25, 1.25],
-          ['Rooftop Guest WC / 1.8 × 1.7 m · Exhaust', 3.75, 2.4, 2.25, 0.9],
-          ['All-Weather Party Shed / 6.0 × 4.8 m · Sky-Bridge', 0, 3.3, 3.75, 1.7],
-          ['Flush Skylight Spiral / Solar · ERV · ESE Mast', 3.75, 3.3, 2.25, 1.7]
+          ['1.9 m Left Sunset Bar / 3 Stools + Herb Bench', 0, 0, 1.0, 3.3],
+          ['Gas BBQ Pergola + Hood / 6.0 × 4.2 m · 8-Seat', 1.0, 0, 2.85, 1.65],
+          ['Laundry Room / 2.2 × 2.4 m', 3.85, 0, 2.15, 1.15],
+          ['Gaming Studio (VR Car / Arcade · Triple 240Hz PC)', 1.0, 1.65, 2.85, 1.65],
+          ['Monsoon Drying Shed / 3.0 × 2.4 m · UV Roof', 3.85, 1.15, 2.15, 1.25],
+          ['Rooftop Guest WC / 1.8 × 1.7 m · Exhaust', 3.85, 2.4, 2.15, 0.9],
+          ['All-Weather Party Shed & Extended Left Yoga Terrace / Sky-Bridge', 0, 3.3, 3.85, 1.7],
+          ['Floor-Cut Spiral Top Balcony / Flush Skylight · ESE Mast', 3.85, 3.3, 2.15, 1.7]
         ]
       }
     };
@@ -4913,17 +4959,77 @@
       // Signal ready — preloaderCtrl guarantees at least 5,000ms total display before revealing!
       preloaderCtrl.finish();
     })();
+    /* Clamped 12-Tile Board Pan & Zoom — ZERO Nested-Scroll Hijacking! */
     let tScale = 1, tX = 0, tY = 0, tDrag = false, tLastX = 0, tLastY = 0;
-    function drawBoard() { tileGrid.style.transform = `translate(${tX}px,${tY}px) scale(${tScale})`; }
-    function zoomBoard(v) { tScale = Math.max(1, Math.min(5, v)); if (tScale === 1) tX = tY = 0; drawBoard(); }
-    $('tilePlus').onclick = () => zoomBoard(tScale * 1.3);
-    $('tileMinus').onclick = () => zoomBoard(tScale / 1.3);
+    const tileZoomPill = $('tileZoomPill');
+    function clampTileOffset() {
+      const w = tileVp.clientWidth || 1, h = tileVp.clientHeight || 1;
+      const maxX = Math.max(0, (tScale - 1) * w * 0.5);
+      const maxY = Math.max(0, (tScale - 1) * h * 0.5);
+      tX = Math.max(-maxX, Math.min(maxX, tX));
+      tY = Math.max(-maxY, Math.min(maxY, tY));
+    }
+    function drawBoard() {
+      clampTileOffset();
+      const zoomed = tScale > 1.01;
+      tileVp.classList.toggle('is-zoomed', zoomed);
+      tileGrid.style.transform = `translate3d(${tX.toFixed(1)}px,${tY.toFixed(1)}px,0) scale(${tScale.toFixed(3)})`;
+      if (tileZoomPill) {
+        const pct = Math.round(tScale * 100);
+        tileZoomPill.textContent = zoomed
+          ? `${pct}% · Drag to pan · Double-click or Fit to reset`
+          : '100% · Scroll page normally · ＋/－ or Ctrl+Scroll to zoom';
+      }
+    }
+    function zoomBoard(nextScale, focalClientX = null, focalClientY = null) {
+      const prevScale = tScale;
+      tScale = Math.max(1, Math.min(5, nextScale));
+      if (tScale <= 1.01) {
+        tScale = 1; tX = 0; tY = 0;
+      } else if (focalClientX !== null && focalClientY !== null && prevScale > 0) {
+        const rect = tileVp.getBoundingClientRect();
+        const fx = focalClientX - (rect.left + rect.width * 0.5);
+        const fy = focalClientY - (rect.top + rect.height * 0.5);
+        const ratio = tScale / prevScale;
+        tX = fx - (fx - tX) * ratio;
+        tY = fy - (fy - tY) * ratio;
+      }
+      drawBoard();
+    }
+    $('tilePlus').onclick = () => zoomBoard(tScale * 1.35);
+    $('tileMinus').onclick = () => zoomBoard(tScale / 1.35);
     $('tileFit').onclick = () => zoomBoard(1);
-    tileVp.addEventListener('wheel', e => { e.preventDefault(); zoomBoard(tScale * (e.deltaY < 0 ? 1.15 : 1 / 1.15)); }, { passive: false });
-    tileVp.addEventListener('pointerdown', e => { tDrag = true; tLastX = e.clientX; tLastY = e.clientY; tileVp.setPointerCapture(e.pointerId); });
-    tileVp.addEventListener('pointermove', e => { if (!tDrag) return; tX += e.clientX - tLastX; tY += e.clientY - tLastY; tLastX = e.clientX; tLastY = e.clientY; drawBoard(); });
-    tileVp.addEventListener('pointerup', () => { tDrag = false; });
-    tileVp.addEventListener('pointercancel', () => { tDrag = false; });
+    tileVp.addEventListener('dblclick', e => {
+      e.preventDefault();
+      zoomBoard(tScale > 1.15 ? 1 : 2.25, e.clientX, e.clientY);
+    });
+    // NEVER hijack normal vertical page scroll! Only zoom on Ctrl/Cmd + Scroll (or trackpad pinch-to-zoom)
+    tileVp.addEventListener('wheel', e => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      zoomBoard(tScale * (e.deltaY < 0 ? 1.18 : 1 / 1.18), e.clientX, e.clientY);
+    }, { passive: false });
+    tileVp.addEventListener('pointerdown', e => {
+      if (tScale <= 1.01 || e.button !== 0) return;
+      tDrag = true; tLastX = e.clientX; tLastY = e.clientY;
+      tileVp.classList.add('is-dragging');
+      tileVp.setPointerCapture(e.pointerId);
+    });
+    tileVp.addEventListener('pointermove', e => {
+      if (!tDrag) return;
+      tX += e.clientX - tLastX; tY += e.clientY - tLastY;
+      tLastX = e.clientX; tLastY = e.clientY;
+      drawBoard();
+    });
+    const endTileDrag = () => {
+      if (!tDrag) return;
+      tDrag = false;
+      tileVp.classList.remove('is-dragging');
+    };
+    tileVp.addEventListener('pointerup', endTileDrag);
+    tileVp.addEventListener('pointercancel', endTileDrag);
+    window.addEventListener('resize', () => { if (tScale > 1.01) drawBoard(); }, { passive: true });
+    drawBoard();
 
     /* Responsive Menu & Active Nav Tracking */
     const siteHeader = $('siteHeader'), menuToggle = $('menuToggle'), primaryNav = $('primaryNav');
@@ -5283,10 +5389,13 @@
         return s;
       }
 
-      function sampleCurvedFrontEdge(xMin, xMax, zFront, rFrontLeft, steps = 48) {
-        // Sweeps from left-side curve (-8.6, 2.8) around rounded front-left corner to right side (+1.95, 5.4)
+      function sampleCurvedFrontEdge(xMin, xMax, zFront, rFrontLeft, steps = 84, zBack = -5.10, closeRearX = -7.45) {
+        // Full continuous wraparound perimeter: closes rear-left end (closeRearX -> xMin at zBack), sweeps along entire extended left balcony flank, curves smoothly around front-left corner & across entire front facade!
         const curve = new THREE.CurvePath();
-        curve.add(new THREE.LineCurve3(new THREE.Vector3(xMin, 0, zFront - rFrontLeft - 1.4), new THREE.Vector3(xMin, 0, zFront - rFrontLeft)));
+        if (closeRearX !== null && closeRearX > xMin) {
+          curve.add(new THREE.LineCurve3(new THREE.Vector3(closeRearX, 0, zBack), new THREE.Vector3(xMin, 0, zBack)));
+        }
+        curve.add(new THREE.LineCurve3(new THREE.Vector3(xMin, 0, zBack), new THREE.Vector3(xMin, 0, zFront - rFrontLeft)));
         curve.add(new THREE.QuadraticBezierCurve3(
           new THREE.Vector3(xMin, 0, zFront - rFrontLeft),
           new THREE.Vector3(xMin, 0, zFront + 0.22),
@@ -5943,6 +6052,30 @@
       const gf = levels.ground;
       // Ground plinth slab (stops cleanly before spiral tower at x=1.95)
       addBox(gf, 10.6, 0.26, 10.2, -3.1, 0.13, -0.1, warmWallMat, false, true);
+      // EXTENDED GROUND LEFT COVERED GARDEN VERANDA DECK & COLONNADE SUPPORTING THE 1.9 m LEFT BALCONIES ABOVE!
+      addBox(gf, 1.18, 0.24, 9.35, -8.78, 0.12, -0.45, marbleMat, true, true);
+      addBox(gf, 0.05, 0.04, 9.25, -9.35, 0.04, -0.45, warmLedMat, false, false);
+      // 3 Slim Sculptural White Colonnade Columns supporting the extended x=-9.35 left wraparound balconies
+      for (const cz of [-4.85, -0.45, 3.85]) {
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 3.36, 18), whiteMat);
+        col.position.set(-9.18, 1.80, cz); col.castShadow = true; col.receiveShadow = true; gf.add(col);
+        addBox(gf, 0.36, 0.07, 0.36, -9.18, 0.27, cz, goldMat, false, false);
+        addBox(gf, 0.36, 0.07, 0.36, -9.18, 3.36, cz, goldMat, false, false);
+      }
+      // Architectural Closed Rear-Left Privacy Louver Screen (z=-5.10, x=-9.35..-8.20) + Veranda Teak Bench & Sconces
+      addBox(gf, 1.24, 3.34, 0.14, -8.78, 1.79, -5.06, darkBronzeMat, true, true);
+      for (let lx = -9.24; lx <= -8.32; lx += 0.18) {
+        addBox(gf, 0.045, 3.16, 0.18, lx, 1.79, -5.06, goldMat, false, false);
+      }
+      // Ground Left Veranda Slatted Teak Bench + Potted Planters + Warm Wall Sconces
+      addBox(gf, 0.50, 0.44, 1.85, -8.68, 0.46, -2.25, woodMat, true, true);
+      addBox(gf, 0.46, 0.08, 1.78, -8.68, 0.72, -2.25, upholsteryMat, false, false);
+      addPlanterTree(gf, -8.76, 0.24, -4.25, 0.78, false);
+      addPlanterTree(gf, -8.76, 0.24, 1.95, 0.76, true);
+      for (const sz of [-3.4, -0.9, 1.6]) {
+        addBox(gf, 0.10, 0.34, 0.10, -8.44, 2.08, sz, darkBronzeMat, false, false);
+        addBox(gf, 0.09, 0.06, 0.09, -8.46, 2.26, sz, warmLedMat, false, false);
+      }
       // Rear living/dining glass bay behind garage
       addBox(gf, 9.2, 3.1, 0.2, -3.2, 1.75, -5.05, atriumGlassMat, false, false);
       for (let x = -7.6; x <= 1.2; x += 2.2) addBox(gf, 0.1, 3.1, 0.12, x, 1.75, -5.05, darkBronzeMat);
@@ -6320,18 +6453,19 @@
       addPlanterTree(gf, 7.45, 0.04, 7.75, 1.05, true);
       addPlanterTree(gf, 7.75, 0.04, 6.45, 0.95, false);
 
-      /* === THREE SWEEPING CURVED CANTILEVERED BALCONIES + TOP CURVED CORNICE === */
-      const floorHeights = [3.40, 6.65, 9.90]; // Decks 1, 2, 3
+      /* === THREE SWEEPING CURVED CANTILEVERED BALCONIES + EXTENDED 1.9 m WRAPAROUND LEFT WING & CLOSED REAR END === */
+      const floorHeights = [3.40, 6.65, 9.90]; // Decks 1 (top 3.74), 2 (top 6.99), 3 (top 10.24)
       const levelKeys = ['first', 'second', 'roof'];
-      const edgePts = sampleCurvedFrontEdge(-8.55, 1.92, 5.75, 2.55, 56);
-      const slabShape = createCurvedWingShape(-8.55, 1.92, -5.1, 5.75, 2.55);
+      const LEFT_BALC_X = -9.35; // Extended usable 1.90 m deep wraparound left side balcony!
+      const edgePts = sampleCurvedFrontEdge(LEFT_BALC_X, 1.92, 5.75, 2.55, 84, -5.10, -7.45);
+      const slabShape = createCurvedWingShape(LEFT_BALC_X, 1.92, -5.1, 5.75, 2.55);
       const slabGeo = new THREE.ExtrudeGeometry(slabShape, {
         depth: 0.42, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 3, curveSegments: 28
       });
 
       floorHeights.forEach((y, idx) => {
         const owner = levels[levelKeys[idx]];
-        // Sculptural curved white cantilevered balcony slab
+        // Sculptural curved white cantilevered balcony slab (extending cleanly out to x = -9.35!)
         const slab = new THREE.Mesh(slabGeo, whiteMat);
         slab.rotation.x = Math.PI / 2;
         slab.position.y = y + 0.34;
@@ -6339,45 +6473,60 @@
         slab.receiveShadow = true;
         owner.add(slab);
 
-        // Warm glowing gold LED cove strip tucked neatly beneath every curved slab edge!
-        const ledCurve = new THREE.CatmullRomCurve3(edgePts.map(p => new THREE.Vector3(p.x, y - 0.145, p.z - 0.10)));
-        owner.add(new THREE.Mesh(new THREE.TubeGeometry(ledCurve, 90, 0.036, 8, false), warmLedMat));
+        // Warm glowing gold LED cove strip tucked neatly beneath the ENTIRE wraparound slab edge (rear-left -> left flank -> curved front!)
+        const ledCurve = new THREE.CatmullRomCurve3(edgePts.map(p => new THREE.Vector3(
+          p.x + (p.x <= LEFT_BALC_X + 0.08 ? 0.12 : 0),
+          y - 0.145,
+          p.z - (p.z > 4.0 ? 0.10 : 0)
+        )));
+        owner.add(new THREE.Mesh(new THREE.TubeGeometry(ledCurve, 128, 0.036, 8, false), warmLedMat));
 
-        // Recessed warm ceiling downlights under soffit
-        for (let i = 6; i < edgePts.length - 6; i += 8) {
+        // Recessed warm ceiling downlights under wraparound front & extended left balcony soffit
+        for (let i = 6; i < edgePts.length - 6; i += 9) {
           const p = edgePts[i];
           const dl = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.03, 10), warmLedMat);
-          dl.position.set(p.x * 0.92, y - 0.14, p.z - 0.65);
+          const dxIn = p.x <= LEFT_BALC_X + 0.25 ? 0.85 : 0;
+          const dzIn = p.z > 3.6 ? -0.65 : 0;
+          dl.position.set(p.x + dxIn, y - 0.14, p.z + dzIn);
           owner.add(dl);
         }
 
-        // Frameless curved glass balustrade + continuous champagne-gold handrail
+        // Continuous Frameless Curved Glass Balustrade + Champagne-Gold Handrail wrapping ALL the way around the extended left balcony & closing the rear-left end!
         for (let i = 0; i < edgePts.length - 1; i++) {
           const p0 = edgePts[i], p1 = edgePts[i + 1];
           const dx = p1.x - p0.x, dz = p1.z - p0.z;
           const segW = Math.hypot(dx, dz);
+          if (segW < 0.005) continue;
           const pane = addBox(owner, segW + 0.01, 0.88, 0.04, (p0.x + p1.x) / 2, y + 0.80, (p0.z + p1.z) / 2, railGlassMat, false, false);
           pane.rotation.y = -Math.atan2(dz, dx);
         }
         const topRailCurve = new THREE.CatmullRomCurve3(edgePts.map(p => new THREE.Vector3(p.x, y + 1.25, p.z)));
-        owner.add(new THREE.Mesh(new THREE.TubeGeometry(topRailCurve, 100, 0.038, 8, false), goldMat));
-        for (let i = 0; i < edgePts.length; i += 11) {
+        owner.add(new THREE.Mesh(new THREE.TubeGeometry(topRailCurve, 130, 0.038, 8, false), goldMat));
+        for (let i = 0; i < edgePts.length; i += 10) {
           const p = edgePts[i];
-          addBox(owner, 0.035, 0.88, 0.035, p.x, y + 0.80, p.z, goldMat, false, false);
+          addBox(owner, 0.036, 0.88, 0.036, p.x, y + 0.80, p.z, goldMat, false, false);
         }
 
-        // Lush Balcony Landscaping (Olive trees, bonsai, lavender & cascading greenery!)
-        const plantStops = idx === 0 ? [0.16, 0.34, 0.54, 0.80] : idx === 1 ? [0.18, 0.44, 0.78] : [0.22, 0.56, 0.82];
+        // ARCHITECTURAL CLOSED REAR-LEFT END PRIVACY LOUVER SCREEN & SLIM STRUCTURAL RETURN FIN (closes x=-9.35..-7.45 at z=-5.10 cleanly!)
+        const wallH = idx < 2 ? 2.88 : 2.35;
+        const wallY = y + 0.35 + wallH / 2;
+        addBox(owner, 0.18, wallH, 0.24, LEFT_BALC_X + 0.10, wallY, -5.02, whiteMat, true, true); // Slim outer vertical end fin
+        addBox(owner, 1.92, 0.10, 0.14, -8.38, y + 0.35 + wallH - 0.05, -5.06, darkBronzeMat, false, false); // Top louver frame
+        addBox(owner, 1.92, 0.08, 0.14, -8.38, y + 0.40, -5.06, darkBronzeMat, false, false); // Bottom louver frame
+        for (let lx = -9.16; lx <= -7.62; lx += 0.18) {
+          addBox(owner, 0.042, wallH - 0.12, 0.14, lx, wallY, -5.06, idx === 2 ? darkBronzeMat : goldMat, false, false);
+        }
+
+        // Lush Front Balcony Landscaping (Olive trees, bonsai, lavender & cascading greenery!)
+        const plantStops = idx === 0 ? [0.44, 0.62, 0.84] : idx === 1 ? [0.46, 0.68, 0.86] : [0.48, 0.72, 0.88];
         plantStops.forEach((t, j) => {
           const p = edgePts[Math.floor(t * (edgePts.length - 1))];
-          const px = p.x + (p.x < -6 ? 0.55 : 0);
+          const px = p.x + (p.x < -7.0 ? 0.55 : 0);
           const pz = p.z - 0.48;
-          addPlanterTree(owner, px, y + 0.35, pz, 0.85 + (j % 2) * 0.25, j % 2 === 0);
+          addPlanterTree(owner, px, y + 0.35, pz, 0.85 + (j % 2) * 0.22, j % 2 === 0);
         });
 
         // Recessed Floor-to-Ceiling Bronze Glazed Facade & Warm Lit Interiors (First & Second floors, plus top penthouse glaze on Roof)
-        const wallH = idx < 2 ? 2.88 : 2.35;
-        const wallY = y + 0.35 + wallH / 2;
         // Front recessed panoramic glazing + bronze mullions
         addBox(owner, 8.2, wallH, 0.14, -3.2, wallY, 3.65, atriumGlassMat, false, false);
         for (let mx = -7.2; mx <= 0.8; mx += 2.0) {
@@ -6385,8 +6534,73 @@
         }
         // Warm illuminated interior ceiling & back glow visible through the front glass!
         addBox(owner, 8.6, 0.10, 7.8, -3.2, y + 0.35 + wallH - 0.06, -0.5, interiorGlowMat, false, false);
-        // Side & rear walls: left outer shell opens in Cutaway; right wall (x=1.55) split with REAL 1.32m OPEN DOORWAY at z=1.06..2.38 connecting straight to the spiral staircase landing!
-        cutawayShells.push(addBox(owner, 0.28, wallH, 8.8, -7.45, wallY, -0.7, whiteMat));
+        // USABLE LEFT BALCONY ACCESS: Floor-to-ceiling bronze glazed sliding balcony doors along x = -7.45 (toggled cleanly by Interior Cutaway!)
+        const leftGlazeWall = new THREE.Group();
+        addBox(leftGlazeWall, 0.24, wallH, 1.05, -7.45, wallY, -4.55, whiteMat, true, true); // Rear corner pier
+        addBox(leftGlazeWall, 0.24, wallH, 1.05, -7.45, wallY, 3.15, whiteMat, true, true);  // Front corner pier
+        addBox(leftGlazeWall, 0.12, wallH, 6.70, -7.45, wallY, -0.70, atriumGlassMat, false, false); // Wide panoramic left balcony sliding doors
+        for (const mz of [-4.0, -2.35, -0.70, 0.95, 2.60]) {
+          addBox(leftGlazeWall, 0.16, wallH, 0.09, -7.45, wallY, mz, darkBronzeMat, false, false);
+        }
+        // Champagne-gold sliding door pull handles on both front & rear left balcony door bays
+        for (const hz of [-2.18, 1.12]) {
+          addBox(leftGlazeWall, 0.06, 0.88, 0.04, -7.54, y + 1.48, hz, goldMat, false, false);
+        }
+        owner.add(leftGlazeWall);
+        cutawayShells.push(leftGlazeWall);
+
+        // USABLE EXTENDED LEFT BALCONY DECK FURNISHINGS (1.90 m deep usable outdoor terrace on every single level!)
+        const byTop = y + 0.35;
+        if (idx === 0) {
+          // 1F EXTENDED LEFT BALCONY: Bistro Coffee & Reading Terrace (serves Family Lounge & Bed 2!)
+          addBox(owner, 1.55, 0.03, 7.8, -8.40, byTop + 0.015, -0.85, woodMat, false, true); // Warm slatted teak deck inlay
+          const bTable = new THREE.Mesh(new THREE.CylinderGeometry(0.40, 0.40, 0.04, 18), marbleMat);
+          bTable.position.set(-8.42, byTop + 0.68, 0.95); owner.add(bTable);
+          const bPed = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.22, 0.66, 12), darkBronzeMat);
+          bPed.position.set(-8.42, byTop + 0.34, 0.95); owner.add(bPed);
+          for (const cz of [0.18, 1.72]) {
+            addBox(owner, 0.56, 0.38, 0.54, -8.42, byTop + 0.22, cz, woodMat, true, false);
+            addBox(owner, 0.50, 0.10, 0.48, -8.42, byTop + 0.45, cz, upholsteryMat, false, false);
+            addBox(owner, 0.52, 0.44, 0.09, -8.42, byTop + 0.64, cz + (cz > 0.95 ? 0.24 : -0.24), woodMat, false, false);
+          }
+          // Reading bench + throw cushion outside Bedroom 2
+          addBox(owner, 0.54, 0.42, 1.75, -8.52, byTop + 0.22, -2.65, woodMat, true, true);
+          addBox(owner, 0.48, 0.10, 1.66, -8.52, byTop + 0.47, -2.65, upholsteryMat, false, false);
+          addPlanterTree(owner, -8.55, byTop, -4.35, 0.72, true);
+          addPlanterTree(owner, -8.55, byTop, 2.75, 0.74, false);
+        } else if (idx === 1) {
+          // 2F EXTENDED LEFT BALCONY: Master Sunset Sun-Lounger Terrace (serves Master Suite & Private Lounge!)
+          addBox(owner, 1.55, 0.03, 7.8, -8.40, byTop + 0.015, -0.85, woodMat, false, true);
+          for (const lz of [-3.05, -1.55]) {
+            // Slatted teak sun lounger with inclined backrest & ivory cushion
+            addBox(owner, 1.25, 0.28, 0.66, -8.42, byTop + 0.16, lz, woodMat, true, true);
+            addBox(owner, 1.18, 0.09, 0.60, -8.42, byTop + 0.34, lz, upholsteryMat, false, false);
+            const back = addBox(owner, 0.52, 0.09, 0.60, -8.02, byTop + 0.52, lz, upholsteryMat, false, false);
+            back.rotation.z = 0.56;
+          }
+          // Low travertine cocktail table between sun loungers + cozy front lounge armchair
+          addBox(owner, 0.44, 0.36, 0.44, -8.45, byTop + 0.19, -2.30, marbleMat, false, true);
+          addBox(owner, 0.66, 0.36, 0.66, -8.45, byTop + 0.20, 1.25, woodMat, true, false);
+          addBox(owner, 0.58, 0.12, 0.58, -8.45, byTop + 0.43, 1.25, upholsteryMat, false, false);
+          addBox(owner, 0.10, 0.46, 0.58, -8.14, byTop + 0.62, 1.25, woodMat, false, false);
+          addPlanterTree(owner, -8.55, byTop, -4.38, 0.76, false);
+          addPlanterTree(owner, -8.55, byTop, 2.75, 0.78, true);
+        } else {
+          // ROOFTOP EXTENDED LEFT BALCONY: Sunset Viewing Bar-Rail + 3 Barstools + BBQ Herb Lounge!
+          addBox(owner, 1.55, 0.03, 7.8, -8.40, byTop + 0.015, -0.85, woodMat, false, true);
+          // Cantilevered teak sunset viewing bar counter mounted flush along left glass railing (x=-8.98)
+          addBox(owner, 0.44, 0.07, 3.15, -8.98, byTop + 1.04, 0.95, marbleMat, true, true);
+          addBox(owner, 0.42, 0.06, 3.10, -8.98, byTop + 0.98, 0.95, walnutMat, false, false);
+          for (const sz of [-0.15, 0.95, 2.05]) {
+            addBox(owner, 0.06, 0.98, 0.06, -9.14, byTop + 0.49, sz, darkBronzeMat, false, false);
+            // High barstool facing Chitwan sunset
+            addBox(owner, 0.34, 0.72, 0.34, -8.42, byTop + 0.36, sz, darkBronzeMat, false, false);
+            addBox(owner, 0.38, 0.09, 0.38, -8.42, byTop + 0.75, sz, upholsteryMat, false, false);
+          }
+          // BBQ Chef side herb planter bench near rear BBQ pergola
+          addBox(owner, 0.56, 0.48, 1.95, -8.55, byTop + 0.25, -3.15, woodMat, true, true);
+          addPlanterTree(owner, -8.58, byTop, -4.42, 0.74, true);
+        }
         addBox(owner, 0.26, wallH, 6.06, 1.55, wallY, -1.97, whiteMat); // Rear section (-5.0..+1.06)
         addBox(owner, 0.26, wallH, 1.22, 1.55, wallY, 2.99, whiteMat);  // Front section (+2.38..+3.60)
         const lintelH = Math.max(0.20, wallH - 2.26);
@@ -6695,8 +6909,9 @@
       if (statusEl) statusEl.textContent = 'Building rooftop party shed, laundry & water system…';
       await yieldMain();
 
-      // 4th Top Curved White Roof Canopy Cornice framing the front 3rd-floor facade (Open sky over rear BBQ pergola!)
-      const frontCanopyShape = createCurvedWingShape(-8.55, 1.92, -1.25, 5.75, 2.55);
+      // 4th Top Curved White Roof Canopy Cornice framing the front 3rd-floor facade & Extended Left Sky-Deck (Open sky over rear BBQ pergola!)
+      const frontCanopyShape = createCurvedWingShape(LEFT_BALC_X, 1.92, -1.25, 5.75, 2.55);
+      const skyEdgePts = sampleCurvedFrontEdge(LEFT_BALC_X, 1.92, 5.75, 2.55, 76, -1.25, -7.45);
       const frontCanopyGeo = new THREE.ExtrudeGeometry(frontCanopyShape, {
         depth: 0.42, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 3, curveSegments: 28
       });
@@ -6707,8 +6922,12 @@
       roofCanopy.receiveShadow = true;
       levels.roof.add(roofCanopy);
       cutawayShells.push(roofCanopy);
-      const topLedCurve = new THREE.CatmullRomCurve3(edgePts.map(p => new THREE.Vector3(p.x, 12.19, p.z - 0.10)));
-      const topLedMesh = new THREE.Mesh(new THREE.TubeGeometry(topLedCurve, 90, 0.04, 8, false), warmLedMat);
+      const topLedCurve = new THREE.CatmullRomCurve3(skyEdgePts.map(p => new THREE.Vector3(
+        p.x + (p.x <= LEFT_BALC_X + 0.08 ? 0.12 : 0),
+        12.19,
+        p.z - (p.z > 4.0 ? 0.10 : 0)
+      )));
+      const topLedMesh = new THREE.Mesh(new THREE.TubeGeometry(topLedCurve, 110, 0.04, 8, false), warmLedMat);
       levels.roof.add(topLedMesh);
       cutawayShells.push(topLedMesh);
 
@@ -6734,20 +6953,30 @@
         pend.position.set(px, 11.82, -3.15); levels.roof.add(pend);
       }
 
-      /* === UPPER SKY-DECK: ALL-WEATHER ROOM PARTY SHED PAVILION, COCKTAIL BAR, KARAOKE AV & YOGA DECK (y = 12.72) === */
+      /* === UPPER SKY-DECK: ALL-WEATHER ROOM PARTY SHED PAVILION, COCKTAIL BAR, KARAOKE AV & EXTENDED LEFT YOGA DECK (y = 12.74) === */
       const partyShedGroup = new THREE.Group();
       levels.roof.add(partyShedGroup);
       cutawayShells.push(partyShedGroup);
       const py = 12.74;
-      // Curved glass safety rail around the upper sky-deck
-      for (let i = 0; i < edgePts.length - 1; i++) {
-        const p0 = edgePts[i], p1 = edgePts[i + 1];
+      // Continuous curved glass safety rail wrapping around the entire Upper Sky-Deck & Extended Left Yoga Terrace (closed cleanly at z=-1.25!)
+      for (let i = 0; i < skyEdgePts.length - 1; i++) {
+        const p0 = skyEdgePts[i], p1 = skyEdgePts[i + 1];
         const dx = p1.x - p0.x, dz = p1.z - p0.z;
-        const pane = addBox(partyShedGroup, Math.hypot(dx, dz) + 0.01, 0.85, 0.035, (p0.x + p1.x) / 2, py + 0.44, (p0.z + p1.z) / 2, railGlassMat, false, false);
+        const segW = Math.hypot(dx, dz);
+        if (segW < 0.005) continue;
+        const pane = addBox(partyShedGroup, segW + 0.01, 0.85, 0.035, (p0.x + p1.x) / 2, py + 0.44, (p0.z + p1.z) / 2, railGlassMat, false, false);
         pane.rotation.y = -Math.atan2(dz, dx);
       }
-      const skyRailCurve = new THREE.CatmullRomCurve3(edgePts.map(p => new THREE.Vector3(p.x, py + 0.88, p.z)));
-      partyShedGroup.add(new THREE.Mesh(new THREE.TubeGeometry(skyRailCurve, 90, 0.036, 8, false), goldMat));
+      const skyRailCurve = new THREE.CatmullRomCurve3(skyEdgePts.map(p => new THREE.Vector3(p.x, py + 0.88, p.z)));
+      partyShedGroup.add(new THREE.Mesh(new THREE.TubeGeometry(skyRailCurve, 110, 0.036, 8, false), goldMat));
+      // Extended Left Sky-Deck Morning Yoga & Sunset Stargazing Teak Terrace (x=-9.05..-7.55, z=-0.6..+3.2)
+      addBox(partyShedGroup, 1.45, 0.04, 3.85, -8.35, py + 0.02, 1.25, woodMat, false, true);
+      addBox(partyShedGroup, 0.68, 0.03, 1.82, -8.38, py + 0.05, 1.15, new THREE.MeshStandardMaterial({ color: 0x2d6a62, roughness: 0.92 }), false, false);
+      for (const lz of [-0.35, 2.75]) {
+        const lan = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.34, 10), warmLedMat);
+        lan.position.set(-8.62, py + 0.21, lz); partyShedGroup.add(lan);
+      }
+      addPlanterTree(partyShedGroup, -8.65, py, -0.82, 0.66, true);
 
       // Sloped Monsoon-Proof Steel & Warm Timber Party Shed Roof (x: -7.5..-0.4, z: -0.9..+4.2)
       for (const sx of [-7.35, -3.9, -0.55]) {
@@ -7202,21 +7431,21 @@
         parent.add(ds); return ds;
       }
 
-      // 1. Surface Monsoon Trench Drains (Gate Threshold, Garage Threshold & Full 3-Side Foundation Perimeter Ring!)
+      // 1. Surface Monsoon Trench Drains (Gate Threshold, Garage Threshold & Full 3-Side Foundation Perimeter Ring cleanly outside extended x=-9.35 left balconies!)
       addTrenchDrain(-0.35, 13.85, 13.8, false); // Front sliding gate driveway threshold trench grate
       addTrenchDrain(-3.05, 5.46, 8.6, false);   // Garage portal threshold drain (keeps 2-car garage dry!)
-      addTrenchDrain(-9.15, -0.10, 11.1, true);  // Left perimeter foundation trench drain
-      addTrenchDrain(0.55, -5.65, 19.4, false);  // Rear foundation trench drain (ties into Gas Vault curb drain!)
+      addTrenchDrain(-9.95, -0.10, 11.1, true);  // Left perimeter foundation trench drain (clear of extended veranda & balconies!)
+      addTrenchDrain(0.15, -5.65, 20.2, false);  // Rear foundation trench drain (ties into Gas Vault curb drain!)
       addTrenchDrain(10.25, -0.10, 11.1, true);  // Right perimeter foundation trench drain
       // 4 Corner Silt & Leaf Catch-Basin Strainers
-      [[-9.15, -5.65], [10.25, -5.65], [-9.15, 5.45], [10.25, 5.45]].forEach(([cx, cz]) => addCatchBasin(cx, cz));
+      [[-9.95, -5.65], [10.25, -5.65], [-9.95, 5.45], [10.25, 5.45]].forEach(([cx, cz]) => addCatchBasin(cx, cz));
 
       // 2. Rooftop & Balcony Stainless Dome Leaf-Guard Strainers
-      addDomeStrainer(levels.roof, -7.45, 10.34, -4.65);  // BBQ terrace parapet leaf strainer
+      addDomeStrainer(levels.roof, -8.85, 10.34, -4.65);  // BBQ & extended left terrace parapet leaf strainer
       addDomeStrainer(levels.roof, 7.45, 10.34, -4.55);   // Laundry monsoon drying deck strainer
-      addDomeStrainer(levels.roof, -7.35, 12.80, -0.85);  // Party Shed rear gutter dome strainer
-      addDomeStrainer(levels.first, -7.65, 3.74, 4.15);   // 1F curved balcony scupper strainer
-      addDomeStrainer(levels.second, -7.65, 7.04, 4.15);  // 2F curved balcony scupper strainer
+      addDomeStrainer(levels.roof, -8.85, 12.80, -0.85);  // Party Shed & extended sky-deck rear dome strainer
+      addDomeStrainer(levels.first, -8.85, 3.74, -4.45);  // 1F extended left balcony scupper strainer
+      addDomeStrainer(levels.second, -8.85, 7.04, -4.45); // 2F extended left balcony scupper strainer
 
       // 3. Dedicated Kitchen & BBQ Baffled Stainless Grease Trap / Solids Strainer Chamber (x=-2.2, z=-6.25!)
       const gtX = -2.20, gtZ = -6.25;
@@ -7262,8 +7491,8 @@
       addBox(outfallPit, 0.06, 0.34, 0.34, 0.42, -0.20, 0, brassMat, false, false); // Brass Non-Return Backflow Flap Valve!
       riserGroup.add(outfallPit);
       // Sloped Aqua-Cyan Storm Collector Network (Left + Rear + Right Catch Basins + Gas Vault Drain + Garage & Gate Trenches -> Outfall!)
-      addPipePath([[-9.15, -0.56, -5.65], [-9.15, -0.68, 5.45], [-9.15, -0.78, 13.85], [outX, -0.98, outZ]], pipeStormMat, 0.078, 0.28);
-      addPipePath([[-9.15, -0.56, -5.65], [10.25, -0.62, -5.65], [10.25, -0.74, 5.45], [10.25, -0.88, 13.85], [outX, -0.98, outZ]], pipeStormMat, 0.078, 0.28);
+      addPipePath([[-9.95, -0.56, -5.65], [-9.95, -0.68, 5.45], [-9.95, -0.78, 13.85], [outX, -0.98, outZ]], pipeStormMat, 0.078, 0.28);
+      addPipePath([[-9.95, -0.56, -5.65], [10.25, -0.62, -5.65], [10.25, -0.74, 5.45], [10.25, -0.88, 13.85], [outX, -0.98, outZ]], pipeStormMat, 0.078, 0.28);
       addPipePath([[-3.05, -0.64, 5.46], [10.25, -0.74, 5.45]], pipeStormMat, 0.064, 0.26); // Garage Threshold Drain -> Right Main
       addPipePath([[8.95, -0.32, -3.25], [10.25, -0.62, -3.25]], pipeStormMat, 0.052, 0.24); // Gas Vault French-Drain -> Storm Ring!
 
@@ -7414,14 +7643,14 @@
       safetySystemGroup.add(foundationGrp);
       structuralXrayOnly.push(foundationGrp);
 
-      // Continuous M30 Crystalline Waterproof RCC Raft / Mat Slab + Bituminous/HDPE Damp-Proof Membrane (DPM)
-      addBox(foundationGrp, 18.2, 0.50, 11.4, 0.55, -0.78, 0.25, rccFoundationMat, false, true);
-      addBox(foundationGrp, 18.4, 0.08, 11.6, 0.55, -1.06, 0.25, dpmWaterproofMat, false, false);
+      // Continuous M30 Crystalline Waterproof RCC Raft / Mat Slab + Bituminous/HDPE Damp-Proof Membrane (DPM) extending beneath Left Veranda Colonnade!
+      addBox(foundationGrp, 19.2, 0.50, 11.4, 0.05, -0.78, 0.25, rccFoundationMat, false, true);
+      addBox(foundationGrp, 19.4, 0.08, 11.6, 0.05, -1.06, 0.25, dpmWaterproofMat, false, false);
       // Interconnected Seismic Plinth Tie-Beams locking every structural column base into a rigid horizontal diaphragm
       for (const bz of [-4.6, -0.4, 2.6, 4.8]) {
-        addBox(foundationGrp, 16.4, 0.34, 0.34, 0.45, -0.16, bz, rccFoundationMat, false, false);
+        addBox(foundationGrp, 17.8, 0.34, 0.34, -0.25, -0.16, bz, rccFoundationMat, false, false);
       }
-      for (const bx of [-7.4, -2.4, 2.0, 6.4, 8.4]) {
+      for (const bx of [-9.15, -7.4, -2.4, 2.0, 6.4, 8.4]) {
         addBox(foundationGrp, 0.34, 0.34, 9.8, bx, -0.16, 0.15, rccFoundationMat, false, false);
       }
 
@@ -7644,44 +7873,167 @@
         addBox(spiralBackCore, 0.06, 12.9, 0.06, gx, 7.15, CZ - ATRIUM_R + 0.20, warmLedMat, false, false);
       }
 
-      // 2. Four Floor-Level Cantilevered Circulation Bridge Landings + REAL OPEN DOORWAYS & HINGED ARMORED SAFETY DOORS!
-      // Connects Spiral Staircase -> Left Main Wing (Living / Family / Master / Rooftop) AND Right Pavilion (Guest WC / Beds 1,4,6 / Study / Laundry) with ZERO overlapping walls!
-      const bridgeHeights = [0.95, 3.68, 6.95, 10.22];
-      bridgeHeights.forEach((by, bi) => {
-        // Rear circulation landing deck bridging left wing (x=1.55) <-> atrium back (x=4.65) <-> right pavilion (x=6.45)
-        addBox(spiralBackCore, 4.95, 0.24, 1.65, 4.15, by, 1.75, whiteMat, true, true);
-        // Connecting spiral landing apron bridging right to spiral outer radius (z=2.55..3.05)
-        addBox(spiralBackCore, 2.65, 0.18, 0.72, 4.45, by + 0.02, 2.62, marbleMat, false, true);
-        // Warm soffit LED glow strip under each bridge landing
-        addBox(spiralBackCore, 4.4, 0.04, 0.05, 4.15, by - 0.13, 2.52, warmLedMat, false, false);
-        // Frameless glass landing guardrail with champagne-gold top rail overlooking the spiral void (split open at stair entry!)
-        addBox(spiralBackCore, 1.35, 0.92, 0.04, 2.75, by + 0.56, 2.52, railGlassMat, false, false);
-        addBox(spiralBackCore, 1.38, 0.045, 0.05, 2.75, by + 1.04, 2.52, goldMat, false, false);
-        addBox(spiralBackCore, 1.05, 0.92, 0.04, 6.02, by + 0.56, 2.52, railGlassMat, false, false);
-        addBox(spiralBackCore, 1.08, 0.045, 0.05, 6.02, by + 1.04, 2.52, goldMat, false, false);
+      // 2. Four Floor-Flush Cantilevered Circulation Bridges + Precision-Cut Curved Atrium Balcony Landings + REAL OPEN DOORWAYS & SAFETY DOORS!
+      // Every floor deck top matches the main wing & right pavilion slabs to the millimeter (GF 1.04, 1F 3.74, 2F 6.99, Roof 10.24)!
+      const stairInnerR = 1.02, stairOuterR = 2.42;
+      const deckTops = [1.04, 3.74, 6.99, 10.24];
 
-        // REAL OPEN Left Main-Wing Doorway + Interactive Hinged Armored Safety Door (rotY = Math.PI/2 sits flush in x=1.68 doorway!)
-        addSafetyDoor(spiralBackCore, 1.68, by + 0.12, 1.72, 1.16, 2.18, Math.PI / 2, 1);
-        // Ground Floor Marble Transition Steps descending cleanly from atrium landing (y=0.95) to Living/Dining floor (y=0.27)!
+      // Helper: Extruded Curved Annular Mezzanine Balcony Deck + Curved Glass & Champagne-Gold Atrium Balustrade + Under-Soffit LED Cove!
+      function addCurvedBalconySector(parent, topY, aStart, aEnd, thick = 0.24, rIn = stairInnerR, rOut = ATRIUM_R - 0.04, withRail = true, withLed = true) {
+        const segs = 28;
+        const sh = new THREE.Shape();
+        for (let i = 0; i <= segs; i++) {
+          const a = aStart + (i / segs) * (aEnd - aStart);
+          const x = CX + Math.cos(a) * rOut, z = CZ + Math.sin(a) * rOut;
+          if (i === 0) sh.moveTo(x, z); else sh.lineTo(x, z);
+        }
+        for (let i = segs; i >= 0; i--) {
+          const a = aStart + (i / segs) * (aEnd - aStart);
+          sh.lineTo(CX + Math.cos(a) * rIn, CZ + Math.sin(a) * rIn);
+        }
+        sh.closePath();
+        const geo = new THREE.ExtrudeGeometry(sh, { depth: thick, bevelEnabled: false, curveSegments: 24 });
+        const mesh = new THREE.Mesh(geo, whiteMat);
+        mesh.rotation.x = Math.PI / 2;
+        mesh.position.y = topY;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        parent.add(mesh);
+
+        // Sleek inlaid marble walking surface flush on top of the curved balcony deck (+0.008 m)
+        const topGeo = new THREE.ExtrudeGeometry(sh, { depth: 0.025, bevelEnabled: false, curveSegments: 24 });
+        const topMesh = new THREE.Mesh(topGeo, marbleMat);
+        topMesh.rotation.x = Math.PI / 2;
+        topMesh.position.y = topY + 0.012;
+        topMesh.receiveShadow = true;
+        parent.add(topMesh);
+
+        // Warm recessed golden LED cove tucked beneath the inner curved balcony edge overlooking the chandelier void!
+        if (withLed) {
+          const ledPts = [];
+          for (let i = 0; i <= 20; i++) {
+            const a = aStart + (i / 20) * (aEnd - aStart);
+            ledPts.push(new THREE.Vector3(CX + Math.cos(a) * (rIn + 0.05), topY - thick - 0.02, CZ + Math.sin(a) * (rIn + 0.05)));
+          }
+          parent.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ledPts), 28, 0.026, 8, false), warmLedMat));
+        }
+
+        // Curved Frameless Tempered-Glass Balcony Guardrail + Champagne-Gold Top Handrail + Mid Bar + Corner Newel Posts!
+        if (withRail) {
+          const railSegs = 14;
+          const rPts = [];
+          const midPts = [];
+          for (let i = 0; i <= railSegs; i++) {
+            const a = aStart + (i / railSegs) * (aEnd - aStart);
+            const px = CX + Math.cos(a) * rIn, pz = CZ + Math.sin(a) * rIn;
+            rPts.push(new THREE.Vector3(px, topY + 0.94, pz));
+            midPts.push(new THREE.Vector3(px, topY + 0.46, pz));
+            if (i < railSegs) {
+              const aNext = aStart + ((i + 1) / railSegs) * (aEnd - aStart);
+              const nx = CX + Math.cos(aNext) * rIn, nz = CZ + Math.sin(aNext) * rIn;
+              const dx = nx - px, dz = nz - pz;
+              const pane = addBox(parent, Math.hypot(dx, dz) + 0.012, 0.88, 0.036, (px + nx) / 2, topY + 0.48, (pz + nz) / 2, railGlassMat, false, false);
+              pane.rotation.y = -Math.atan2(dz, dx);
+            }
+            if (i % 3 === 0 || i === railSegs) {
+              const isEnd = (i === 0 || i === railSegs);
+              addBox(parent, isEnd ? 0.048 : 0.024, 0.96, isEnd ? 0.048 : 0.024, px, topY + 0.48, pz, goldMat, false, false);
+            }
+          }
+          parent.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rPts), 36, 0.044, 8, false), goldMat));
+          parent.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(midPts), 32, 0.020, 6, false), goldMat));
+          // Outer stair-throat structural gold newel posts anchoring each flight's outer handrail cleanly!
+          for (const aEndPt of [aStart, aEnd]) {
+            addBox(parent, 0.048, 0.96, 0.048, CX + Math.cos(aEndPt) * (stairOuterR - 0.03), topY + 0.48, CZ + Math.sin(aEndPt) * (stairOuterR - 0.03), goldMat, false, false);
+          }
+        }
+      }
+
+      deckTops.forEach((topY, bi) => {
+        // Rear circulation landing deck bridging left wing (x=1.55) <-> atrium back (x=4.65) <-> right pavilion (x=6.45) — TOP FLUSH AT topY!
+        addBox(spiralBackCore, 4.98, 0.24, 1.65, 4.15, topY - 0.12, 1.72, whiteMat, true, true);
+        addBox(spiralBackCore, 4.4, 0.04, 0.05, 4.15, topY - 0.25, 2.52, warmLedMat, false, false);
+
+        // Precision-Cut Curved Indoor Mezzanine Balcony Landing (1F, 2F, Roof) projecting out over the chandelier void with clean open stair throats at -0.72π (up) & -0.36π (arriving)!
+        if (bi > 0) {
+          addCurvedBalconySector(spiralBackCore, topY, -Math.PI * 0.72, -Math.PI * 0.36, 0.24, stairInnerR, ATRIUM_R - 0.04, true, true);
+        }
+
+        // Straight side-wing glass bridge guardrails cleanly terminating OUTSIDE the open stair throats (ZERO clipping over steps!)
+        addBox(spiralBackCore, 1.32, 0.92, 0.038, 2.38, topY + 0.46, 2.52, railGlassMat, false, false);
+        addBox(spiralBackCore, 1.36, 0.045, 0.05, 2.38, topY + 0.94, 2.52, goldMat, false, false);
+        addBox(spiralBackCore, 0.044, 0.94, 0.044, 3.04, topY + 0.47, 2.52, goldMat, false, false);
+
+        addBox(spiralBackCore, 0.78, 0.92, 0.038, 6.14, topY + 0.46, 2.52, railGlassMat, false, false);
+        addBox(spiralBackCore, 0.82, 0.045, 0.05, 6.14, topY + 0.94, 2.52, goldMat, false, false);
+        addBox(spiralBackCore, 0.044, 0.94, 0.044, 5.75, topY + 0.47, 2.52, goldMat, false, false);
+
+        // REAL OPEN Left Main-Wing Doorway + Interactive Hinged Armored Safety Door (sill flush at topY!)
+        addSafetyDoor(spiralBackCore, 1.68, topY, 1.72, 1.16, 2.18, Math.PI / 2, 1);
+        // Ground Floor Marble Transition Steps descending cleanly from atrium floor (y=1.04) to Living/Dining floor (y=0.27)!
         if (bi === 0) {
           for (let st = 0; st < 4; st++) {
-            const sy = 0.27 + (3 - st) * 0.175;
-            addBox(spiralBackCore, 0.34, 0.16, 1.38, 1.48 - st * 0.32, sy, 1.72, marbleMat, true, true);
-            addBox(spiralBackCore, 0.03, 0.02, 1.32, 1.31 - st * 0.32, sy + 0.06, 1.72, warmLedMat, false, false);
+            const sy = 0.27 + (3 - st) * 0.19;
+            addBox(spiralBackCore, 0.34, 0.17, 1.38, 1.48 - st * 0.32, sy, 1.72, marbleMat, true, true);
+            addBox(spiralBackCore, 0.03, 0.02, 1.32, 1.31 - st * 0.32, sy + 0.065, 1.72, warmLedMat, false, false);
           }
         }
         // REAL OPEN Right-Wing Doorway + Interactive Hinged Armored Safety Door (GF Bed 1/WC, 1F Bed 4/Study, 2F Bed 6!)
         if (bi < 3) {
-          addSafetyDoor(spiralBackCore, 6.45, by + 0.12, 1.65, 1.06, 2.12, -Math.PI / 2, -1);
+          addSafetyDoor(spiralBackCore, 6.45, topY, 1.65, 1.06, 2.12, -Math.PI / 2, -1);
         }
         // Warm architectural wall sconces on the rear landing gallery
         for (const sx of [2.95, 5.85]) {
-          addBox(spiralBackCore, 0.10, 0.28, 0.10, sx, by + 1.78, 1.48, darkBronzeMat, false, false);
-          addBox(spiralBackCore, 0.08, 0.06, 0.08, sx, by + 1.94, 1.48, warmLedMat, false, false);
+          addBox(spiralBackCore, 0.10, 0.28, 0.10, sx, topY + 1.72, 1.48, darkBronzeMat, false, false);
+          addBox(spiralBackCore, 0.08, 0.06, 0.08, sx, topY + 1.88, 1.48, warmLedMat, false, false);
         }
       });
+
+      // GROUND FLOOR SCULPTURAL UNDER-STAIR CURVED BALCONY BARRIER & ILLUMINATED PLANTER GALLERY (y = 1.04!)
+      // Frames the central chandelier atrium like an indoor balcony & safely encloses the low-headroom zone beneath Flight 1!
+      const gfBarrierGrp = new THREE.Group();
+      tower.add(gfBarrierGrp);
+      const gfArcSegs = 22;
+      const gfArcStart = Math.PI * 0.30, gfArcEnd = -Math.PI * 0.72;
+      const gfTopRailPts = [], gfMidRailPts = [], gfLedPts = [];
+      for (let i = 0; i <= gfArcSegs; i++) {
+        const a = gfArcStart + (i / gfArcSegs) * (gfArcEnd - gfArcStart);
+        const px = CX + Math.cos(a) * stairInnerR, pz = CZ + Math.sin(a) * stairInnerR;
+        gfTopRailPts.push(new THREE.Vector3(px, 1.04 + 0.94, pz));
+        gfMidRailPts.push(new THREE.Vector3(px, 1.04 + 0.48, pz));
+        gfLedPts.push(new THREE.Vector3(px, 1.04 + 0.05, pz));
+        if (i < gfArcSegs) {
+          const aN = gfArcStart + ((i + 1) / gfArcSegs) * (gfArcEnd - gfArcStart);
+          const nx = CX + Math.cos(aN) * stairInnerR, nz = CZ + Math.sin(aN) * stairInnerR;
+          const dx = nx - px, dz = nz - pz, sw = Math.hypot(dx, dz);
+          // Sculpted low travertine balcony curb + curved frameless glass barrier panel!
+          const curb = addBox(gfBarrierGrp, sw + 0.015, 0.14, 0.12, (px + nx) / 2, 1.04 + 0.07, (pz + nz) / 2, marbleMat, false, true);
+          curb.rotation.y = -Math.atan2(dz, dx);
+          const gPane = addBox(gfBarrierGrp, sw + 0.012, 0.80, 0.036, (px + nx) / 2, 1.04 + 0.54, (pz + nz) / 2, railGlassMat, false, false);
+          gPane.rotation.y = -Math.atan2(dz, dx);
+        }
+        if (i % 3 === 0 || i === gfArcSegs) {
+          const isEnd = (i === 0 || i === gfArcSegs);
+          addBox(gfBarrierGrp, isEnd ? 0.048 : 0.024, 0.94, isEnd ? 0.048 : 0.024, px, 1.04 + 0.47, pz, goldMat, false, false);
+        }
+      }
+      gfBarrierGrp.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gfTopRailPts), 48, 0.044, 8, false), goldMat));
+      gfBarrierGrp.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gfMidRailPts), 44, 0.020, 6, false), goldMat));
+      gfBarrierGrp.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gfLedPts), 44, 0.022, 6, false), warmLedMat));
+      // Radial Glass & Gold Under-Stair Safety Divider beneath Flight 1's low-headroom zone (ang = -0.06π, r = 1.02..2.38) + Decorative Indoor Pebble & Bonsai Bed!
+      const underAng = -Math.PI * 0.06;
+      const ux0 = CX + Math.cos(underAng) * stairInnerR, uz0 = CZ + Math.sin(underAng) * stairInnerR;
+      const ux1 = CX + Math.cos(underAng) * (stairOuterR - 0.06), uz1 = CZ + Math.sin(underAng) * (stairOuterR - 0.06);
+      const udx = ux1 - ux0, udz = uz1 - uz0, uLen = Math.hypot(udx, udz);
+      const underGlass = addBox(gfBarrierGrp, uLen, 0.88, 0.036, (ux0 + ux1) / 2, 1.04 + 0.46, (uz0 + uz1) / 2, railGlassMat, false, false);
+      underGlass.rotation.y = -Math.atan2(udz, udx);
+      const underRail = addBox(gfBarrierGrp, uLen + 0.04, 0.045, 0.05, (ux0 + ux1) / 2, 1.04 + 0.92, (uz0 + uz1) / 2, goldMat, false, false);
+      underRail.rotation.y = -Math.atan2(udz, udx);
+      addBox(gfBarrierGrp, 0.046, 0.94, 0.046, ux1, 1.04 + 0.47, uz1, goldMat, false, false);
+      // Zen stone planter bed nestled safely underneath the low soffit of Flight 1
+      addPlanterTree(gfBarrierGrp, CX + Math.cos(Math.PI * 0.10) * 1.72, 1.04, CZ + Math.sin(Math.PI * 0.10) * 1.72, 0.62, true);
       // Main Entrance Armored Biometric Safety Door right behind the bi-parting glass atrium sliding door!
-      addSafetyDoor(tower, CX, 1.06, CZ + ATRIUM_R - 0.36, 1.24, 2.28, 0, -1);
+      addSafetyDoor(tower, CX, 1.04, CZ + ATRIUM_R - 0.36, 1.24, 2.28, 0, -1);
 
       // 3. Concealed Vertical MEP Service Chase & Optional Compact Home-Lift Shaft (Right behind the fluted spiral spine!)
       // Houses Cold Supply, Solar Hot Water & Rainwater Harvest pipes (turns translucent in Water X-Ray mode!)
@@ -7795,92 +8147,126 @@
       }
       const oculusHub = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.055, 24), goldMat);
       oculusHub.position.set(CX, crownTopY + 0.035, CZ); crownGroup.add(oculusHub);
-      // Direct Stair-Top Glass Sky-Bridge linking the Spiral Atrium directly into the Upper Sky-Deck Party Shed!
-      addBox(crownGroup, 1.45, 0.20, 1.65, 2.05, 12.70, 2.85, whiteMat, true, true);
-      addBox(crownGroup, 1.45, 0.90, 0.04, 2.05, 13.25, 3.66, railGlassMat, false, false);
-      addBox(crownGroup, 1.45, 0.04, 0.05, 2.05, 13.71, 3.66, goldMat, false, false);
-      addBox(crownGroup, 1.45, 0.90, 0.04, 2.05, 13.25, 2.04, railGlassMat, false, false);
-      addBox(crownGroup, 1.45, 0.04, 0.05, 2.05, 13.71, 2.04, goldMat, false, false);
+      // Direct Stair-Top Glass Sky-Bridge + Precision-Cut Top Curved Atrium Balcony Landing (y = 12.74, FLUSH join from Flight 4 to Party Shed!)
+      addCurvedBalconySector(crownGroup, 12.74, -Math.PI * 0.96, -Math.PI * 0.58, 0.22, stairInnerR, ATRIUM_R - 0.04, true, true);
+      addBox(crownGroup, 1.65, 0.22, 1.65, 2.15, 12.63, 2.95, whiteMat, true, true);
+      addBox(crownGroup, 1.60, 0.025, 1.56, 2.15, 12.745, 2.95, marbleMat, false, true);
+      addBox(crownGroup, 1.55, 0.90, 0.04, 2.08, 13.20, 3.74, railGlassMat, false, false);
+      addBox(crownGroup, 1.58, 0.044, 0.05, 2.08, 13.68, 3.74, goldMat, false, false);
+      addBox(crownGroup, 1.55, 0.90, 0.04, 2.08, 13.20, 2.16, railGlassMat, false, false);
+      addBox(crownGroup, 1.58, 0.044, 0.05, 2.08, 13.68, 2.16, goldMat, false, false);
 
-      /* CONTINUOUS SCULPTURAL WHITE HELICAL RIBBON STAIRCASE + 62 INDIVIDUAL MARBLE & WALNUT STEPS CONNECTING EVERY FLOOR TO SKY-BRIDGE! */
+      /* PRECISION-CUT 4-FLIGHT SCULPTURAL SPIRAL STAIRCASE (66 STEPS) + CURVED HELICAL GLASS BALCONY BARRIERS JOINING FLUSH TO EVERY FLOOR! */
       const stairGroup = new THREE.Group();
       tower.add(stairGroup);
-      const stairInnerR = 1.02, stairOuterR = 2.40;
-      const stairStartY = 1.06, stairTotalH = 11.64, stairTurns = 2.25, stairSegs = 104;
-      const startAngle = Math.PI * 0.62; // Starts front-left above entry steps, sweeps rightward across front as it rises to Sky-Bridge (12.70)!
-
-      // Smooth continuous sweeping underside white helical soffit ribbon with verified outward-facing normals
-      const rPositions = [], rIndices = [];
-      const ribbonThick = 0.24;
-      for (let i = 0; i <= stairSegs; i++) {
-        const t = i / stairSegs;
-        const ang = startAngle - t * stairTurns * Math.PI * 2;
-        const y = stairStartY + t * stairTotalH;
-        const ca = Math.cos(ang), sa = Math.sin(ang);
-        rPositions.push(
-          CX + ca * stairInnerR, y, CZ + sa * stairInnerR,
-          CX + ca * stairOuterR, y, CZ + sa * stairOuterR,
-          CX + ca * stairOuterR, y - ribbonThick, CZ + sa * stairOuterR,
-          CX + ca * stairInnerR, y - ribbonThick, CZ + sa * stairInnerR
-        );
-        if (i < stairSegs) {
-          const a = i * 4, b = (i + 1) * 4;
-          rIndices.push(a, a + 1, b, a + 1, b + 1, b);
-          rIndices.push(a + 1, a + 2, b + 1, a + 2, b + 2, b + 1);
-          rIndices.push(a + 2, a + 3, b + 2, a + 3, b + 3, b + 2);
-          rIndices.push(a + 3, a, b + 3, a, b, b + 3);
-        }
-      }
-      const ribbonGeo = new THREE.BufferGeometry();
-      ribbonGeo.setAttribute('position', new THREE.Float32BufferAttribute(rPositions, 3));
-      ribbonGeo.setIndex(rIndices);
-      ribbonGeo.computeVertexNormals();
-      const ribbonMesh = new THREE.Mesh(ribbonGeo, whiteMat);
-      ribbonMesh.castShadow = true;
-      ribbonMesh.receiveShadow = true;
-      stairGroup.add(ribbonMesh);
-
-      // 62 INDIVIDUAL SCULPTED MARBLE & WALNUT SPIRAL STAIR STEPS WITH GOLD NOSING & WARM STEP LED GLOW!
-      const totalSteps = 62;
       const midR = (stairInnerR + stairOuterR) * 0.5;
       const treadW = stairOuterR - stairInnerR - 0.04;
-      for (let i = 0; i < totalSteps; i++) {
-        const t = i / (totalSteps - 1);
-        const ang = startAngle - t * stairTurns * Math.PI * 2;
-        const y = stairStartY + t * stairTotalH + 0.045;
-        const stepG = new THREE.Group();
-        stepG.position.set(CX + Math.cos(ang) * midR, y, CZ + Math.sin(ang) * midR);
-        stepG.rotation.y = -ang;
-        // Sculpted marble & walnut step tread + subtle riser kickplate + gold nosing strip + under-nosing LED glow!
-        addBox(stepG, treadW, 0.055, 0.34, 0, 0, 0, i % 2 === 0 ? marbleMat : walnutMat, true, true);
-        addBox(stepG, treadW, 0.14, 0.03, 0, -0.09, -0.15, whiteMat, false, false);
-        addBox(stepG, treadW, 0.018, 0.024, 0, 0.028, 0.165, goldMat, false, false);
-        if (i % 2 === 0) addBox(stepG, treadW - 0.12, 0.014, 0.018, 0, -0.026, 0.16, warmLedMat, false, false);
-        stairGroup.add(stepG);
-      }
+      const ribbonThick = 0.24;
 
-      // Subtle champagne-gold helical edge trims & smooth curved inner/outer handrails
-      for (const [rad, yOff, thick] of [
-        [stairInnerR, 0.94, 0.044],
-        [stairInnerR, 0.48, 0.022],
-        [stairInnerR, -0.02, 0.032],
-        [stairOuterR - 0.03, 0.94, 0.042]
-      ]) {
-        const hPts = [];
-        for (let i = 0; i <= 140; i++) {
-          const t = i / 140;
-          const ang = startAngle - t * stairTurns * Math.PI * 2;
-          hPts.push(new THREE.Vector3(CX + Math.cos(ang) * rad, stairStartY + t * stairTotalH + yOff, CZ + Math.sin(ang) * rad));
+      // 4 Distinct Architectural Flights with EXACT Floor-Level Cuts & Flush Joins into Every Curved Mezzanine Balcony Landing:
+      // Flight 1 (GF 1.04 -> 1F 3.74): Starts right of front entry (+0.34π) leaving full 2-story open arrival foyer, arrives flush at 1F right throat (-0.36π)
+      // Flight 2 (1F 3.74 -> 2F 6.99): Departs flush from 1F left throat (-0.72π), sweeps 295° across panoramic front glass to 2F right throat (-0.36π)
+      // Flight 3 (2F 6.99 -> Roof 10.24): Departs flush from 2F left throat (-0.72π), sweeps 295° across panoramic front glass to Roof right throat (-0.36π)
+      // Flight 4 (Roof 10.24 -> Sky-Bridge 12.74): Departs flush from Roof left throat (-0.72π), sweeps 335° directly onto Party Shed Sky-Bridge landing (-0.58π)!
+      const spiralFlights = [
+        { y0: 1.04,  y1: 3.74,  a0:  Math.PI * 0.34, a1: -Math.PI * 0.36, steps: 14, segs: 28 },
+        { y0: 3.74,  y1: 6.99,  a0: -Math.PI * 0.72, a1: -Math.PI * 2.36, steps: 18, segs: 52 },
+        { y0: 6.99,  y1: 10.24, a0: -Math.PI * 0.72, a1: -Math.PI * 2.36, steps: 18, segs: 52 },
+        { y0: 10.24, y1: 12.74, a0: -Math.PI * 0.72, a1: -Math.PI * 2.58, steps: 16, segs: 56 }
+      ];
+
+      spiralFlights.forEach((fl, fIdx) => {
+        const { y0, y1, a0, a1, steps, segs } = fl;
+        const dy = y1 - y0, da = a1 - a0;
+
+        // 1. Watertight Sculptural White Helical Soffit Ribbon with Flat Cut End-Caps joining flush into Floor Balcony Slabs!
+        const rPos = [], rIdx = [];
+        for (let i = 0; i <= segs; i++) {
+          const t = i / segs;
+          const ang = a0 + t * da;
+          const y = y0 + t * dy;
+          const ca = Math.cos(ang), sa = Math.sin(ang);
+          rPos.push(
+            CX + ca * stairInnerR, y, CZ + sa * stairInnerR,
+            CX + ca * stairOuterR, y, CZ + sa * stairOuterR,
+            CX + ca * stairOuterR, y - ribbonThick, CZ + sa * stairOuterR,
+            CX + ca * stairInnerR, y - ribbonThick, CZ + sa * stairInnerR
+          );
+          if (i < segs) {
+            const a = i * 4, b = (i + 1) * 4;
+            rIdx.push(a, a + 1, b, a + 1, b + 1, b);
+            rIdx.push(a + 1, a + 2, b + 1, a + 2, b + 2, b + 1);
+            rIdx.push(a + 2, a + 3, b + 2, a + 3, b + 3, b + 2);
+            rIdx.push(a + 3, a, b + 3, a, b, b + 3);
+          }
         }
-        stairGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hPts), 220, thick, 8, false), goldMat));
-      }
-      // Delicate criss-cross / vertical champagne-gold balusters along inner spiral curve (matching home photo!)
-      for (let i = 0; i <= 44; i++) {
-        const t = i / 44;
-        const ang = startAngle - t * stairTurns * Math.PI * 2;
-        const y = stairStartY + t * stairTotalH;
-        addBox(stairGroup, 0.024, 0.94, 0.024, CX + Math.cos(ang) * stairInnerR, y + 0.47, CZ + Math.sin(ang) * stairInnerR, goldMat, false, false);
-      }
+        // Clean cut end-caps at flight start (0) & flight arrival (segs)
+        rIdx.push(0, 3, 2, 0, 2, 1);
+        const endB = segs * 4;
+        rIdx.push(endB, endB + 1, endB + 2, endB, endB + 2, endB + 3);
+        const rGeo = new THREE.BufferGeometry();
+        rGeo.setAttribute('position', new THREE.Float32BufferAttribute(rPos, 3));
+        rGeo.setIndex(rIdx);
+        rGeo.computeVertexNormals();
+        const rMesh = new THREE.Mesh(rGeo, whiteMat);
+        rMesh.castShadow = true;
+        rMesh.receiveShadow = true;
+        stairGroup.add(rMesh);
+
+        // 2. Sculpted Marble & Walnut Steps cleanly spaced strictly between lower floor & upper balcony landing (ZERO slab overlap!)
+        for (let s = 1; s < steps; s++) {
+          const t = s / steps;
+          const ang = a0 + t * da;
+          const y = y0 + t * dy + 0.032;
+          const stepG = new THREE.Group();
+          stepG.position.set(CX + Math.cos(ang) * midR, y, CZ + Math.sin(ang) * midR);
+          stepG.rotation.y = -ang;
+          addBox(stepG, treadW, 0.055, 0.34, 0, 0, 0, (s + fIdx) % 2 === 0 ? marbleMat : walnutMat, true, true);
+          addBox(stepG, treadW, 0.145, 0.03, 0, -0.095, -0.15, whiteMat, false, false);
+          addBox(stepG, treadW, 0.018, 0.024, 0, 0.028, 0.165, goldMat, false, false);
+          if (s % 2 === 0) addBox(stepG, treadW - 0.12, 0.014, 0.018, 0, -0.026, 0.16, warmLedMat, false, false);
+          stairGroup.add(stepG);
+        }
+
+        // 3. Continuous Curved Helical Glass Balcony Barrier Skirt along Inner Rim + Champagne-Gold Handrails joining into Floor Newel Posts!
+        const glassSteps = Math.max(16, Math.round(segs * 0.72));
+        for (let i = 0; i < glassSteps; i++) {
+          const t0 = i / glassSteps, t1 = (i + 1) / glassSteps;
+          const aS = a0 + t0 * da, aE = a0 + t1 * da;
+          const p0x = CX + Math.cos(aS) * stairInnerR, p0z = CZ + Math.sin(aS) * stairInnerR, p0y = y0 + t0 * dy;
+          const p1x = CX + Math.cos(aE) * stairInnerR, p1z = CZ + Math.sin(aE) * stairInnerR, p1y = y0 + t1 * dy;
+          const dx = p1x - p0x, dz = p1z - p0z;
+          const gPanel = addBox(stairGroup, Math.hypot(dx, dz) + 0.015, 0.88, 0.034, (p0x + p1x) / 2, (p0y + p1y) / 2 + 0.46, (p0z + p1z) / 2, railGlassMat, false, false);
+          gPanel.rotation.y = -Math.atan2(dz, dx);
+        }
+        // Helical Inner Top Handrail, Inner Mid-Bar, Inner Edge Trim & Outer Handrail (terminating cleanly at floor newel posts!)
+        for (const [rad, yOff, thick] of [
+          [stairInnerR, 0.94, 0.044],
+          [stairInnerR, 0.46, 0.020],
+          [stairInnerR, -0.02, 0.030],
+          [stairOuterR - 0.03, 0.94, 0.042]
+        ]) {
+          const hPts = [];
+          for (let i = 0; i <= segs; i++) {
+            const t = i / segs;
+            const ang = a0 + t * da;
+            hPts.push(new THREE.Vector3(CX + Math.cos(ang) * rad, y0 + t * dy + yOff, CZ + Math.sin(ang) * rad));
+          }
+          stairGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hPts), segs * 2, thick, 8, false), goldMat));
+        }
+        // Champagne-gold vertical balusters along inner helical balcony curve + Flight 1 starting newel posts!
+        const balCount = Math.max(8, Math.round(steps * 0.85));
+        for (let i = 0; i <= balCount; i++) {
+          const t = i / balCount;
+          const ang = a0 + t * da;
+          const y = y0 + t * dy;
+          const isStartEnd = (i === 0 || i === balCount);
+          addBox(stairGroup, isStartEnd ? 0.046 : 0.022, 0.94, isStartEnd ? 0.046 : 0.022, CX + Math.cos(ang) * stairInnerR, y + 0.47, CZ + Math.sin(ang) * stairInnerR, goldMat, false, false);
+        }
+        if (fIdx === 0) {
+          addBox(stairGroup, 0.048, 0.96, 0.048, CX + Math.cos(a0) * (stairOuterR - 0.03), y0 + 0.48, CZ + Math.sin(a0) * (stairOuterR - 0.03), goldMat, false, false);
+        }
+      });
 
       /* BREATHTAKING CASCADING CRYSTAL-GLOBE CHANDELIER (Suspended down open center of spiral!) */
       const chandelier = new THREE.Group();
@@ -7917,7 +8303,7 @@
       swShape.lineTo(6.1, 2.55);
       swShape.closePath();
       const swGeo = new THREE.ExtrudeGeometry(swShape, { depth: 0.34, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 2 });
-      for (const sy of [0.34, 3.65, 6.95]) {
+      for (const sy of [0.34, 3.74, 6.99]) {
         const sMesh = new THREE.Mesh(swGeo, whiteMat);
         sMesh.rotation.x = Math.PI / 2;
         sMesh.position.y = sy;
@@ -7998,9 +8384,8 @@
       addWallRun(14.5, -13.5, 14.5, 14.5);
       addWallRun(-14.5, 14.5, -9.2, 14.5);
       addWallRun(8.2, 14.5, 14.5, 14.5);
-      // Protective Architectural Metal Safety Barriers on Remaining Open Rooftop & Service Edges!
-      addMetalBarrierRun(levels.roof, -7.35, -4.92, 1.55, -4.92, 10.26, 1.02, true); // Rear BBQ rooftop safety barrier
-      addMetalBarrierRun(levels.roof, -7.38, -4.92, -7.38, -1.25, 10.26, 1.02, true); // Left BBQ rooftop safety barrier
+      // Protective Architectural Metal Safety Barriers on Remaining Open Rooftop & Service Edges (aligned seamlessly with extended x=-9.35 left deck!)
+      addMetalBarrierRun(levels.roof, -9.35, -5.06, 1.55, -5.06, 10.26, 1.02, true); // Rear BBQ + extended left rooftop safety barrier
       addMetalBarrierRun(levels.roof, 1.80, -4.85, 7.82, -4.85, 10.26, 1.02, true);  // Rear Laundry/Drying roof metal barrier
       addMetalBarrierRun(levels.roof, 7.82, -4.85, 7.82, -0.45, 10.26, 1.02, true);  // Right Laundry/Drying roof metal barrier
       addMetalBarrierRun(levels.roof, 3.65, -0.45, 7.82, -0.45, 10.26, 1.02, true);  // Front Laundry wing terrace metal barrier
@@ -8318,18 +8703,20 @@
 
       /* Camera Presets with Smooth Glide, Exact Unobstructed Room Framing & Floor/Mode Metadata */
       const CAM_PRESETS = {
-        hero: { floor: 'all', mode: 'exterior', pos: [3.2, 11.4, 38.5], target: [0.4, 6.0, 2.0], badge: 'FULL VILLA NORMAL VIEW · SPIRAL ATRIUM · PARTY SHED · GARDEN', title: 'Normal Full-Estate Front View', desc: 'Complete normal view showing the entire villa, 2-car garage (Rolls-Royce & Mercedes-Benz), 3 curved LED balconies, stepped glass spiral staircase with flush skylight crown, rooftop Party Shed, metal security barriers, garden fire pit & front gate.' },
+        hero: { floor: 'all', mode: 'exterior', pos: [3.2, 11.4, 38.5], target: [0.4, 6.0, 2.0], badge: 'FULL VILLA NORMAL VIEW · FLOOR-CUT SPIRAL · EXTENDED LEFT BALCONIES', title: 'Normal Full-Estate Front View', desc: 'Complete normal view showing the entire villa, 2-car garage (Rolls-Royce & Mercedes-Benz), extended 1.9 m wraparound curved LED balconies with closed left privacy end, 4-flight floor-joined glass spiral atrium with curved indoor balconies & under-stair barrier, rooftop Party Shed, metal security barriers, garden fire pit & front gate.' },
         garageCars: { floor: 'ground', mode: 'exterior', pos: [-2.4, 2.25, 10.6], target: [-3.2, 0.92, 2.42], badge: '2-CAR LUXURY GARAGE · ROLLS-ROYCE PHANTOM & MERCEDES-BENZ AMG', title: 'Luxury 2-Car Garage — Rolls-Royce Phantom & Mercedes-Benz S-Class AMG', desc: 'Left bay: two-tone obsidian & pearl-silver Rolls-Royce Phantom with upright Parthenon chrome grille, golden Spirit of Ecstasy & coachline. Right bay: metallic selenite-silver Mercedes-Benz AMG with iconic 3-pointed star grille, Multibeam LEDs & red brake calipers.' },
-        cutaway: { floor: 'all', mode: 'cutaway', pos: [-16.2, 9.4, 12.6], target: [-3.2, 5.8, -0.8], badge: '3D INTERIORS · WALL & CEILING DECOR · LIVE TVS · 8 BATHS', title: '3D Furnished Interior Cutaway', desc: 'Opens left shell & roof canopy to showcase wall art, LED cove ceilings, spinning ceiling fans, live animated 4K TVs, RGB gaming studio, 6 bedrooms & 8 spa bathrooms.' },
+        cutaway: { floor: 'all', mode: 'cutaway', pos: [-16.2, 9.4, 12.6], target: [-3.2, 5.8, -0.8], badge: '3D INTERIORS · WALL & CEILING DECOR · LIVE TVS · 8 BATHS', title: '3D Furnished Interior Cutaway', desc: 'Opens left glazed balcony doors & roof canopy to showcase wall art, LED cove ceilings, spinning ceiling fans, live animated 4K TVs, RGB gaming studio, 6 bedrooms & 8 spa bathrooms.' },
         livingKitchen: { floor: 'ground', mode: 'cutaway', pos: [-10.4, 2.6, -5.8], target: [-3.1, 1.45, -2.2], badge: 'GROUND FLOOR · LIVE 4K TV · COVE FAN · PIPED GAS KITCHEN', title: 'Main Living Room, Wall Decor & Piped Gas Kitchen', desc: 'Live animated 85" OLED TV on marble & fluted walnut wall, gallery art, drapes, spinning cove ceiling fan, 8-seat dining chandelier, plus 4-burner piped gas hob with stainless island chimney hood & gas leak sensor.' },
-        familyOffice: { floor: 'first', mode: 'cutaway', pos: [-10.4, 5.8, 5.8], target: [-3.0, 4.8, 1.6], badge: 'FIRST FLOOR · FAMILY TV · LIVE CAD OFFICE · 3 ENSUITES', title: 'Family TV Lounge, Live CAD Office & 3 Ensuite Beds', desc: 'Slatted acoustic walnut Family Lounge with live animated TV, gallery art, drapes & spinning fan, dual-monitor live BIM/CAD Executive Office, plus Bedrooms 2, 3 & 4 with upgraded Ensuites.' },
-        masterSuite: { floor: 'second', mode: 'cutaway', pos: [-10.6, 8.8, -5.2], target: [-3.4, 8.0, -2.6], badge: 'SECOND FLOOR · MASTER SUITE · WALL ART · WALK-IN ROBE', title: 'Grand Master Suite, Walk-in Robe & Private Lounge', desc: 'King master bed with gallery art, hanging gold pendants, ambient wall TV, velvet drapes, spinning cove ceiling fan, illuminated Walk-in Robe & Private Lounge TV 2.' },
+        familyOffice: { floor: 'first', mode: 'cutaway', pos: [-10.4, 5.8, 5.8], target: [-3.0, 4.8, 1.6], badge: 'FIRST FLOOR · FAMILY TV · LIVE CAD OFFICE · 3 ENSUITES', title: 'Family TV Lounge, Live CAD Office & 3 Ensuite Beds', desc: 'Slatted acoustic walnut Family Lounge with live animated TV, gallery art, drapes, sliding glass doors onto the 1.9 m Extended Left Coffee Terrace, dual-monitor Executive Office, plus Bedrooms 2, 3 & 4.' },
+        masterSuite: { floor: 'second', mode: 'cutaway', pos: [-10.6, 8.8, -5.2], target: [-3.4, 8.0, -2.6], badge: 'SECOND FLOOR · MASTER SUITE · SUNSET BALCONY · WALK-IN ROBE', title: 'Grand Master Suite, Walk-in Robe & Sunset Balcony', desc: 'King master bed with gallery art, hanging gold pendants, ambient wall TV, velvet drapes, spinning cove ceiling fan, sliding doors onto the Extended Left Master Sun-Lounger Terrace, illuminated Walk-in Robe & Private Lounge TV 2.' },
         spaBaths: { floor: 'second', mode: 'cutaway', pos: [1.5, 8.9, -6.2], target: [0.3, 7.8, -2.75], badge: 'SPA BATHROOMS & TOILETS · SOAKING TUB · BIDET WC · EXHAUST', title: 'Luxury Spa Bathrooms & Concealed-Cistern Toilets', desc: 'Inspect the freestanding egg soaking tub with teak candle caddy, porcelain WC toilets with chrome dual-flush plates, bidet sprays & tissue holders, twin vessel basins, backlit halo mirrors, glass rain showers & spinning ceiling exhaust fans.' },
         gameRoom: { floor: 'roof', mode: 'cutaway', pos: [-10.4, 12.5, 4.7], target: [-4.8, 11.2, 1.3], badge: 'ROOFTOP STUDIO · LIVE 240 FPS PC · ESPORTS CONSOLE · RGB', title: 'Live Animated PC, Console & VR RGB Gaming Studio', desc: 'Triple curved gaming monitors playing live 240 FPS cyber-racing HUD, 75" console OLED playing live esports arena match, spinning RGB PC tower fans, acoustic ceiling baffles, cyber wall art & Media Lounge TV 3.' },
         bbqKitchen: { floor: 'roof', mode: 'exterior', pos: [-10.8, 12.8, -6.2], target: [-5.0, 11.3, -2.9], badge: 'ROOFTOP PERGOLA · GAS-PIPED 4-BURNER BBQ & CANOPY HOOD', title: 'Gas-Piped Outdoor BBQ Chef Kitchen & Canopy Exhaust Hood', desc: 'Travertine L-shaped BBQ bar fed by the dedicated safety-yellow gas riser with shutoff valve & leak sensor, commercial stainless canopy exhaust hood, glowing embers & blue flames, prep sink & 8-seat pergola dining.' },
-        rooftopParty: { floor: 'roof', mode: 'exterior', pos: [-11.8, 16.6, 8.8], target: [-3.8, 13.7, 1.6], badge: 'ROOFTOP SKY-DECK · PARTY SHED · LIVE KARAOKE TV & FAN', title: 'All-Weather Room Party Shed, Mini-Bar & Karaoke Equalizer', desc: 'Elevated monsoon-proof steel & timber Party Shed featuring live animated karaoke audio-visualizer TV, spinning timber ceiling fan, draped festoon lights, backlit cocktail bar & morning yoga deck.' },
+        rooftopParty: { floor: 'roof', mode: 'exterior', pos: [-11.8, 16.6, 8.8], target: [-3.8, 13.7, 1.6], badge: 'ROOFTOP SKY-DECK · PARTY SHED · LIVE KARAOKE TV & FAN', title: 'All-Weather Room Party Shed, Mini-Bar & Karaoke Equalizer', desc: 'Elevated monsoon-proof steel & timber Party Shed featuring live animated karaoke audio-visualizer TV, spinning timber ceiling fan, draped festoon lights, backlit cocktail bar & extended left teak yoga terrace.' },
         laundry: { floor: 'roof', mode: 'exterior', pos: [10.4, 13.4, -8.4], target: [4.6, 11.4, -3.2], badge: 'ROOFTOP SERVICE WING · LAUNDRY · DRYING SHED · WC', title: 'Dedicated Laundry Room, Monsoon Drying Shed & Roof WC', desc: 'Enclosed laundry room (hot/cold piped washer & dryer, folding counter, sink), polycarbonate rain-safe drying shed with breeze louvers, stainless rails & Rooftop Guest WC with exhaust fan.' },
-        spiralBack: { floor: 'second', mode: 'exterior', pos: [5.2, 8.4, -10.8], target: [4.6, 6.2, -2.6], badge: 'BEHIND SPIRAL · BEDROOM 6 · 6 ENSUITES · 2 GUEST WCS', title: 'Behind the Spiral Staircase — Bedroom 6, Baths & Landings', desc: 'Looks straight into 2F Bedroom 6 (king bed, wall art, ceiling fan & wardrobe) & Ensuite 6, Ground Guest WC & Ensuite 1, 1F Ensuite 4 & Study, Rooftop Guest WC, plus the 4 spiral bridge landings & MEP shaft.' },
+        spiralBalcony: { floor: 'all', mode: 'exterior', pos: [6.4, 7.6, 12.6], target: [4.65, 5.2, 3.65], badge: '4-FLIGHT FLOOR-CUT SPIRAL · INDOOR MEZZANINE BALCONIES · UNDER-STAIR BARRIER', title: 'Precision-Cut Spiral Staircase, Floor Joins & Curved Balcony Barriers', desc: 'Inspect all 4 floor-to-floor helical flights (66 marble/walnut steps) cleanly cut & joined flush onto every floor\'s curved indoor mezzanine balcony landing (GF 1.04 m, 1F 3.74 m, 2F 6.99 m, Roof 10.24 m, Sky-Bridge 12.74 m) with continuous curved helical glass balcony railings & a sculptural curved under-stair glass gallery barrier below!' },
+        leftBalcony: { floor: 'all', mode: 'exterior', pos: [-17.8, 9.6, -4.6], target: [-8.2, 6.2, -0.4], badge: 'EXTENDED 1.9 m LEFT BALCONY WING · CLOSED LOUVER END · USABLE DECKS', title: 'Extended 1.9 m Wraparound Left Balconies & Closed Architectural Privacy End', desc: 'Transforms the entire left external floor into 5 usable resort decks — GF Covered Garden Veranda w/ colonnade, 1F Bistro Coffee Terrace, 2F Master Sunset Sun-Loungers, Roof Sunset View Bar-Rail & Sky-Deck Yoga Terrace — wrapped seamlessly by frameless glass rails, sliding balcony doors & closed at the rear-left end by a champagne-gold bronze louver screen!' },
+        spiralBack: { floor: 'second', mode: 'exterior', pos: [5.2, 8.4, -10.8], target: [4.6, 6.2, -2.6], badge: 'BEHIND SPIRAL · BEDROOM 6 · 6 ENSUITES · 2 GUEST WCS', title: 'Behind the Spiral Staircase — Bedroom 6, Baths & Landings', desc: 'Looks straight into 2F Bedroom 6 (king bed, wall art, ceiling fan & wardrobe) & Ensuite 6, Ground Guest WC & Ensuite 1, 1F Ensuite 4 & Study, Rooftop Guest WC, plus the 4 floor-flush spiral mezzanine balcony landings & MEP shaft.' },
         stairTop: { floor: 'all', mode: 'exterior', pos: [11.8, 18.6, 11.8], target: [4.65, 15.2, 3.85], badge: 'STAIR-TOP FLUSH SKYLIGHT OCULUS · PARTY SKY-BRIDGE · REAR ESE MAST', title: 'Stair-Top Flush Architectural Skylight Oculus & Party Sky-Bridge', desc: 'Clean flat-topped sculptural white drum crown featuring a recessed low-iron circular glass skylight oculus, passive stack-ventilation louvers, direct Party Shed glass sky-bridge & discreet rear-mounted brushed-stainless ESE lightning mast.' },
         structuralSafety: { floor: 'all', mode: 'structural', pos: [-16.8, 5.2, 22.8], target: [0.8, 1.4, 1.8], badge: 'DEEP FOUNDATION · SEISMIC ISOLATORS · FLOOD BARRIERS · LIGHTNING', title: 'Deep RCC Pile-Raft Foundation, Seismic, Monsoon Flood & Lightning Protection', desc: 'Multi-hazard Chitwan resilience X-Ray: 16 deep bored RCC friction piles & waterproof raft with DPM liner, 16 safety-orange lead-rubber Seismic Base Isolators (NBC-105 Zone V), ductile shear-wall core with X-braced dampers, deployed hydraulic aluminum Flood Barriers & dewatering sump pumps, plus rear ESE Lightning Mast, roof Faraday copper ring & 3 deep copper Earth Pits.' },
         gasVault: { floor: 'all', mode: 'gas', pos: [12.3, 2.45, -0.25], target: [8.65, 1.05, -3.35], badge: 'WATERPROOF LOCKABLE LPG VAULT · CONCEALED WALL PIPING', title: 'Waterproof Lockable Dual-LPG Gas Cylinder Vault & Concealed Piping', desc: 'Elevated 24 cm rainproof concrete plinth, perforated steel drain grate, sloped monsoon hood, louvered vents, keyed padlock security door & twin cylinders piped via concealed wall-aligned safety-yellow lines to both GF Kitchen & Rooftop BBQ!' },
@@ -8384,6 +8771,8 @@
         { id: 'structuralSafety', icon: '🏗️', title: 'Foundation & Safety', sub: 'Piles · Seismic · Flood · ESE', pos: new THREE.Vector3(-4.20, 0.95, 6.20), level: 'all' },
         { id: 'bbqKitchen', icon: '🍖', title: 'BBQ Chef Kitchen', sub: 'Gas Grill · Canopy Hood', pos: new THREE.Vector3(-5.20, 11.45, -2.90), level: 'roof' },
         { id: 'laundry', icon: '🧺', title: 'Laundry & Drying', sub: 'Washer/Dryer · Rain Shed', pos: new THREE.Vector3(4.80, 11.55, -3.30), level: 'roof' },
+        { id: 'spiralBalcony', icon: '🌀', title: 'Spiral Balconies', sub: '4 Floor Cuts · Under-Stair Barrier', pos: new THREE.Vector3(4.65, 5.45, 5.85), level: 'all' },
+        { id: 'leftBalcony', icon: '🌅', title: 'Extended Left Wing', sub: '1.9 m Balconies · Closed Louver End', pos: new THREE.Vector3(-8.85, 7.65, -1.85), level: 'all' },
         { id: 'spiralBack', icon: '🛏️', title: 'Bedroom 6 & Bath 6', sub: 'Behind Spiral · Ensuite', pos: new THREE.Vector3(5.10, 8.15, -2.70), level: 'second' },
         { id: 'masterSuite', icon: '👑', title: 'Master Suite', sub: 'King Bed · Art · WIR', pos: new THREE.Vector3(-5.10, 8.20, -2.65), level: 'second' },
         { id: 'spaBaths', icon: '🛁', title: 'Spa Baths & WCs', sub: 'Soaking Tub · Toilets · Rain', pos: new THREE.Vector3(-0.05, 8.15, -2.75), level: 'second' },
