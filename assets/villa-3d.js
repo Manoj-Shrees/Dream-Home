@@ -5233,12 +5233,10 @@ window.addEventListener('studio:prewarm', () => {
 window.addEventListener('studio:ready', () => {
   init3DViewer();
 }, { once: true });
-// Eliminate classic-script vs deferred-module race: start pre-warming immediately if studio:prewarm/studio:ready already fired (or after 350ms safety kick)
-if (window.__studioReady) {
-  init3DViewer();
-} else if (window.__studioPrewarmed) {
-  setTimeout(() => init3DViewer(), 80);
+// Eliminate classic-script vs deferred-script race: start pre-warming immediately so Three.js builds cleanly during the 5s preloader!
+if (window.__studioReady || window.__studioPrewarmed) {
+  setTimeout(() => init3DViewer(), 0);
 } else {
-  setTimeout(() => init3DViewer(), 350);
+  setTimeout(() => init3DViewer(), 120);
 }
 })();
