@@ -3899,6 +3899,7 @@
             <div class="viewer-tools" id="viewerToolsBar" role="toolbar" focusgroup="toolbar wrap"
               aria-label="3D studio actions" aria-controls="modelCanvas">
               <button type="button" id="walkthroughBtn" aria-pressed="false" interestfor="tip-tool-walk"><span class="btn-dot" aria-hidden="true"></span>🚶 Walk Inside</button>
+              <button type="button" id="toggleNightLook" aria-pressed="false" title="Toggle Night Look with all interior and exterior architectural lights" interestfor="tip-tool-night"><span class="btn-dot is-closed" id="dotNightLook" aria-hidden="true"></span>🌙 Night Look</button>
               <button type="button" id="toggleSlidingDoors" aria-pressed="false" interestfor="tip-tool-sliding"><span class="btn-dot is-closed" id="dotSlidingDoors" aria-hidden="true"></span>↔ Sliding Doors</button>
               <button type="button" id="toggleSlidingDemo" aria-pressed="false" interestfor="tip-tool-slidedemo"><span class="btn-dot is-closed" id="dotSlidingDemo" aria-hidden="true"></span>🔄 Slide Sim</button>
               <button type="button" id="tourModel" aria-pressed="false" interestfor="tip-tool-tour">▶ Guided Tour</button>
@@ -3960,6 +3961,7 @@
           <div class="mobile-controls-bar" id="mobileControlsBar" aria-label="Quick mobile 3D studio controls">
             <button type="button" class="btn gold" id="mobileBarCustomize" commandfor="modelStage"
               command="--toggle-mobile-controls" aria-pressed="false" aria-controls="modelControlsPanel">⚙ Live 3D Controls (Lighting · Floors · Doors)</button>
+            <button type="button" class="btn" id="mobileQuickNight" aria-pressed="false">🌙 Night</button>
             <button type="button" class="btn" id="mobileQuickSlideDemo" aria-pressed="false">🔄 Slide Sim</button>
           </div>
           <p id="viewerLiveStatus" class="sr-only" role="status" aria-live="polite"></p>
@@ -3979,7 +3981,7 @@
           <select id="lightingMood">
             <option value="golden" selected>Golden hour (warm LEDs)</option>
             <option value="day">Bright daylight (Chitwan)</option>
-            <option value="night">Twilight night glow</option>
+            <option value="night">Night look (all lights on)</option>
           </select>
 
           <label for="modelLevel">Visible floors</label>
@@ -4121,6 +4123,9 @@
           with Party Shed, BBQ, Laundry, ERV HVAC, Turbo-Vent, Solar PV &amp; perimeter wall.</div>
         <div id="tip-tool-walk" class="ui-tip" popover="hint"><strong>Real-Home First-Person Walkthrough</strong>Step
           inside at human eye level (WASD / Arrow keys or touch D-pad) with quick room jumps &amp; auto-opening doors.</div>
+        <div id="tip-tool-night" class="ui-tip" popover="hint"><strong>Night Look · All Lights On</strong>Switch to a
+          starry Chitwan night sky with every interior room light, chandelier, balcony cove, facade sconce, pillar lantern,
+          garden bollard &amp; tree uplight illuminated.</div>
         <div id="tip-tool-zin" class="ui-tip" popover="hint">Zoom camera closer to the villa</div>
         <div id="tip-tool-zout" class="ui-tip" popover="hint">Zoom camera further out</div>
         <div id="tip-tool-fit" class="ui-tip" popover="hint">Reset camera cleanly to the Hero Front view</div>

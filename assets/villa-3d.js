@@ -178,6 +178,147 @@ async function init3DViewer() {
   );
   scene.add(skyDome);
 
+  /* Procedural Starry Night Sky, Glowing Moon & Soft Additive Glow / Architectural Wall-Wash Helpers */
+  const nightSkyGroup = new THREE.Group();
+  nightSkyGroup.visible = false;
+  scene.add(nightSkyGroup);
+  const starCount = 680;
+  const starPos = new Float32Array(starCount * 3);
+  const starCol = new Float32Array(starCount * 3);
+  const starPalette = [new THREE.Color(0xffffff), new THREE.Color(0xdbeafe), new THREE.Color(0xfef3c7), new THREE.Color(0xc7d2fe)];
+  for (let i = 0; i < starCount; i++) {
+    // Deterministic Fibonacci-like hemisphere star distribution above horizon
+    const u = ((i * 0.6180339887) % 1);
+    const v = (i + 0.5) / starCount;
+    const phi = u * Math.PI * 2;
+    const cosTheta = 0.08 + v * 0.90;
+    const sinTheta = Math.sqrt(Math.max(0, 1 - cosTheta * cosTheta));
+    const r = 108 + (i % 5) * 1.4;
+    starPos[i * 3] = Math.cos(phi) * sinTheta * r;
+    starPos[i * 3 + 1] = cosTheta * r;
+    starPos[i * 3 + 2] = Math.sin(phi) * sinTheta * r;
+    const c = starPalette[i % starPalette.length];
+    const br = 0.65 + ((i * 19) % 10) * 0.035;
+    starCol[i * 3] = c.r * br;
+    starCol[i * 3 + 1] = c.g * br;
+    starCol[i * 3 + 2] = c.b * br;
+  }
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  starGeo.setAttribute('color', new THREE.BufferAttribute(starCol, 3));
+  const nightStarsMat = new THREE.PointsMaterial({
+    size: 0.72, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: 0.92, depthWrite: false, fog: false
+  });
+  nightSkyGroup.add(new THREE.Points(starGeo, nightStarsMat));
+
+  function makeRadialGlowTex(innerRgba, midRgba) {
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 64;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(32, 32, 2, 32, 32, 32);
+    g.addColorStop(0, innerRgba);
+    g.addColorStop(0.38, midRgba);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+  function makeWallWashTex() {
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 128;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, 64, 128);
+    // Double hourglass architectural up/down wall sconce beam
+    for (const dir of [-1, 1]) {
+      const y0 = 64 + dir * 4;
+      const y1 = dir < 0 ? 4 : 124;
+      const grad = ctx.createLinearGradient(32, y0, 32, y1);
+      grad.addColorStop(0, 'rgba(255,222,148,0.88)');
+      grad.addColorStop(0.45, 'rgba(255,186,88,0.34)');
+      grad.addColorStop(1, 'rgba(255,160,60,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(27, y0);
+      ctx.lineTo(37, y0);
+      ctx.lineTo(60, y1);
+      ctx.lineTo(4, y1);
+      ctx.closePath();
+      ctx.fill();
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+  const warmGlowTex = makeRadialGlowTex('rgba(255,236,184,0.95)', 'rgba(255,182,78,0.38)');
+  const coolGlowTex = makeRadialGlowTex('rgba(235,246,255,0.95)', 'rgba(155,205,255,0.35)');
+  const moonHaloTex = makeRadialGlowTex('rgba(236,245,255,0.92)', 'rgba(148,192,248,0.30)');
+  const wallWashTex = makeWallWashTex();
+  const warmGlowSpriteMat = new THREE.SpriteMaterial({
+    map: warmGlowTex, color: 0xffd284, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const coolGlowSpriteMat = new THREE.SpriteMaterial({
+    map: coolGlowTex, color: 0xe6f2ff, transparent: true, opacity: 0.78, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const wallWashMat = new THREE.MeshBasicMaterial({
+    map: wallWashTex, transparent: true, opacity: 0.78, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide
+  });
+  const uplightConeMat = new THREE.MeshBasicMaterial({
+    color: 0xffc46b, transparent: true, opacity: 0.14, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide
+  });
+  const wallWashGeo = new THREE.PlaneGeometry(1.10, 2.05);
+  const uplightConeGeo = new THREE.ConeGeometry(1.15, 2.85, 14, 1, true);
+  // Crisp Glowing Full Moon & Soft Halo in upper-left night sky (visible from Hero Front & Aerial views!)
+  const moonDisc = new THREE.Mesh(
+    new THREE.SphereGeometry(2.6, 20, 16),
+    new THREE.MeshBasicMaterial({ color: 0xf4f8ff, fog: false })
+  );
+  moonDisc.position.set(-42, 46, -68);
+  nightSkyGroup.add(moonDisc);
+  const moonHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: moonHaloTex, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, fog: false
+  }));
+  moonHalo.position.copy(moonDisc.position);
+  moonHalo.scale.set(24, 24, 1);
+  nightSkyGroup.add(moonHalo);
+
+  const nightGlowObjects = []; // Additive halos, wall-wash beams & tree uplight cones toggled cleanly in Night Look!
+  const moodPointLights = [];  // Registered { light, day, golden, night, scaleFn } scaled automatically on mood switch!
+  function addNightHalo(parent, x, y, z, scale = 1.25, cool = false) {
+    const sp = new THREE.Sprite(cool ? coolGlowSpriteMat : warmGlowSpriteMat);
+    sp.position.set(x, y, z);
+    sp.scale.set(scale, scale, 1);
+    sp.visible = false;
+    parent.add(sp);
+    nightGlowObjects.push(sp);
+    return sp;
+  }
+  function addExteriorSconce(parent, x, y, z, rotY = 0) {
+    const g = new THREE.Group();
+    g.position.set(x, y, z);
+    g.rotation.y = rotY;
+    addBox(g, 0.12, 0.32, 0.03, 0, 0, 0.015, darkBronzeMat, false, false);
+    addBox(g, 0.10, 0.28, 0.09, 0, 0, 0.075, darkBronzeMat, false, false);
+    addBox(g, 0.085, 0.028, 0.075, 0, 0.154, 0.075, warmLedMat, false, false);
+    addBox(g, 0.085, 0.028, 0.075, 0, -0.154, 0.075, warmLedMat, false, false);
+    const wash = new THREE.Mesh(wallWashGeo, wallWashMat);
+    wash.position.set(0, 0, 0.045);
+    wash.visible = false;
+    g.add(wash);
+    nightGlowObjects.push(wash);
+    addNightHalo(g, 0, 0, 0.14, 1.15, false);
+    parent.add(g);
+    return g;
+  }
+  function addMoodPointLight(parent, colorHex, x, y, z, dist, dayI, goldenI, nightI, decay = 1.65) {
+    const pl = new THREE.PointLight(colorHex, goldenI, dist, decay);
+    pl.position.set(x, y, z);
+    parent.add(pl);
+    moodPointLights.push({ light: pl, day: dayI, golden: goldenI, night: nightI });
+    return pl;
+  }
+
   /* Lights */
   const hemiLight = new THREE.HemisphereLight(0xffe9cc, 0x26394d, 1.15);
   scene.add(hemiLight);
@@ -1402,11 +1543,17 @@ async function init3DViewer() {
   addBox(gf, 0.05, 1.35, 0.95, -7.33, 1.42, 3.2, darkBronzeMat, false, false);
   addBox(gf, 0.06, 1.18, 0.80, -7.31, 1.42, 3.2, goldMat, false, false);
   addBox(gf, 2.10, 1.05, 0.06, -1.05, 1.5, -0.02, darkBronzeMat, false, false);
-  // Exterior pillar black sconce lamps
+  // Exterior pillar black sconce lamps (with hourglass night wall-wash & warm glow halos!)
   for (const sx of [-7.85, 1.62]) {
     addBox(gf, 0.12, 0.34, 0.14, sx, 1.95, 5.8, darkBronzeMat);
     addBox(gf, 0.10, 0.06, 0.10, sx, 2.13, 5.8, warmLedMat, false, false);
     addBox(gf, 0.10, 0.06, 0.10, sx, 1.77, 5.8, warmLedMat, false, false);
+    const gWash = new THREE.Mesh(wallWashGeo, wallWashMat);
+    gWash.position.set(sx, 1.95, 5.86);
+    gWash.visible = false;
+    gf.add(gWash);
+    nightGlowObjects.push(gWash);
+    addNightHalo(gf, sx, 1.95, 5.92, 1.35, false);
   }
 
   /* === MOTORIZED ARTICULATED SECTIONAL ROLLING GARAGE DOOR (12 slats curving smoothly along garage ceiling!) === */
@@ -1547,6 +1694,7 @@ async function init3DViewer() {
     // Crisp Rectangular Rolls-Royce Laser LED Headlights & Jewel Chrome-Framed Taillights
     for (const dx of [-0.72, 0.72]) {
       addBox(car, 0.36, 0.13, 0.08, dx, 0.76, 2.40, chandelierOrbMat, false, false);
+      addNightHalo(car, dx, 0.76, 2.48, 0.95, true);
       addBox(car, 0.38, 0.025, 0.09, dx, 0.83, 2.40, carChromeMat, false, false);
       addBox(car, 0.24, 0.22, 0.07, dx, 0.66, -2.39, carChromeMat, false, false);
       addBox(car, 0.18, 0.16, 0.08, dx, 0.66, -2.40, carTailRed, false, false);
@@ -1592,6 +1740,7 @@ async function init3DViewer() {
     for (const dx of [-0.72, 0.72]) {
       const hl = addBox(car, 0.38, 0.11, 0.08, dx, 0.58, 2.24, chandelierOrbMat, false, false);
       hl.rotation.z = dx > 0 ? 0.14 : -0.14;
+      addNightHalo(car, dx, 0.58, 2.34, 0.92, true);
       addBox(car, 0.36, 0.12, 0.07, dx, 0.34, 2.25, charcoalMat, false, false); // AMG lower intake
     }
     // Sleek Full-Width Mercedes OLED Red Taillight Bar + Quad Chrome AMG Exhaust Tips!
@@ -2243,6 +2392,7 @@ async function init3DViewer() {
     addBox(levels.roof, 0.02, 0.88, 0.02, px, 12.30, -3.15, goldMat, false, false);
     const pend = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), chandelierOrbMat);
     pend.position.set(px, 11.82, -3.15); levels.roof.add(pend);
+    addNightHalo(levels.roof, px, 11.82, -3.15, 1.35, false);
   }
 
   /* === UPPER SKY-DECK: ALL-WEATHER ROOM PARTY SHED PAVILION, COCKTAIL BAR, KARAOKE AV & EXTENDED LEFT YOGA DECK (y = 12.74) === */
@@ -2295,6 +2445,7 @@ async function init3DViewer() {
         const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.068, 8, 8), chandelierOrbMat);
         bulb.position.set(fx, fyBulb - 0.05, fz);
         partyShedGroup.add(bulb);
+        if (k % 2 === 1) addNightHalo(partyShedGroup, fx, fyBulb - 0.05, fz, 0.82, false);
       }
     }
     partyShedGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(fPts), 24, 0.012, 5, false), darkBronzeMat));
@@ -3129,13 +3280,7 @@ async function init3DViewer() {
   const eseTip = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.28, 10), steelMat);
   eseTip.position.set(eseX, 17.34, eseZ); lightningPermGrp.add(eseTip);
 
-  // Discreet Roof Perimeter Copper Faraday Air-Termination Ring (bonds Party Shed steel truss, Solar PV frames & 3,000 L tanks!)
-  const faradayY = 12.88;
-  addBox(lightningPermGrp, 15.1, 0.024, 0.024, 0.15, faradayY, -4.85, copperEarthMat, false, false);
-  addBox(lightningPermGrp, 0.024, 0.024, 9.6, -7.40, faradayY, -0.05, copperEarthMat, false, false);
-  addBox(lightningPermGrp, 0.024, 0.024, 5.4, 7.70, faradayY, -2.15, copperEarthMat, false, false);
-  addBox(lightningPermGrp, 3.05, 0.024, 0.024, 6.18, faradayY, 0.55, copperEarthMat, false, false);
-
+  // Concealed Roof Copper Faraday Air-Termination Ring, Down-Conductors, Whole-Home Type-1+2 SPD Surge Panel & 3 Deep Earth Electrodes (Structural X-Ray ONLY — zero excess rooftop rods in architectural views!)
   // Three Flush Green Composite Earth-Pit Inspection Hatches cleanly at grade (y = 0.046)
   const earthPitCoords = [[-12.2, 8.2], [11.8, -6.4], [-11.8, -4.4]];
   earthPitCoords.forEach(([ex, ez]) => {
@@ -3144,7 +3289,6 @@ async function init3DViewer() {
     addBox(lightningPermGrp, 0.06, 0.04, 0.06, ex, 0.072, ez, copperEarthMat, false, false);
   });
 
-  // Concealed Copper Down-Conductors, Whole-Home Type-1+2 SPD Surge Panel & 3 Deep Underground Copper Earth Electrodes (Structural X-Ray!)
   const lightningXrayGrp = new THREE.Group();
   safetySystemGroup.add(lightningXrayGrp);
   structuralXrayOnly.push(lightningXrayGrp);
@@ -3175,12 +3319,15 @@ async function init3DViewer() {
       lightningFlowBeads.push({ mesh: b, track, phase: k / beadCount, speed: normSpeed, radScale: 0.95, grp: lightningXrayGrp });
     }
   }
+  // Concealed Roof Faraday Air-Termination Bonding Bus (follows real BBQ pergola beam -> rear roof parapet -> Laundry tank slab -> ESE Mast — ZERO mid-air rods!)
+  addLightningPath([[-7.10, 12.84, -4.65], [-0.70, 12.84, -4.65], [-0.70, 10.32, -4.65], [4.65, 10.32, -4.65], [4.65, 12.90, -4.65], [4.65, 12.90, 0.55]]);
+  addLightningPath([[4.65, 12.90, -4.65], [2.10, 12.90, -4.65], [2.10, 12.90, -3.75], [4.35, 12.90, -3.75]]); // 3,000 L roof tanks equipotential bond
   // Down-Conductor 1: ESE Mast -> Rear MEP Chase -> SPD Surge Panel -> Rear-Right Earth Pit [11.8, -6.4]
-  addLightningPath([[eseX, 15.8, eseZ], [eseX, 12.88, eseZ], [eseX, -0.55, eseZ], [11.8, -0.55, eseZ], [11.8, -0.55, -6.4], [11.8, -3.25, -6.4]]);
-  // Down-Conductor 2: Roof Faraday Ring -> Rear-Left Corner -> Rear-Left Earth Pit [-11.8, -4.4]
-  addLightningPath([[-7.40, faradayY, -4.85], [-7.40, -0.55, -4.85], [-11.8, -0.55, -4.4], [-11.8, -3.25, -4.4]]);
-  // Down-Conductor 3: Roof Faraday Ring -> Front-Left Corner -> Front-Left Earth Pit [-12.2, 8.2] + Interconnecting Grounding Ring!
-  addLightningPath([[-7.40, faradayY, 4.75], [-7.40, -0.55, 4.75], [-12.2, -0.55, 8.2], [-12.2, -3.25, 8.2]]);
+  addLightningPath([[eseX, 15.8, eseZ], [eseX, 12.90, eseZ], [eseX, -0.55, eseZ], [11.8, -0.55, eseZ], [11.8, -0.55, -6.4], [11.8, -3.25, -6.4]]);
+  // Down-Conductor 2: Rear-Left Pergola Post -> Rear-Left Column -> Rear-Left Earth Pit [-11.8, -4.4]
+  addLightningPath([[-7.10, 12.84, -4.65], [-7.40, 12.46, -4.65], [-7.40, -0.55, -4.65], [-11.8, -0.55, -4.4], [-11.8, -3.25, -4.4]]);
+  // Down-Conductor 3: Embedded Inside Left Roof Slab -> Front-Left Column (z=3.35) -> Front-Left Earth Pit [-12.2, 8.2] + Buried Grounding Ring!
+  addLightningPath([[-7.40, 12.46, -4.65], [-7.40, 12.46, 3.35], [-7.40, -0.55, 3.35], [-12.2, -0.55, 8.2], [-12.2, -3.25, 8.2]]);
   addLightningPath([[-12.2, -0.65, 8.2], [-11.8, -0.65, -4.4], [11.8, -0.65, -6.4]]); // Buried Copper Equipotential Grounding Ring!
   // Deep 3.2 m Copper Grounding Rods + Charcoal/Bentonite Earth Pit Cylinders
   const rodGeo = new THREE.CylinderGeometry(0.048, 0.036, 3.25, 10);
@@ -3631,13 +3778,57 @@ async function init3DViewer() {
     const lv = addBox(crownGroup, 0.34, 0.14, 0.05, CX + Math.cos(a) * (crownR + 0.01), 14.62, CZ + Math.sin(a) * (crownR + 0.01), steelMat, false, false);
     lv.rotation.y = -a + Math.PI / 2;
   }
-  // Warm interior ambient practical lights for crisp Real-Home Walkthrough lighting!
-  const livingWarmLight = new THREE.PointLight(0xffd79e, 9, 13, 1.8);
-  livingWarmLight.position.set(-4.2, 2.55, -2.5); scene.add(livingWarmLight);
-  const masterWarmLight = new THREE.PointLight(0xffdca8, 9, 13, 1.8);
-  masterWarmLight.position.set(-3.4, 9.15, -2.6); scene.add(masterWarmLight);
-  const gameRgbLight = new THREE.PointLight(0x88b4ff, 8, 11, 1.8);
-  gameRgbLight.position.set(-4.8, 11.88, 1.35); scene.add(gameRgbLight);
+  // Warm interior & architectural night practical lights illuminating EVERY floor, suite, spa, atrium & exterior facade!
+  const livingWarmLight = new THREE.PointLight(0xffd79e, 9, 15, 1.7);
+  livingWarmLight.position.set(-4.2, 2.55, -2.5); levels.ground.add(livingWarmLight);
+  const masterWarmLight = new THREE.PointLight(0xffdca8, 9, 15, 1.7);
+  masterWarmLight.position.set(-4.4, 9.15, -2.4); levels.second.add(masterWarmLight);
+  const gameRgbLight = new THREE.PointLight(0x88b4ff, 8, 12, 1.7);
+  gameRgbLight.position.set(-4.8, 11.88, 1.35); levels.roof.add(gameRgbLight);
+
+  // Full-Villa Interior Night Lighting Matrix (every floor & room glows warmly inside & through every window at night!)
+  addMoodPointLight(levels.ground, 0xffd99b, -0.2, 2.65, -2.5, 14, 0, 5, 24);      // GF Dining & Piped Gas Kitchen
+  addMoodPointLight(levels.ground, 0xffd48e, 7.8, 2.55, -0.4, 13, 0, 5, 24);       // GF Right Pavilion Bed 1 & Ensuite 1
+  addMoodPointLight(tower,         0xffd28a, 4.65, 2.85, 4.4, 16, 4, 12, 34);      // Lower Spiral Atrium Foyer & Arrival Steps
+  addMoodPointLight(levels.first,  0xffd89c, -4.1, 5.85, 1.5, 16, 0, 6, 28);       // 1F Family Lounge, Office & Front Balcony Spill
+  addMoodPointLight(levels.first,  0xffd490, -2.8, 5.85, -2.8, 14, 0, 4, 24);      // 1F Bedrooms 2 & 3 + Twin Ensuites
+  addMoodPointLight(levels.first,  0xffd594, 7.5, 5.85, -0.6, 13, 0, 5, 24);       // 1F Right Pavilion Bed 4 & Ensuite 4
+  addMoodPointLight(levels.second, 0xffe1b0, -0.1, 9.05, -2.5, 12, 0, 5, 24);      // 2F Master Spa Tub & Rain Shower
+  addMoodPointLight(levels.second, 0xffd594, 5.4, 9.05, -2.4, 14, 0, 5, 26);       // 2F Bedroom 6 Behind Spiral & Right Sun Terrace
+  addMoodPointLight(levels.roof,   0xffd699, -0.55, 11.85, 1.65, 13, 0, 4, 22);    // Rooftop Media Lounge TV 3
+  addMoodPointLight(levels.roof,   0xffcf82, -3.9, 13.6, -0.6, 18, 0, 8, 36);      // Rooftop BBQ Pergola & Party Shed Festoon Glow
+  addMoodPointLight(levels.roof,   0xffe2b5, 4.2, 12.1, -3.2, 12, 0, 4, 20);       // Rooftop Laundry Wing, Drying Shed & Guest WC
+
+  // Architectural Exterior Up/Down Facade Wall Sconces across ALL 4 Building Elevations (attached cleanly per floor!)
+  // Rear facade mullions (GF, 1F, 2F)
+  for (const [grp, sy] of [[levels.ground, 2.05], [levels.first, 5.25], [levels.second, 8.50]]) {
+    for (const sx of [-7.0, -3.0, 1.0]) addExteriorSconce(grp, sx, sy, -5.05, Math.PI);
+  }
+  // Extended Left Wing outer piers (GF covered veranda, 1F bistro terrace, 2F sunset deck)
+  addExteriorSconce(levels.ground, -7.57, 2.05, -4.55, -Math.PI / 2);
+  for (const [grp, sy] of [[levels.first, 5.25], [levels.second, 8.50]]) {
+    addExteriorSconce(grp, -7.57, sy, -4.55, -Math.PI / 2);
+    addExteriorSconce(grp, -7.57, sy, 3.15, -Math.PI / 2);
+  }
+  // Right Pavilion & Bedroom 6 exterior piers (GF, 1F, 2F) + Laundry Wing rear facade
+  for (const [grp, sy] of [[levels.ground, 2.15], [levels.first, 5.35], [levels.second, 8.60]]) {
+    addExteriorSconce(grp, 7.97, sy, -3.65, Math.PI / 2);
+  }
+  for (const sx of [2.25, 4.20]) addExteriorSconce(levels.roof, sx, 11.65, -4.82, Math.PI);
+  // Rooftop BBQ Pergola rear posts & Party Shed front structural columns
+  for (const sx of [-7.1, -3.9, -0.7]) addExteriorSconce(levels.roof, sx, 11.75, -4.74, Math.PI);
+  for (const sx of [-7.35, -3.9, -0.55]) addExteriorSconce(partyShedGroup, sx, py + 1.55, 4.14, 0);
+  // Exterior Architectural Flood / Wash PointLights for Balconies & Extended Left Wing
+  addMoodPointLight(villaRoot, 0xffd084, -10.3, 6.4, -0.6, 18, 0, 5, 30);          // Extended 1.9 m Left Balconies & Ground Veranda
+  // Warm interior ceiling recessed downlight discs in side pavilion & laundry rooms so every window glows authentically
+  for (const [grp, rx, ry, rz] of [
+    [levels.ground, 7.95, 3.30, 0.05], [levels.first, 7.95, 6.56, 0.05],
+    [levels.second, 5.85, 9.80, -2.55], [levels.roof, 3.22, 12.66, -3.45]
+  ]) {
+    const dl = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.025, 14), chandelierOrbMat);
+    dl.position.set(rx, ry, rz); grp.add(dl);
+    addNightHalo(grp, rx, ry - 0.08, rz, 1.35, false);
+  }
   // Warm golden inner crown LED halo & ceiling medallion
   const halo = new THREE.Mesh(new THREE.TorusGeometry(ATRIUM_R - 0.05, 0.055, 10, 64), warmLedMat);
   halo.rotation.x = Math.PI / 2;
@@ -3858,6 +4049,7 @@ async function init3DViewer() {
     orb.scale.setScalar(s);
     orb.position.set(ox, oy, oz);
     chandelier.add(orb);
+    if (i % 5 === 0) addNightHalo(chandelier, ox, oy, oz, 1.45, false);
     const wireLen = 13.74 - oy;
     const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, wireLen, 4), wireMat);
     wire.position.set(ox, oy + wireLen / 2, oz);
@@ -3994,6 +4186,11 @@ async function init3DViewer() {
       placedWallPillars.add(key);
       addBox(boundary, 0.38, 2.02, 0.38, px, 1.01, pz, stoneWallMat);
       addBox(boundary, 0.42, 0.05, 0.42, px, 2.04, pz, goldMat, false, false);
+      // Sleek architectural dark-bronze & warm-LED pillar cap lantern around all 4 sides of the 16-aana perimeter wall!
+      addBox(boundary, 0.24, 0.04, 0.24, px, 2.09, pz, darkBronzeMat, false, false);
+      addBox(boundary, 0.18, 0.16, 0.18, px, 2.19, pz, warmLedMat, false, false);
+      addBox(boundary, 0.26, 0.04, 0.26, px, 2.29, pz, darkBronzeMat, false, false);
+      addNightHalo(boundary, px, 2.19, pz, 1.45, false);
     }
   }
   addWallRun(-14.5, -13.5, 14.5, -13.5);
@@ -4008,11 +4205,14 @@ async function init3DViewer() {
   addMetalBarrierRun(levels.roof, 3.65, -0.45, 7.82, -0.45, 10.26, 1.02, true);  // Front Laundry wing terrace metal barrier
   addMetalBarrierRun(boundary, 9.85, -5.65, 10.60, -5.65, -0.04, 1.52, true);   // Right side-yard divider (west of garden walkway gateway)
   addMetalBarrierRun(boundary, 12.20, -5.65, 14.35, -5.65, -0.04, 1.52, true);  // Right side-yard divider (east of garden walkway gateway)
-  // Gate pillars with warm architectural lanterns
+  // Gate pillars with warm architectural lanterns & night light wash
   for (const gx of [-9.2, 8.2]) {
     addBox(boundary, 0.65, 2.25, 0.65, gx, 1.12, 14.5, stoneWallMat);
-    addBox(boundary, 0.26, 0.32, 0.26, gx, 2.38, 14.5, warmLedMat, false, false);
+    addBox(boundary, 0.26, 0.32, 0.26, gx, 2.41, 14.5, warmLedMat, false, false);
+    addBox(boundary, 0.34, 0.05, 0.34, gx, 2.60, 14.5, darkBronzeMat, false, false);
+    addNightHalo(boundary, gx, 2.42, 14.5, 2.25, false);
   }
+  addMoodPointLight(boundary, 0xffd48d, -0.5, 3.1, 13.8, 19, 0, 5, 34); // Main Street Gate & Arrival Driveway Night Glow!
 
   /* === MOTORIZED BI-PARTING TELESCOPING MAIN STREET SLIDING GATE (z = 14.5, tucks cleanly behind side walls!) === */
   const mainGateGroup = new THREE.Group();
@@ -4073,6 +4273,23 @@ async function init3DViewer() {
       c.castShadow = true;
       tg.add(c);
     });
+    // Sleek dark-bronze ground spike tree uplight casting a soft warm canopy wash in Night Look!
+    const upBody = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.065, 0.18, 10), darkBronzeMat);
+    upBody.position.set(0.46 * scale, 0.10, 0.36 * scale);
+    upBody.rotation.z = 0.26;
+    tg.add(upBody);
+    const upLens = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.025, 10), warmLedMat);
+    upLens.position.set(0.43 * scale, 0.19, 0.36 * scale);
+    upLens.rotation.z = 0.26;
+    tg.add(upLens);
+    const upCone = new THREE.Mesh(uplightConeGeo, uplightConeMat);
+    upCone.rotation.x = Math.PI; // Apex down at ground fixture, flaring softly into canopy
+    upCone.scale.setScalar(scale * 0.92);
+    upCone.position.set(0.14 * scale, 1.55 * scale, 0.12 * scale);
+    upCone.visible = false;
+    tg.add(upCone);
+    nightGlowObjects.push(upCone);
+    addNightHalo(tg, 0.42 * scale, 0.24, 0.36 * scale, 0.85, false);
     addGarden(tg);
   }
   [
@@ -4085,7 +4302,8 @@ async function init3DViewer() {
   for (const bx of [-8.35, 8.15]) {
     for (const bz of [7.2, 10.0, 12.8]) {
       addGarden(addBox(landscape, 0.14, 0.56, 0.14, bx, 0.32, bz, darkBronzeMat));
-      addGarden(addBox(landscape, 0.16, 0.14, 0.16, bx, 0.67, bz, warmLedMat, false, false));
+      addGarden(addBox(landscape, 0.16, 0.14, 0.16, bx, 0.68, bz, warmLedMat, false, false));
+      addGarden(addNightHalo(landscape, bx, 0.68, bz, 1.15, false));
     }
   }
   // Front lawn flowering planters (grounded flush on earth y = -0.04, clear of stepping path, UG vault, fire pit & corner trees!)
@@ -4172,11 +4390,23 @@ async function init3DViewer() {
       addGarden(fl);
     }
   }
-  // Warm garden pathway bollards (grounded flush at earth y = -0.04, clear of right trench drain x=10.25 & flower beds!)
-  for (const [bx, bz] of [[-5.95, -7.55], [2.35, -7.55], [-5.95, -12.05], [2.35, -12.05], [12.35, -3.20], [12.35, 1.55]]) {
+  // Warm garden pathway bollards & tall lawn lanterns (grounded flush at earth y = -0.04, illuminating rear patio, walkways & veg farm!)
+  for (const [bx, bz] of [[-5.95, -7.55], [2.35, -7.55], [-5.95, -12.05], [2.35, -12.05], [12.35, -3.20], [12.35, 1.55], [-11.65, -2.85], [-11.65, 0.65]]) {
     addGarden(addBox(landscape, 0.13, 0.54, 0.13, bx, 0.23, bz, darkBronzeMat));
-    addGarden(addBox(landscape, 0.15, 0.12, 0.15, bx, 0.56, bz, warmLedMat, false, false));
+    addGarden(addBox(landscape, 0.15, 0.12, 0.15, bx, 0.57, bz, warmLedMat, false, false));
+    addGarden(addNightHalo(landscape, bx, 0.58, bz, 1.15, false));
   }
+  // Architectural Tall Garden Post Lanterns flanking the Rear Patio & Organic Vegetable Farm
+  for (const [lx, lz] of [[-7.35, -9.15], [-7.35, -12.65], [5.85, -11.65]]) {
+    addGarden(addBox(landscape, 0.12, 1.82, 0.12, lx, 0.87, lz, darkBronzeMat));
+    addGarden(addBox(landscape, 0.22, 0.28, 0.22, lx, 1.93, lz, warmLedMat, false, false));
+    addGarden(addBox(landscape, 0.30, 0.05, 0.30, lx, 2.10, lz, darkBronzeMat, false, false));
+    addGarden(addNightHalo(landscape, lx, 1.94, lz, 1.85, false));
+  }
+  // Dedicated Exterior Estate Night PointLights for Rear Garden Patio, Organic Veg Farm & Right Garden Walkway!
+  addGarden(addMoodPointLight(landscape, 0xffcf85, -1.6, 2.7, -9.6, 19, 0, 5, 32));   // Rear Patio, 4 Teak Benches & Bougainvillea
+  addGarden(addMoodPointLight(landscape, 0xffd894, -10.1, 2.5, -10.8, 15, 0, 3, 24)); // Rear-Left Organic Veg Farm & Cold Frame
+  addGarden(addMoodPointLight(landscape, 0xffd288, 11.4, 2.8, 1.2, 16, 0, 4, 26));    // Right Garden Walkway, Bollards & Side Pavilion Exterior
 
   // 2. Front-Right Circular Sunken Fire-Pit Lounge with 3 Fitted Teak Benches (Matches Site Plan, Zero Driveway Overlap!)
   const fpX = 11.1, fpZ = 10.1;
@@ -4275,10 +4505,39 @@ async function init3DViewer() {
 
   if (statusEl) statusEl.textContent = 'Calibrating golden-hour lighting & reflections…';
   await yieldMain();
-  /* === LIGHTING MOODS === */
+  /* === LIGHTING MOODS (Daylight, Golden Hour & Full Starry Night Look with All Interior + Exterior Lights!) === */
   const envCache = {};
+  let currentMood = 'golden', lastNonNightMood = 'golden';
+  let fireBaseIntensity = 15, garageBaseIntensity = 22;
+  const btnNightLook = document.getElementById('toggleNightLook');
+  const dotNightLook = document.getElementById('dotNightLook');
+  const mobileQuickNight = document.getElementById('mobileQuickNight');
+
+  function syncMoodButtons(mood) {
+    const isNight = mood === 'night';
+    const sel = document.getElementById('lightingMood');
+    if (sel && sel.value !== mood) sel.value = mood;
+    if (btnNightLook) btnNightLook.setAttribute('aria-pressed', String(isNight));
+    if (dotNightLook) dotNightLook.className = 'btn-dot ' + (isNight ? 'is-open' : 'is-closed');
+    if (mobileQuickNight) {
+      mobileQuickNight.setAttribute('aria-pressed', String(isNight));
+      mobileQuickNight.classList.toggle('gold', isNight);
+      mobileQuickNight.textContent = isNight ? '☀️ Day/Gold' : '🌙 Night';
+    }
+  }
+
   function applyMood(mood) {
-    if (mood === 'day') {
+    const next = (mood === 'day' || mood === 'night' || mood === 'golden') ? mood : 'golden';
+    currentMood = next;
+    if (next !== 'night') lastNonNightMood = next;
+    const isNight = next === 'night';
+    nightSkyGroup.visible = isNight;
+    for (let i = 0; i < nightGlowObjects.length; i++) nightGlowObjects[i].visible = isNight;
+    for (let i = 0; i < moodPointLights.length; i++) {
+      const ml = moodPointLights[i];
+      ml.light.intensity = ml[next];
+    }
+    if (next === 'day') {
       skyUniforms.cTop.value.setHex(0x3a7bd5);
       skyUniforms.cHorizon.value.setHex(0xd4e7f7);
       skyUniforms.cGround.value.setHex(0x20352a);
@@ -4290,35 +4549,56 @@ async function init3DViewer() {
       sunLight.color.setHex(0xfff6e5);
       sunLight.intensity = 2.6;
       sunLight.position.set(-16, 28, 22);
+      fillLight.color.setHex(0x9bc4f0);
+      fillLight.intensity = 0.65;
       chandelierLight.intensity = 12;
-      garageLight.intensity = 10;
+      garageBaseIntensity = 10;
       balconyGlowLight.intensity = 5;
-      warmLedMat.emissiveIntensity = 0.9;
-      chandelierOrbMat.emissiveIntensity = 1.1;
-      interiorGlowMat.emissiveIntensity = 0.18;
+      livingWarmLight.intensity = 6;
+      masterWarmLight.intensity = 6;
+      gameRgbLight.intensity = 6;
+      fireBaseIntensity = 10;
+      warmLedMat.emissiveIntensity = 0.85;
+      chandelierOrbMat.emissiveIntensity = 1.05;
+      interiorGlowMat.emissiveIntensity = 0.16;
+      carTailRed.emissiveIntensity = 1.4;
+      fireEmberMat.emissiveIntensity = 2.0;
+      screenMat.emissiveIntensity = 0.32;
+      Object.values(liveScreens).forEach(s => { s.mat.emissiveIntensity = 0.85; });
       renderer.toneMappingExposure = 1.08;
       if (!envCache.day) envCache.day = buildEnvMap(0x5599e6, 0xd8ecfc, 0x3b5944, 0xfff8e6);
       scene.environment = envCache.day;
-    } else if (mood === 'night') {
-      skyUniforms.cTop.value.setHex(0x050b18);
-      skyUniforms.cHorizon.value.setHex(0x162945);
-      skyUniforms.cGround.value.setHex(0x040912);
-      scene.fog.color.setHex(0x0a1626);
-      scene.fog.density = 0.0068;
-      hemiLight.color.setHex(0x4c6f9c);
-      hemiLight.groundColor.setHex(0x121c27);
-      hemiLight.intensity = 0.55;
-      sunLight.color.setHex(0x7ca2d6);
-      sunLight.intensity = 0.55;
-      sunLight.position.set(16, 22, 16);
-      chandelierLight.intensity = 56;
-      garageLight.intensity = 34;
-      balconyGlowLight.intensity = 28;
-      warmLedMat.emissiveIntensity = 2.6;
-      chandelierOrbMat.emissiveIntensity = 2.8;
-      interiorGlowMat.emissiveIntensity = 0.85;
-      renderer.toneMappingExposure = 1.18;
-      if (!envCache.night) envCache.night = buildEnvMap(0x09162b, 0x1c3557, 0x09111c, 0x9fc2f0);
+    } else if (next === 'night') {
+      // Deep velvety starry Chitwan night sky with crisp silver moonlight & ALL interior + exterior warm architectural lights ON!
+      skyUniforms.cTop.value.setHex(0x020612);
+      skyUniforms.cHorizon.value.setHex(0x0d1f3a);
+      skyUniforms.cGround.value.setHex(0x030710);
+      scene.fog.color.setHex(0x071222);
+      scene.fog.density = 0.0052;
+      hemiLight.color.setHex(0x3a5a8a);
+      hemiLight.groundColor.setHex(0x0c1420);
+      hemiLight.intensity = 0.42;
+      sunLight.color.setHex(0x8cb5ee);
+      sunLight.intensity = 0.44;
+      sunLight.position.set(-18, 24, -22);
+      fillLight.color.setHex(0x28436e);
+      fillLight.intensity = 0.28;
+      chandelierLight.intensity = 82;
+      garageBaseIntensity = 42;
+      balconyGlowLight.intensity = 40;
+      livingWarmLight.intensity = 28;
+      masterWarmLight.intensity = 30;
+      gameRgbLight.intensity = 24;
+      fireBaseIntensity = 30;
+      warmLedMat.emissiveIntensity = 3.25;
+      chandelierOrbMat.emissiveIntensity = 3.65;
+      interiorGlowMat.emissiveIntensity = 1.25;
+      carTailRed.emissiveIntensity = 2.9;
+      fireEmberMat.emissiveIntensity = 3.6;
+      screenMat.emissiveIntensity = 0.88;
+      Object.values(liveScreens).forEach(s => { s.mat.emissiveIntensity = 1.32; });
+      renderer.toneMappingExposure = 1.22;
+      if (!envCache.night) envCache.night = buildEnvMap(0x050e20, 0x132847, 0x060b14, 0x9fc2f0);
       scene.environment = envCache.night;
     } else {
       // Golden Hour (default — matches dream-home-refined-front.webp!)
@@ -4333,17 +4613,41 @@ async function init3DViewer() {
       sunLight.color.setHex(0xffd296);
       sunLight.intensity = 2.25;
       sunLight.position.set(-22, 17, 20);
+      fillLight.color.setHex(0x88b4e6);
+      fillLight.intensity = 0.65;
       chandelierLight.intensity = 38;
-      garageLight.intensity = 22;
+      garageBaseIntensity = 22;
       balconyGlowLight.intensity = 16;
+      livingWarmLight.intensity = 10;
+      masterWarmLight.intensity = 10;
+      gameRgbLight.intensity = 9;
+      fireBaseIntensity = 15;
       warmLedMat.emissiveIntensity = 1.95;
       chandelierOrbMat.emissiveIntensity = 2.2;
       interiorGlowMat.emissiveIntensity = 0.48;
+      carTailRed.emissiveIntensity = 1.8;
+      fireEmberMat.emissiveIntensity = 2.6;
+      screenMat.emissiveIntensity = 0.38;
+      Object.values(liveScreens).forEach(s => { s.mat.emissiveIntensity = 0.92; });
       renderer.toneMappingExposure = 1.12;
       if (!envCache.golden) envCache.golden = buildEnvMap(0x274d82, 0xf2b57c, 0x20323c, 0xffd79b);
       scene.environment = envCache.golden;
     }
+    garageLight.intensity = garageBaseIntensity * (garageLight.userData.doorFactor ?? 1);
+    fireLight.intensity = fireBaseIntensity;
+    syncMoodButtons(next);
   }
+  function toggleNightLook() {
+    const targetMood = currentMood === 'night' ? lastNonNightMood : 'night';
+    applyMood(targetMood);
+    announceStatus(targetMood === 'night'
+      ? 'Night look enabled with all interior and exterior architectural lights on'
+      : `Switched back to ${targetMood === 'day' ? 'bright daylight' : 'golden hour'} lighting`);
+    isSkipped = false;
+    startLoop();
+  }
+  if (btnNightLook) btnNightLook.onclick = toggleNightLook;
+  if (mobileQuickNight) mobileQuickNight.onclick = toggleNightLook;
 
   /* Camera Presets with Smooth Glide, Exact Unobstructed Room Framing & Floor/Mode Metadata */
   const CAM_PRESETS = {
@@ -5665,9 +5969,13 @@ async function init3DViewer() {
         d.mat.emissive.copy(d.mat.color);
       }
 
-      // Organic fire pit flicker, blue gas hob flame shimmer & underground water glow
-      fireLight.intensity = 14 + 3.2 * Math.sin(time * 0.0065) + 1.6 * Math.cos(time * 0.011);
-      waterGlowMat.emissiveIntensity = 0.50 + 0.12 * Math.sin(time * 0.0025);
+      // Organic fire pit flicker, garage door brightness sync, starry night twinkle & underground water glow
+      fireLight.intensity = fireBaseIntensity + 3.6 * Math.sin(time * 0.0065) + 1.8 * Math.cos(time * 0.011);
+      garageLight.intensity = garageBaseIntensity * (garageLight.userData.doorFactor ?? 1);
+      if (currentMood === 'night') {
+        nightStarsMat.opacity = 0.84 + 0.14 * Math.sin(tSec * 1.4);
+      }
+      waterGlowMat.emissiveIntensity = (currentMood === 'night' ? 0.78 : 0.50) + 0.12 * Math.sin(time * 0.0025);
       const fPulse = 0.94 + 0.08 * Math.sin(tSec * 10);
       for (let i = 0; i < gasFlameMeshes.length; i++) gasFlameMeshes[i].scale.setScalar(fPulse);
 
