@@ -593,6 +593,35 @@ async function init3DViewer() {
   }
 
   const curtainSystems = [];
+  const showerDrops = [];
+  const showerRipples = [];
+  const showerDropGeo = new THREE.CylinderGeometry(0.006, 0.008, 0.20, 5);
+  const showerRippleGeo = new THREE.TorusGeometry(0.16, 0.009, 6, 16);
+  const showerSprayMat = new THREE.MeshStandardMaterial({
+    color: 0xbae6fd, emissive: 0x38bdf8, emissiveIntensity: 0.72,
+    transparent: true, opacity: 0.82, roughness: 0.08, metalness: 0.05
+  });
+  function addLiveShowerSpray(parent, cx, cz, headY, floorY, spread = 0.12) {
+    // Nozzle mist plate directly under the brushed-gold rainfall head
+    addBox(parent, spread * 2.2, 0.012, spread * 2.2, cx, headY - 0.02, cz, showerSprayMat, false, false);
+    const offsets = [
+      [-spread * 0.75, -spread * 0.6], [spread * 0.75, -spread * 0.6],
+      [-spread * 0.75, spread * 0.6], [spread * 0.75, spread * 0.6],
+      [0, -spread * 0.85], [0, spread * 0.85], [-spread * 0.25, 0], [spread * 0.25, 0]
+    ];
+    offsets.forEach(([ox, oz], idx) => {
+      const drop = new THREE.Mesh(showerDropGeo, showerSprayMat);
+      drop.position.set(cx + ox, headY - 0.2, cz + oz);
+      parent.add(drop);
+      showerDrops.push({ mesh: drop, topY: headY - 0.10, botY: floorY + 0.10, phase: (idx * 0.137 + Math.abs(cx) * 0.31) % 1, speed: 1.55 + (idx % 3) * 0.22 });
+    });
+    // Animated splash ripple ring over the floor drain
+    const rip = new THREE.Mesh(showerRippleGeo, showerSprayMat);
+    rip.rotation.x = Math.PI / 2;
+    rip.position.set(cx, floorY + 0.075, cz);
+    parent.add(rip);
+    showerRipples.push({ mesh: rip, phase: (Math.abs(cx + cz) * 0.37) % 1 });
+  }
   const safetyDoors = [];
   const slidingDoors = [];
 
@@ -1069,25 +1098,23 @@ async function init3DViewer() {
     halo.rotation.x = Math.PI / 2; halo.position.set(0.44, 1.54, -0.90); b.add(halo);
     const mirror = new THREE.Mesh(new THREE.CylinderGeometry(0.37, 0.37, 0.04, 24), atriumGlassMat);
     mirror.rotation.x = Math.PI / 2; mirror.position.set(0.44, 1.54, -0.88); b.add(mirror);
-    // UPGRADED FROSTED-GLASS WALK-IN RAIN & HANDHELD SHOWER CUBICLE + Linear Drain + Shampoo Niche + Shimmering Spray!
+    // UPGRADED WALK-IN RAINFALL & HANDHELD SHOWER CUBICLE (Clear Upper + Frosted Privacy Band + Live Animated Falling Shower Spray!)
     addBox(b, 1.00, 0.04, 0.96, -0.56, 0.04, 0.48, tileAccentMat, false, true);
     addBox(b, 0.76, 0.02, 0.06, -0.56, 0.065, 0.86, steelMat, false, false); // Linear stainless floor drain
-    addBox(b, 0.04, 2.22, 0.98, -0.05, 1.11, 0.46, frostedGlassMat, false, false); // Satin frosted glass side panel
-    addBox(b, 0.98, 2.22, 0.04, -0.54, 1.11, -0.02, frostedGlassMat, false, false); // Satin frosted glass partition
+    addBox(b, 0.036, 2.22, 0.98, -0.05, 1.11, 0.46, atriumGlassMat, false, false);  // Clear tempered shower side glass
+    addBox(b, 0.042, 0.86, 0.96, -0.05, 1.04, 0.46, frostedGlassMat, false, false); // Satin frosted mid privacy band
+    addBox(b, 0.98, 2.22, 0.036, -0.54, 1.11, -0.02, frostedGlassMat, false, false); // Satin frosted divider to WC
     addBox(b, 0.045, 2.22, 0.045, -0.05, 1.11, 0.95, goldMat, false, false); // Gold frame upright
     addBox(b, 0.045, 2.22, 0.045, -0.05, 1.11, -0.02, goldMat, false, false);
     addBox(b, 0.03, 0.44, 0.04, -0.02, 1.08, 0.62, goldMat, false, false); // Shower door pull handle
-    addBathCurtain(b, -0.54, 0.05, 0.94, 0.98, 2.18, 0, false); // Full-height waterproof pleated shower privacy curtain on gold rail!
-    addBox(b, 0.04, 2.02, 0.04, -0.96, 1.06, 0.46, goldMat, false, false); // Brushed-gold shower riser column
-    addBox(b, 0.28, 0.04, 0.04, -0.82, 2.06, 0.46, goldMat, false, false); // Overhead shower arm
-    addBox(b, 0.34, 0.03, 0.34, -0.64, 2.04, 0.46, goldMat, false, false); // Wide square rainfall shower head!
-    addBox(b, 0.14, 0.14, 0.05, -0.94, 1.12, 0.46, steelMat, false, false); // Thermostatic mixer valve
-    addBox(b, 0.04, 0.22, 0.04, -0.92, 1.38, 0.64, steelMat, false, false); // Chrome handheld shower wand!
-    addBox(b, 0.08, 0.26, 0.42, -1.00, 1.24, 0.22, warmLedMat, false, false); // Backlit recessed shampoo niche
-    for (const [sx, sz] of [[-0.72, 0.38], [-0.56, 0.46], [-0.64, 0.54]]) {
-      const stream = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.018, 1.84, 6), waterGlowMat);
-      stream.position.set(sx, 1.10, sz); b.add(stream);
-    }
+    addBox(b, 0.04, 2.04, 0.04, -0.96, 1.08, 0.46, goldMat, false, false); // Brushed-gold shower riser column
+    addBox(b, 0.34, 0.04, 0.04, -0.79, 2.08, 0.46, goldMat, false, false); // Overhead rainfall arm
+    addBox(b, 0.36, 0.034, 0.36, -0.60, 2.06, 0.46, goldMat, false, false); // Wide square brushed-gold rainfall showerhead!
+    addBox(b, 0.14, 0.14, 0.05, -0.94, 1.12, 0.46, steelMat, false, false); // Thermostatic mixer valve + twin dials
+    addBox(b, 0.03, 0.62, 0.03, -0.94, 1.38, 0.64, goldMat, false, false);  // Chrome handheld slide bar
+    addBox(b, 0.045, 0.22, 0.045, -0.90, 1.44, 0.64, steelMat, false, false); // Chrome handheld shower wand!
+    addBox(b, 0.08, 0.26, 0.42, -1.00, 1.24, 0.20, warmLedMat, false, false); // Backlit recessed shampoo niche
+    addLiveShowerSpray(b, -0.60, 0.46, 2.04, 0.04, 0.13);
     // Heated gold towel rail + ceiling exhaust fan grille (spins in real time!)
     addBox(b, 0.04, 0.75, 0.48, 1.02, 1.25, 0.25, goldMat, false, false);
     addBox(b, 0.06, 0.36, 0.36, 0.99, 1.32, 0.25, towelMat, false, false);
@@ -1105,6 +1132,18 @@ async function init3DViewer() {
     addBox(w, 0.044, 2.08, 0.044, 0.02, 1.04, 0.02, goldMat, false, false);
     addBathCurtain(w, -0.36, 0.96, -0.56, 0.70, 1.16, 0, true);  // Frosted toilet window curtain!
     addBathCurtain(w, -0.36, 0.04, 0.06, 0.74, 2.08, 0, false);  // Full-height waterproof toilet enclosure privacy curtain!
+    // Corner Walk-In Rainfall & Handheld Shower inside Guest Bath (front-right bay, clear glass splash screen + live spray!)
+    addBox(w, 0.68, 0.035, 0.56, 0.42, 0.038, 0.34, tileAccentMat, false, true);
+    addBox(w, 0.52, 0.018, 0.045, 0.42, 0.06, 0.54, steelMat, false, false); // Stainless floor drain
+    addBox(w, 0.034, 2.06, 0.56, 0.07, 1.05, 0.34, atriumGlassMat, false, false); // Glass shower splash screen
+    addBox(w, 0.04, 2.06, 0.04, 0.07, 1.05, 0.62, goldMat, false, false);
+    addBox(w, 0.036, 1.92, 0.036, 0.72, 1.02, 0.34, goldMat, false, false); // Brushed-gold shower riser
+    addBox(w, 0.26, 0.036, 0.036, 0.58, 1.98, 0.34, goldMat, false, false); // Overhead shower arm
+    addBox(w, 0.28, 0.03, 0.28, 0.44, 1.96, 0.34, goldMat, false, false);   // Square rainfall showerhead
+    addBox(w, 0.12, 0.12, 0.04, 0.70, 1.08, 0.34, steelMat, false, false);  // Mixer valve
+    addBox(w, 0.04, 0.20, 0.04, 0.68, 1.34, 0.48, steelMat, false, false);  // Handheld shower wand
+    addLiveShowerSpray(w, 0.44, 0.34, 1.94, 0.04, 0.10);
+    // Floating vanity, vessel basin & backlit mirror
     addBox(w, 0.66, 0.30, 0.42, 0.40, 0.70, -0.36, walnutMat, false, false);
     addBox(w, 0.68, 0.05, 0.44, 0.40, 0.87, -0.36, marbleMat, false, false);
     const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.14, 0.11, 14), porcelainMat);
@@ -1121,7 +1160,7 @@ async function init3DViewer() {
     // Full-suite luxury travertine marble floor & wet-zone accent back wall
     addBox(g, 2.85, 0.04, 2.45, -0.05, 0.02, -0.05, marbleMat, false, true);
     addBox(g, 2.82, 2.65, 0.06, -0.05, 1.32, -1.20, tileAccentMat, false, true);
-    // BOTH LUXURY FREESTANDING EGG SOAKING TUB AND FULL FROSTED-GLASS WALK-IN RAIN + HANDHELD SHOWER CUBICLE!
+    // BOTH LUXURY FREESTANDING EGG SOAKING TUB AND FULL WALK-IN RAINFALL + HANDHELD SHOWER CUBICLE!
     const tub = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.36, 0.56, 22), porcelainMat);
     tub.scale.set(1.56, 1.0, 0.92);
     tub.position.set(0.24, 0.29, 0.58); g.add(tub);
@@ -1151,26 +1190,26 @@ async function init3DViewer() {
     }
     addBox(g, 1.24, 0.96, 0.04, -0.05, 1.54, -1.14, warmLedMat, false, false);
     addBox(g, 1.14, 0.86, 0.05, -0.05, 1.54, -1.11, atriumGlassMat, false, false);
-    // FULL FROSTED-GLASS WALK-IN RAINFALL & HANDHELD SHOWER CUBICLE (Left Wet Bay — Both Tub & Shower!)
+    // FULL WALK-IN RAINFALL & HANDHELD SHOWER CUBICLE (Left Wet Bay — Clear Upper Glass + Frosted Mid Band + Live Falling Spray!)
     addBox(g, 0.96, 0.04, 1.42, -1.02, 0.04, -0.25, tileAccentMat, false, true);
-    addBox(g, 0.04, 2.34, 1.44, -0.56, 1.17, -0.25, frostedGlassMat, false, false); // Full frosted shower glass side
-    addBox(g, 0.92, 2.34, 0.04, -1.02, 1.17, 0.46, frostedGlassMat, false, false);  // Frosted hinged shower door
+    addBox(g, 0.036, 2.34, 1.44, -0.56, 1.17, -0.25, atriumGlassMat, false, false);  // Clear tempered shower side glass
+    addBox(g, 0.042, 0.88, 1.40, -0.56, 1.06, -0.25, frostedGlassMat, false, false); // Satin frosted mid privacy band
+    addBox(g, 0.92, 2.34, 0.036, -1.02, 1.17, 0.46, atriumGlassMat, false, false);   // Clear hinged shower door
+    addBox(g, 0.88, 0.88, 0.042, -1.02, 1.06, 0.46, frostedGlassMat, false, false);  // Frosted privacy band on door
     addBox(g, 0.048, 2.34, 0.048, -0.56, 1.17, 0.46, goldMat, false, false);
     addBox(g, 0.048, 2.34, 0.048, -0.56, 1.17, -0.96, goldMat, false, false);
     addBox(g, 0.04, 0.48, 0.04, -0.78, 1.12, 0.50, goldMat, false, false); // Shower door gold handle
-    addBox(g, 0.56, 0.44, 0.36, -1.16, 0.22, -0.92, marbleMat, false, false); // Built-in marble shower seat
+    addBox(g, 0.56, 0.44, 0.36, -1.16, 0.26, -0.92, marbleMat, false, false); // Built-in marble shower seat
     addBox(g, 0.06, 0.02, 0.96, -1.36, 0.065, -0.25, steelMat, false, false); // Linear stainless floor drain
     addBox(g, 0.06, 0.30, 0.52, -1.44, 1.32, -0.35, warmLedMat, false, false); // Backlit recessed shower niche
-    // Overhead Square Rainfall Shower Head + Chrome Handheld Shower Wand on Slide Bar + Shimmering Water Streams!
-    addBox(g, 0.045, 2.18, 0.045, -1.42, 1.12, -0.25, goldMat, false, false);
-    addBox(g, 0.34, 0.04, 0.04, -1.24, 2.22, -0.25, goldMat, false, false);
-    addBox(g, 0.38, 0.032, 0.38, -1.04, 2.20, -0.25, goldMat, false, false); // Wide square rain shower head!
+    // Overhead Square Rainfall Shower Head + Chrome Handheld Shower Wand on Slide Bar + Live Animated Water Spray!
+    addBox(g, 0.045, 2.20, 0.045, -1.42, 1.14, -0.25, goldMat, false, false);
+    addBox(g, 0.38, 0.04, 0.04, -1.23, 2.24, -0.25, goldMat, false, false);
+    addBox(g, 0.42, 0.036, 0.42, -1.02, 2.22, -0.25, goldMat, false, false); // Wide square brushed-gold rain shower head!
     addBox(g, 0.16, 0.16, 0.05, -1.39, 1.16, -0.05, steelMat, false, false); // Thermostatic mixer valve
-    addBox(g, 0.04, 0.24, 0.04, -1.36, 1.44, 0.08, steelMat, false, false);  // Chrome handheld shower wand!
-    for (const [sx, sz] of [[-1.14, -0.34], [-0.96, -0.25], [-1.05, -0.14]]) {
-      const stream = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.020, 2.02, 6), waterGlowMat);
-      stream.position.set(sx, 1.16, sz); g.add(stream);
-    }
+    addBox(g, 0.032, 0.68, 0.032, -1.40, 1.44, 0.08, goldMat, false, false); // Handheld slide bar
+    addBox(g, 0.048, 0.24, 0.048, -1.35, 1.46, 0.08, steelMat, false, false); // Chrome handheld shower wand!
+    addLiveShowerSpray(g, -1.02, -0.25, 2.20, 0.04, 0.15);
     // Heated gold ladder towel warmer with stacked cream spa towels + spinning ceiling exhaust fan
     addBox(g, 0.04, 1.15, 0.52, 1.28, 1.25, 0.32, goldMat, false, false);
     addBox(g, 0.07, 0.42, 0.38, 1.24, 1.42, 0.32, towelMat, false, false);
@@ -2474,8 +2513,37 @@ async function init3DViewer() {
   const scadaScr = addFlatScreen(ugChamber, 1.38, 0.78, 0.88, 0.44, -1.28, 0, liveScreens.waterHud.mat, pipeColdMat);
   scadaScr.rotation.x = -0.35;
 
-  // LIVE 5-STAGE WATER PURIFICATION FLOW SIMULATION (Droplets visibly turn Amber Raw -> Teal -> Cyan -> Violet UV -> Crystal Pure Blue!)
-  const filterCurve = new THREE.CurvePath();
+  // ZERO-GLITCH CONSTANT-VELOCITY POLYLINE PIPE & FLOW TRACK BUILDER (Eliminates TubeGeometry Frenet-frame twisting & elbow stuttering!)
+  const _pipeUp = new THREE.Vector3(0, 1, 0);
+  function buildPolylineTrack(vecs) {
+    const segs = [];
+    let totalLen = 0;
+    for (let i = 0; i < vecs.length - 1; i++) {
+      const a = vecs[i], b = vecs[i + 1];
+      const len = a.distanceTo(b);
+      if (len < 0.004) continue;
+      const dir = new THREE.Vector3().subVectors(b, a).multiplyScalar(1 / len);
+      segs.push({ a, b, dir, len, cumStart: totalLen, cumEnd: totalLen + len });
+      totalLen += len;
+    }
+    return { segs, totalLen: Math.max(0.001, totalLen) };
+  }
+  function samplePolylineTrack(track, uNorm, outPos, outQuat) {
+    const d = ((uNorm % 1) + 1) % 1 * track.totalLen;
+    const segs = track.segs;
+    for (let i = 0; i < segs.length; i++) {
+      const s = segs[i];
+      if (d <= s.cumEnd || i === segs.length - 1) {
+        const localT = Math.min(1, Math.max(0, (d - s.cumStart) / Math.max(0.0001, s.len)));
+        outPos.lerpVectors(s.a, s.b, localT);
+        if (outQuat) outQuat.setFromUnitVectors(_pipeUp, s.dir);
+        return s.dir;
+      }
+    }
+    return _pipeUp;
+  }
+
+  // LIVE 5-STAGE WATER PURIFICATION FLOW SIMULATION (Constant-velocity drops turning Amber Raw -> Teal -> Cyan -> Violet UV -> Crystal Pure Blue!)
   const fPts = [
     new THREE.Vector3(0.06, -0.70, -0.62), new THREE.Vector3(0.06, 0.36, -0.62),
     new THREE.Vector3(0.48, 0.36, -0.62), new THREE.Vector3(0.48, -0.70, -0.62),
@@ -2484,55 +2552,53 @@ async function init3DViewer() {
     new THREE.Vector3(1.74, -0.70, -0.62), new THREE.Vector3(1.74, 0.36, -0.62),
     new THREE.Vector3(-0.35, 0.36, -0.62), new THREE.Vector3(-0.85, 0.18, -0.15)
   ];
-  for (let i = 0; i < fPts.length - 1; i++) filterCurve.add(new THREE.LineCurve3(fPts[i], fPts[i + 1]));
+  const filterTrack = buildPolylineTrack(fPts);
   const dropGeo = new THREE.SphereGeometry(0.072, 8, 8);
   for (let i = 0; i < 14; i++) {
     const dMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 1.4, roughness: 0.15 });
     const dm = new THREE.Mesh(dropGeo, dMat);
     ugChamber.add(dm);
-    filterSimDrops.push({ mesh: dm, mat: dMat, curve: filterCurve, phase: i / 14 });
+    filterSimDrops.push({ mesh: dm, mat: dMat, track: filterTrack, phase: i / 14 });
   }
   waterSystemGroup.add(ugChamber);
 
-  // 3. COMPLETE WALL-ALIGNED ORTHOGONAL MEP PIPING & VENTILATION SHOWCASE (100% Concealed/Invisible in Standard View; Crisp 90° Wall Elbows in X-Ray!)
+  // 3. COMPLETE WALL-ALIGNED ORTHOGONAL MEP PIPING & VENTILATION SHOWCASE (Zero-Pinch Cylinder Runs + Seamless Elbow Spheres + Constant-Velocity Directional Flow Pulses!)
   const riserGroup = new THREE.Group();
-  const flowBeadGeo = new THREE.SphereGeometry(0.082, 8, 8);
+  const unitCylGeo = new THREE.CylinderGeometry(1, 1, 1, 10);
+  const unitJointGeo = new THREE.SphereGeometry(1, 10, 8);
+  const flowPillGeo = new THREE.CylinderGeometry(0.068, 0.068, 0.32, 8);
   function addPipePath(pts, mat, rad = 0.056, flowSpeed = 0, targetGrp = riserGroup) {
-    // Strict orthogonal wall-aligned CurvePath with tight 0.11m filleted 90° elbows — ZERO curved spline overshoot through walls!
     const vecs = pts.map(p => new THREE.Vector3(...p));
-    const path = new THREE.CurvePath();
-    const fillet = 0.11;
-    let prevEnd = vecs[0];
-    for (let i = 1; i < vecs.length - 1; i++) {
-      const a = vecs[i - 1], b = vecs[i], c = vecs[i + 1];
-      const vIn = new THREE.Vector3().subVectors(a, b);
-      const vOut = new THREE.Vector3().subVectors(c, b);
-      const lenIn = vIn.length(), lenOut = vOut.length();
-      const r = Math.min(fillet, lenIn * 0.35, lenOut * 0.35);
-      if (r > 0.005) {
-        const p1 = b.clone().addScaledVector(vIn.normalize(), r);
-        const p2 = b.clone().addScaledVector(vOut.normalize(), r);
-        if (prevEnd.distanceTo(p1) > 0.002) path.add(new THREE.LineCurve3(prevEnd, p1));
-        path.add(new THREE.QuadraticBezierCurve3(p1, b, p2));
-        prevEnd = p2;
-      } else {
-        if (prevEnd.distanceTo(b) > 0.002) path.add(new THREE.LineCurve3(prevEnd, b));
-        prevEnd = b;
+    const track = buildPolylineTrack(vecs);
+    const pipeGrp = new THREE.Group();
+    for (let i = 0; i < track.segs.length; i++) {
+      const s = track.segs[i];
+      const segMesh = new THREE.Mesh(unitCylGeo, mat);
+      segMesh.scale.set(rad, s.len, rad);
+      segMesh.position.lerpVectors(s.a, s.b, 0.5);
+      segMesh.quaternion.setFromUnitVectors(_pipeUp, s.dir);
+      pipeGrp.add(segMesh);
+      if (i > 0) {
+        const elbow = new THREE.Mesh(unitJointGeo, mat);
+        elbow.scale.setScalar(rad * 1.04);
+        elbow.position.copy(s.a);
+        pipeGrp.add(elbow);
       }
     }
-    const last = vecs[vecs.length - 1];
-    if (prevEnd.distanceTo(last) > 0.002) path.add(new THREE.LineCurve3(prevEnd, last));
-    const mesh = new THREE.Mesh(new THREE.TubeGeometry(path, Math.max(24, vecs.length * 14), rad, 10, false), mat);
-    targetGrp.add(mesh);
-    if (flowSpeed > 0) {
-      for (let k = 0; k < 3; k++) {
-        const bead = new THREE.Mesh(flowBeadGeo, mat);
-        bead.scale.setScalar(rad / 0.054);
+    targetGrp.add(pipeGrp);
+    if (flowSpeed > 0 && track.totalLen > 0.25) {
+      const linearMps = Math.max(1.2, flowSpeed * 9.0);
+      const normSpeed = linearMps / track.totalLen;
+      const beadCount = Math.max(2, Math.min(9, Math.round(track.totalLen / 3.2)));
+      const radScale = Math.max(0.75, rad / 0.052);
+      for (let k = 0; k < beadCount; k++) {
+        const bead = new THREE.Mesh(flowPillGeo, mat);
+        bead.scale.set(radScale, 1, radScale);
         targetGrp.add(bead);
-        mepFlowBeads.push({ mesh: bead, curve: path, phase: k / 3, speed: flowSpeed, grp: targetGrp });
+        mepFlowBeads.push({ mesh: bead, track, phase: k / beadCount, speed: normSpeed, radScale, grp: targetGrp });
       }
     }
-    return mesh;
+    return pipeGrp;
   }
 
   // A. COLD PRESSURIZED WATER SUPPLY (Blue #32b8f5): UG Pump -> Spiral Chase -> 3,000 L Roof Tanks -> Branches to ALL 8 Baths, Both Kitchens & Laundry!
@@ -3084,14 +3150,29 @@ async function init3DViewer() {
   structuralXrayOnly.push(lightningXrayGrp);
   function addLightningPath(pts) {
     const vecs = pts.map(p => new THREE.Vector3(...p));
-    const path = new THREE.CurvePath();
-    for (let i = 0; i < vecs.length - 1; i++) path.add(new THREE.LineCurve3(vecs[i], vecs[i + 1]));
-    lightningXrayGrp.add(new THREE.Mesh(new THREE.TubeGeometry(path, Math.max(20, vecs.length * 10), 0.042, 8, false), copperEarthMat));
-    for (let k = 0; k < 3; k++) {
-      const b = new THREE.Mesh(flowBeadGeo, copperEarthMat);
-      b.scale.setScalar(0.92);
+    const track = buildPolylineTrack(vecs);
+    const rad = 0.044;
+    for (let i = 0; i < track.segs.length; i++) {
+      const s = track.segs[i];
+      const segMesh = new THREE.Mesh(unitCylGeo, copperEarthMat);
+      segMesh.scale.set(rad, s.len, rad);
+      segMesh.position.lerpVectors(s.a, s.b, 0.5);
+      segMesh.quaternion.setFromUnitVectors(_pipeUp, s.dir);
+      lightningXrayGrp.add(segMesh);
+      if (i > 0) {
+        const elbow = new THREE.Mesh(unitJointGeo, copperEarthMat);
+        elbow.scale.setScalar(rad * 1.06);
+        elbow.position.copy(s.a);
+        lightningXrayGrp.add(elbow);
+      }
+    }
+    const beadCount = Math.max(3, Math.min(8, Math.round(track.totalLen / 3.8)));
+    const normSpeed = 4.6 / track.totalLen;
+    for (let k = 0; k < beadCount; k++) {
+      const b = new THREE.Mesh(flowPillGeo, copperEarthMat);
+      b.scale.set(0.95, 1.15, 0.95);
       lightningXrayGrp.add(b);
-      lightningFlowBeads.push({ mesh: b, curve: path, phase: k / 3, speed: 0.34, grp: lightningXrayGrp });
+      lightningFlowBeads.push({ mesh: b, track, phase: k / beadCount, speed: normSpeed, radScale: 0.95, grp: lightningXrayGrp });
     }
   }
   // Down-Conductor 1: ESE Mast -> Rear MEP Chase -> SPD Surge Panel -> Rear-Right Earth Pit [11.8, -6.4]
@@ -4570,6 +4651,11 @@ async function init3DViewer() {
   document.getElementById('jumpLaundry3D')?.addEventListener('click', () => goPreset('laundry', { scrollToViewer: true, userInitiated: true }));
   controls.addEventListener('start', () => {
     camGoalPos = camGoalTarget = null;
+    if (tour) {
+      tour = false;
+      document.getElementById('tourModel').setAttribute('aria-pressed', 'false');
+      announceStatus('Guided tour paused for manual control');
+    }
     if (pinFloorLock !== 'all') {
       pinFloorLock = 'all';
       updatePins(true);
@@ -4599,7 +4685,7 @@ async function init3DViewer() {
     camera.aspect = w / h;
     syncResponsiveFov();
     camera.updateProjectionMatrix();
-    controls.rotateSpeed = isTouchDevice() ? 0.74 : 1.0;
+    controls.rotateSpeed = walkMode ? (isTouchDevice() ? -0.45 : -0.52) : (isTouchDevice() ? 0.74 : 1.0);
     controls.panSpeed = isTouchDevice() ? 0.72 : 1.0;
     updatePins(true);
   };
@@ -4630,24 +4716,30 @@ async function init3DViewer() {
   }, { passive: true });
   resize();
 
-  /* Controls Wiring: Motorized Doors, Lockable Waterproof Gas Vault & Real-Home Walkthrough */
+  /* Controls Wiring: Rebuilt Eye-Level Walkthrough, Zero-Clipping Guided Tour, Silky Slide Sim & Doors */
   let exploded = false, spinning = false, tour = false, tourStart = 0, lastTime = 0, lastTourStop = -1;
-  let walkBobPhase = 0, walkFloorIdx = 0;
+  let tourEntryPos = null, tourEntryTgt = null;
+  let walkBobPhase = 0, walkFloorIdx = 0, walkTargetY = 1.88, activeWalkKey = 'entry';
+  const walkVel = new THREE.Vector3();
   const walkFloors = [1.88, 5.28, 8.56, 11.86, 14.35];
   const walkKeys = { fwd: false, back: false, left: false, right: false, fast: false };
   const WALK_STOPS = {
-    entry: { pos: [4.4, 2.35, 9.6], look: [4.4, 2.4, 3.2], floorIdx: 0, mode: 'exterior', title: 'Walkthrough · Arrival Gate & Spiral Entry', desc: 'Walking through the front sliding gate toward the grand arrival steps & glass spiral chandelier atrium.' },
-    living: { pos: [-2.8, 1.88, -1.6], look: [-6.8, 1.55, -2.55], floorIdx: 0, mode: 'walls', title: 'Walkthrough · Ground Living Room (Live 4K TV)', desc: 'Eye-level inside the Main Living Room facing the animated 85" OLED TV, fluted marble wall, gallery art & spinning ceiling fan.' },
-    kitchen: { pos: [-3.1, 1.88, -2.6], look: [-0.95, 1.35, -1.25], floorIdx: 0, mode: 'walls', title: 'Walkthrough · Ground Floor Gas Kitchen & Dining', desc: 'Standing beside the marble dining table looking into the waterfall island, 4-burner piped gas hob, stainless chimney hood & gas leak sensor.' },
-    family: { pos: [-2.2, 5.28, 2.5], look: [-4.8, 4.95, 0.2], floorIdx: 1, mode: 'walls', title: 'Walkthrough · 1F Family Lounge & Live CAD Office', desc: 'Eye-level inside the 1st Floor Family Lounge with live TV, acoustic walnut wall, drapes & dual-monitor Executive Office beside you.' },
-    master: { pos: [-3.4, 8.56, -1.4], look: [-5.4, 8.15, -3.2], floorIdx: 2, mode: 'walls', title: 'Walkthrough · 2F Grand Master Suite', desc: 'Inside the Master Suite featuring the king bed, framed wall art, hanging gold pendants, spinning ceiling fan & ambient wall TV.' },
-    spa: { pos: [0.3, 8.56, -1.3], look: [-0.15, 7.85, -3.15], floorIdx: 2, mode: 'walls', title: 'Walkthrough · 2F Master Spa Bath & WC', desc: 'Inside the Master Spa Ensuite: freestanding soaking tub with teak candle caddy, luxury WC with flush plate & bidet, double vanity, rain shower & exhaust fan.' },
-    game: { pos: [-4.6, 11.86, 2.6], look: [-4.95, 11.35, 0.2], floorIdx: 3, mode: 'walls', title: 'Walkthrough · Rooftop Live Gaming Studio', desc: 'Inside the RGB Gaming Studio watching triple curved 240 FPS PC racing monitors, live esports console TV & spinning RGB tower fans.' },
-    bbq: { pos: [-3.6, 11.86, -1.8], look: [-6.5, 11.45, -3.3], floorIdx: 3, mode: 'exterior', title: 'Walkthrough · Rooftop BBQ Chef Kitchen', desc: 'Standing under the slatted teak pergola facing the gas-piped 4-burner BBQ grill, stainless canopy exhaust hood & wrap serving bar.' },
-    gas: { pos: [11.2, 1.72, -1.1], look: [8.85, 1.05, -3.25], floorIdx: 0, mode: 'exterior', title: 'Walkthrough · Waterproof Lockable Gas Cylinder Vault', desc: 'Inspecting the external elevated 24 cm rainproof LPG enclosure, keyed padlock door, twin cylinders & concealed wall-aligned gas piping to both kitchens.' },
-    filter: { pos: [-13.4, 1.95, 13.4], look: [-10.85, -0.45, 10.2], floorIdx: 0, mode: 'exterior', title: 'Walkthrough · 5-Stage Water Filtration Simulation', desc: 'Standing at the glass inspection vault watching raw water purify live through Vortex Silt, Sand, Carbon, Softener & UV-C/RO stages with real-time TDS SCADA screen.' },
-    veg: { pos: [-13.2, 1.85, -13.6], look: [-10.1, 0.65, -10.95], floorIdx: 0, mode: 'exterior', title: 'Walkthrough · Organic Kitchen Vegetable Farm', desc: 'Walking beside the 3 raised cedar beds (tomatoes, leafy greens, carrots & herbs), seed-starter greenhouse, rainwater drip barrel & organic composter.' }
+    entry:   { pos: [4.65, 2.30, 10.4], look: [4.65, 2.55, 3.6],  floorIdx: 0, mode: 'exterior', title: 'Walk Inside · Grand Arrival Gate & Spiral Atrium', desc: 'Standing at the arrival court looking up the curved steps into the 4-story glass chandelier atrium. Walk forward or drag 360° to look around.' },
+    garage:  { pos: [-3.15, 1.72, 6.4], look: [-3.15, 1.32, 0.2], floorIdx: 0, mode: 'exterior', title: 'Walk Inside · 2-Car Garage & Inner Home Entrance', desc: 'Eye-level between the Rolls-Royce Phantom & Mercedes-Benz AMG facing the illuminated marble step and biometric inner entrance doorway.' },
+    spiral:  { pos: [4.65, 2.48, 5.65], look: [4.65, 5.40, 3.85], floorIdx: 0, mode: 'exterior', title: 'Walk Inside · Glass Spiral Staircase Atrium', desc: 'Inside the double-height glass spiral atrium looking up through the 4 precision-cut floor flights and cascading golden chandelier.' },
+    living:  { pos: [-2.75, 1.88, -1.75], look: [-7.2, 1.55, -2.55], floorIdx: 0, mode: 'walls', title: 'Walk Inside · Ground Living Room (Live 4K TV)', desc: 'Eye-level inside the Main Living Room facing the live 85" OLED TV, fluted marble wall, Split-Inverter AC, gallery art & spinning ceiling fan.' },
+    kitchen: { pos: [-2.95, 1.88, -3.25], look: [-0.95, 1.35, -1.35], floorIdx: 0, mode: 'walls', title: 'Walk Inside · Ground Gas Kitchen & Dining', desc: 'Standing beside the marble dining table facing the waterfall kitchen island, 4-burner piped gas hob, stainless hood & RO drinking tap.' },
+    family:  { pos: [-1.85, 5.28, 2.55], look: [-4.95, 4.95, 0.45], floorIdx: 1, mode: 'walls', title: 'Walk Inside · 1F Family Lounge & CAD Office', desc: 'Eye-level inside the 1st Floor Family TV Lounge & Executive Home Office with balcony sliding doors that auto-glide open as you approach.' },
+    master:  { pos: [-2.85, 8.56, -1.55], look: [-5.45, 8.15, -3.15], floorIdx: 2, mode: 'walls', title: 'Walk Inside · 2F Grand Master Suite', desc: 'Inside the 2F Grand Master Suite with king bed, glowing pendant orbs, cove ceiling fan, sunset balcony sliders & frosted spa sliding door.' },
+    spa:     { pos: [-0.20, 8.56, -0.82], look: [-0.55, 8.10, -2.95], floorIdx: 2, mode: 'walls', title: 'Walk Inside · 2F Master Spa Bath & Live Rain Shower', desc: 'Standing inside the Master Spa facing BOTH the freestanding egg soaking tub AND the frosted-glass walk-in rainfall shower pouring live water spray!' },
+    game:    { pos: [-4.55, 11.86, 2.85], look: [-4.95, 11.35, 0.25], floorIdx: 3, mode: 'walls', title: 'Walk Inside · Rooftop AC Gaming Studio', desc: 'Inside the RGB Gaming Studio watching triple 240 FPS PC racing monitors, hydraulic VR motion car, rear arcade & spinning RGB fans.' },
+    bbq:     { pos: [-3.45, 11.86, -1.85], look: [-6.65, 11.45, -3.25], floorIdx: 3, mode: 'exterior', title: 'Walk Inside · Rooftop BBQ Chef Kitchen', desc: 'Standing under the slatted teak pergola facing the L-shaped marble & walnut BBQ bar, piped 4-burner gas grill & commercial canopy hood.' },
+    party:   { pos: [-4.20, 14.35, 3.65], look: [-4.55, 13.95, 0.25], floorIdx: 4, mode: 'exterior', title: 'Walk Inside · Rooftop Party Shed & Sky-Deck', desc: 'Inside the all-weather Party Shed overlooking the karaoke visualizer TV, backlit cocktail mini-bar, festoon lights & extended yoga deck.' },
+    garden:  { pos: [-4.60, 1.72, -11.45], look: [-1.20, 0.85, -9.55], floorIdx: 0, mode: 'exterior', title: 'Walk Inside · Rear Garden Patio & Teak Benches', desc: 'Strolling beside the rear travertine stone patio, architectural slatted-teak benches, walnut tea table & blooming bougainvillea beds.' },
+    gas:     { pos: [11.2, 1.72, -1.15], look: [8.85, 1.05, -3.25], floorIdx: 0, mode: 'exterior', title: 'Walk Inside · Lockable Waterproof Gas Vault', desc: 'Inspecting the elevated 24 cm rainproof LPG enclosure, keyed padlock door, twin cylinders & concealed wall-aligned gas piping.' },
+    filter:  { pos: [-13.2, 1.92, 13.1], look: [-10.85, -0.35, 10.2], floorIdx: 0, mode: 'exterior', title: 'Walk Inside · 5-Stage Water Filtration Vault', desc: 'Watching raw amber water purify live through Vortex Silt, Sand, Carbon, Softener & UV-C/RO stages into crystal-pure 28 ppm water.' }
   };
+  const WALK_STOP_KEYS = Object.keys(WALK_STOPS);
 
   // Motorized Door, Safety Doors, Sliding Doors (28), Garage, Motorized Curtains & Lockable Gas Vault States
   let mainDoorPos = 1, mainDoorTarget = 1;
@@ -4794,14 +4886,18 @@ async function init3DViewer() {
     slidingDemo = !slidingDemo;
     if (slidingDemo) {
       slidingDemoStart = performance.now();
+      if (document.getElementById('modelDisplay').value === 'exterior' && activeCamKey !== 'hero' && activeCamKey !== 'aerial') {
+        document.getElementById('modelDisplay').value = 'walls';
+        applyDisplay();
+      }
     } else {
       setAllSlidingDoorTargets(slidingDoorMode);
-      updateMainDoors(mainDoorPos);
     }
     syncDoorButtons();
     announceStatus(slidingDemo
-      ? `Live sliding door simulation started across all ${slidingDoors.length} balcony, suite and atrium sliders`
+      ? `Live sliding door simulation running across all ${slidingDoors.length + 1} atrium, balcony & frosted suite sliders`
       : 'Live sliding door simulation stopped');
+    isSkipped = false;
     startLoop();
   }
   function toggleGarageDoor() {
@@ -4861,21 +4957,56 @@ async function init3DViewer() {
   function jumpWalkStop(key) {
     const st = WALK_STOPS[key];
     if (!st) return;
+    activeWalkKey = key;
     walkFloorIdx = st.floorIdx;
+    walkTargetY = st.pos[1];
+    walkVel.set(0, 0, 0);
     if (exploded) { exploded = false; arrangeFloors(); document.getElementById('explodeModel').setAttribute('aria-pressed', 'false'); }
     document.getElementById('modelLevel').value = 'all';
     Object.values(levels).forEach(g => { g.visible = true; });
     tower.visible = true;
     document.getElementById('modelDisplay').value = st.mode || 'walls';
     applyDisplay();
+    if (document.getElementById('waterSystemMode').value !== 'standard') {
+      document.getElementById('waterSystemMode').value = 'standard';
+      applyWaterMode('standard');
+    }
     if (key === 'gas') { gasVaultTarget = 1; syncDoorButtons(); }
-    if (key === 'entry') { mainDoorTarget = 1; syncDoorButtons(); }
+    if (key === 'entry' || key === 'spiral') { mainDoorTarget = 1; syncDoorButtons(); }
+    if (key === 'garage') { garageDoorTarget = 1; safetyDoorTarget = 1; syncDoorButtons(); }
+    // Highlight & horizontally center the active walkthrough room chip
+    const walkBar = document.getElementById('walkRoomJumps');
+    let actChip = null;
+    if (walkBar) {
+      walkBar.querySelectorAll('[data-walk]').forEach(b => {
+        const isA = b.dataset.walk === key;
+        b.classList.toggle('active', isA);
+        b.setAttribute('aria-pressed', String(isA));
+        if (isA) actChip = b;
+      });
+      if (actChip && walkBar.scrollWidth > walkBar.clientWidth) {
+        const left = Math.max(0, actChip.offsetLeft - (walkBar.clientWidth - actChip.clientWidth) / 2);
+        if (typeof walkBar.scrollTo === 'function') walkBar.scrollTo({ left, behavior: reduced ? 'auto' : 'smooth' });
+        else walkBar.scrollLeft = left;
+      }
+    }
     const p = new THREE.Vector3(...st.pos);
     const dir = new THREE.Vector3(...st.look).sub(p).normalize();
+    // Tight 0.06 m eye-level pivot so dragging rotates your view cleanly in place 360° without swinging into walls!
     camGoalPos = p.clone();
-    camGoalTarget = p.clone().addScaledVector(dir, 0.35);
-    document.getElementById('viewerBadge').textContent = 'REAL-HOME WALKTHROUGH · EYE-LEVEL VIRTUAL TOUR';
+    camGoalTarget = p.clone().addScaledVector(dir, 0.06);
+    if (reduced) {
+      camera.position.copy(camGoalPos);
+      controls.target.copy(camGoalTarget);
+      camGoalPos = camGoalTarget = null;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    const stepNum = WALK_STOP_KEYS.indexOf(key) + 1;
+    document.getElementById('viewerBadge').textContent = `WALK INSIDE ${stepNum}/${WALK_STOP_KEYS.length} · ${st.title.replace(/^Walk Inside · /, '').toUpperCase()}`;
     if (captionTextEl) captionTextEl.innerHTML = `<strong>${st.title}</strong>${st.desc}`;
+    announceStatus(`Walked to ${st.title}`);
+    isSkipped = false;
     startLoop();
   }
   function enterWalkthrough(startStop = 'entry') {
@@ -4891,9 +5022,14 @@ async function init3DViewer() {
     walkHud.classList.add('is-active');
     dismissTouchHint();
     syncResponsiveFov();
-    controls.minDistance = 0.08;
-    controls.maxDistance = 2.5;
-    controls.maxPolarAngle = Math.PI * 0.85;
+    // Street-View style natural drag-to-look in place (zero zoom/pan wall clipping!)
+    controls.minDistance = 0.04;
+    controls.maxDistance = 0.14;
+    controls.enablePan = false;
+    controls.enableZoom = false;
+    controls.rotateSpeed = isTouchDevice() ? -0.45 : -0.52;
+    controls.minPolarAngle = Math.PI * 0.18;
+    controls.maxPolarAngle = Math.PI * 0.82;
     jumpWalkStop(startStop);
     updatePins(true);
     announceStatus('Entered real-home eye-level walkthrough mode');
@@ -4901,6 +5037,7 @@ async function init3DViewer() {
   function exitWalkthrough(restoreHero = true) {
     if (!walkMode) return;
     walkMode = false;
+    walkVel.set(0, 0, 0);
     Object.keys(walkKeys).forEach(k => { walkKeys[k] = false; });
     btnWalk.setAttribute('aria-pressed', 'false');
     btnWalk.querySelector('.btn-dot').className = 'btn-dot';
@@ -4911,7 +5048,11 @@ async function init3DViewer() {
     syncResponsiveFov();
     controls.minDistance = 3.5;
     controls.maxDistance = 85;
-    controls.maxPolarAngle = Math.PI * 0.495;
+    controls.enablePan = true;
+    controls.enableZoom = true;
+    controls.rotateSpeed = isTouchDevice() ? 0.74 : 1.0;
+    controls.minPolarAngle = 0;
+    controls.maxPolarAngle = Math.PI * 0.492;
     if (restoreHero) goPreset('hero');
     updatePins(true);
     announceStatus('Exited walkthrough mode');
@@ -4923,18 +5064,42 @@ async function init3DViewer() {
     const b = e.target.closest('[data-walk]');
     if (b) jumpWalkStop(b.dataset.walk);
   });
+  document.getElementById('walkPrevStop')?.addEventListener('click', () => {
+    const i = WALK_STOP_KEYS.indexOf(activeWalkKey);
+    jumpWalkStop(WALK_STOP_KEYS[(i - 1 + WALK_STOP_KEYS.length) % WALK_STOP_KEYS.length]);
+  });
+  document.getElementById('walkNextStop')?.addEventListener('click', () => {
+    const i = WALK_STOP_KEYS.indexOf(activeWalkKey);
+    jumpWalkStop(WALK_STOP_KEYS[(i + 1) % WALK_STOP_KEYS.length]);
+  });
   document.getElementById('walkFloorUp').onclick = () => {
     walkFloorIdx = Math.min(walkFloors.length - 1, walkFloorIdx + 1);
-    const dy = walkFloors[walkFloorIdx] - camera.position.y;
-    camera.position.y += dy; controls.target.y += dy;
-    announceStatus(`Moved up to floor level ${walkFloorIdx + 1}`);
+    walkTargetY = walkFloors[walkFloorIdx];
+    announceStatus(`Stepped up to floor level ${walkFloorIdx + 1}`);
+    startLoop();
   };
   document.getElementById('walkFloorDown').onclick = () => {
     walkFloorIdx = Math.max(0, walkFloorIdx - 1);
-    const dy = walkFloors[walkFloorIdx] - camera.position.y;
-    camera.position.y += dy; controls.target.y += dy;
-    announceStatus(`Moved down to floor level ${walkFloorIdx + 1}`);
+    walkTargetY = walkFloors[walkFloorIdx];
+    announceStatus(`Stepped down to floor level ${walkFloorIdx + 1}`);
+    startLoop();
   };
+  // Wheel gently steps forward/backward when inside Walkthrough mode!
+  canvas.addEventListener('wheel', e => {
+    if (!walkMode) return;
+    e.preventDefault();
+    camGoalPos = camGoalTarget = null;
+    camera.getWorldDirection(_walkFwd);
+    _walkFwd.y = 0;
+    if (_walkFwd.lengthSq() > 0.0001) _walkFwd.normalize();
+    const step = THREE.MathUtils.clamp(-e.deltaY * 0.0045, -0.65, 0.65);
+    const prevX = camera.position.x, prevZ = camera.position.z;
+    camera.position.x = THREE.MathUtils.clamp(prevX + _walkFwd.x * step, -13.8, 13.8);
+    camera.position.z = THREE.MathUtils.clamp(prevZ + _walkFwd.z * step, -12.8, 13.8);
+    controls.target.x += camera.position.x - prevX;
+    controls.target.z += camera.position.z - prevZ;
+    startLoop();
+  }, { passive: false });
   // Touch & Pointer Hold D-Pad inside Walkthrough HUD
   walkHud.querySelectorAll('[data-move]').forEach(btn => {
     const dir = btn.dataset.move;
@@ -5013,23 +5178,41 @@ async function init3DViewer() {
     startLoop();
   };
 
-  /* Multi-Stop Real-Home Cinematic Guided Tour (Walks exterior -> living/kitchen -> spa baths -> live game room -> gas vault -> full MEP X-Ray!) */
+  /* Rebuilt 10-Stop Zero-Clipping Arc-Glide Cinematic Guided Tour (Exterior Arc Fly-Arounds + Parallax Dwell + Animated Doors, Showers & MEP!) */
   const TOUR_STOPS = [
-    { pos: [4.2, 4.2, 22.5], target: [2.2, 4.5, 3.8], mode: 'exterior', mep: 'standard', badge: 'GUIDED TOUR 1/8 · ARRIVAL GATE & SPIRAL ATRIUM', title: 'Grand Arrival — Sliding Gate, Portal & Spiral Chandelier', desc: 'Approaching the estate through the motorized sliding street gate toward the 2-car garage portal and glass chandelier atrium.' },
-    { pos: [-10.4, 2.7, -5.8], target: [-3.1, 1.45, -2.2], mode: 'cutaway', mep: 'standard', badge: 'GUIDED TOUR 2/8 · LIVING TV 1 & PIPED GAS KITCHEN', title: 'Main Living Room, Wall Decor, Ceiling Fan & Gas Kitchen', desc: 'Live animated 85" OLED TV, fluted marble wall, framed gallery art, spinning cove ceiling fan, and 4-burner gas kitchen with island chimney hood.' },
-    { pos: [-10.4, 5.8, 5.8], target: [-3.0, 4.8, 1.6], mode: 'cutaway', mep: 'standard', badge: 'GUIDED TOUR 3/8 · 1F FAMILY LOUNGE & LIVE CAD OFFICE', title: '1st Floor Family Lounge & Executive Home Office', desc: 'Acoustic walnut Family TV lounge opening onto the curved LED balcony beside the dual-monitor BIM/CAD office.' },
-    { pos: [1.5, 8.9, -6.2], target: [-0.8, 7.8, -2.75], mode: 'cutaway', mep: 'standard', badge: 'GUIDED TOUR 4/8 · 2F MASTER SUITE & LUXURY SPA BATH', title: 'Master Suite & Spa Bathroom with Soaking Tub & Toilet', desc: 'Freestanding soaking tub with candle caddy, concealed-cistern WC with bidet & flush plate, double vanity, rain shower & spinning exhaust fan.' },
-    { pos: [-10.4, 12.5, 4.7], target: [-4.8, 11.2, 1.3], mode: 'cutaway', mep: 'standard', badge: 'GUIDED TOUR 5/8 · LIVE ANIMATED PC & CONSOLE GAME ROOM', title: 'Rooftop RGB Gaming Studio (Live Playing Screens)', desc: 'Triple curved 240 FPS PC racing monitors, live esports console match OLED, spinning RGB PC tower fans & acoustic ceiling.' },
-    { pos: [-11.5, 16.0, 8.2], target: [-4.4, 13.1, -0.4], mode: 'exterior', mep: 'standard', badge: 'GUIDED TOUR 6/8 · ROOFTOP PARTY SHED & BBQ CHEF KITCHEN', title: 'All-Weather Party Shed (Karaoke TV) & Gas BBQ Kitchen', desc: 'Monsoon-proof Party Shed with live audio-visualizer TV & ceiling fan above the gas-piped 4-burner outdoor BBQ kitchen & canopy hood.' },
-    { pos: [12.3, 2.45, -0.25], target: [8.65, 1.05, -3.35], mode: 'exterior', mep: 'xray', gasOpen: true, badge: 'GUIDED TOUR 7/8 · WATERPROOF LOCKABLE GAS VAULT', title: 'Waterproof Lockable LPG Vault & Kitchen Gas Lines', desc: 'Padlock unlocks & door opens smoothly revealing the 24 cm rainproof plinth, twin cylinders, regulator & yellow gas piping to both kitchens.' },
-    { pos: [-13.8, 8.6, -14.8], target: [-0.4, 5.2, -2.0], mode: 'exterior', mep: 'mepIsolate', badge: 'GUIDED TOUR 8/8 · FULL 3D MEP PIPING & VENTILATION', title: 'Complete 3D MEP Showcase: Water, Vents, Drainage & Gas', desc: 'Full translucent BIM view of 18,000 L Cold Water, Solar Hot Water, DWV Sanitary Stacks, Rainwater Harvest, HVAC/Exhaust Ducts & LPG Gas.' }
+    { pos: [4.0, 7.6, 26.5],   target: [0.4, 5.2, 2.0],    mode: 'exterior', mep: 'standard', arcOut: 26, badge: 'GUIDED TOUR 1/10 · GRAND ARRIVAL & CURVED BALCONIES', title: 'Grand Arrival — Sliding Gate, Balconies & Spiral Atrium', desc: 'Sweeping arrival showcase of the motorized telescoping gate, 2-car garage portal, extended wraparound LED balconies & 4-story glass chandelier atrium.' },
+    { pos: [-2.4, 2.35, 10.8], target: [-3.2, 1.05, 2.2],  mode: 'exterior', mep: 'standard', arcOut: 16, garageOpen: true, badge: 'GUIDED TOUR 2/10 · 2-CAR GARAGE & INNER HOME ENTRANCE', title: 'Luxury 2-Car Garage & Biometric Inner Home Entrance', desc: 'Rolls-Royce Phantom & Mercedes-Benz AMG parked beside the illuminated marble transition step and biometric fire door leading straight indoors.' },
+    { pos: [-11.8, 3.1, -6.2], target: [-3.1, 1.45, -2.2], mode: 'cutaway',  mep: 'standard', arcOut: 17, badge: 'GUIDED TOUR 3/10 · GROUND LIVING TV 1 & GAS KITCHEN', title: 'Main Living Room, Dining & Piped Gas Kitchen', desc: 'Live animated 85" OLED TV, fluted marble wall, Split-Inverter AC, spinning cove fan, 8-seat dining & 4-burner piped gas kitchen with island hood.' },
+    { pos: [-11.8, 6.2, 5.6],  target: [-3.0, 4.85, 1.4],  mode: 'cutaway',  mep: 'standard', arcOut: 17, badge: 'GUIDED TOUR 4/10 · 1F FAMILY LOUNGE, OFFICE & 3 SUITES', title: '1st Floor Family TV Lounge, CAD Office & Private Suites', desc: 'Acoustic walnut Family Lounge with animated balcony sliding doors, dual-monitor Executive Office, and 3 private frosted-slider ensuite bedrooms.' },
+    { pos: [-11.6, 9.2, -5.2], target: [-3.6, 8.05, -2.5], mode: 'cutaway',  mep: 'standard', arcOut: 17, badge: 'GUIDED TOUR 5/10 · 2F GRAND MASTER SUITE & SUNSET DECK', title: 'Grand Master Suite, Walk-in Robe & Sunset Balcony', desc: 'Second-floor sanctuary with king bed, glowing gold pendants, spinning ceiling fan, left sunset sun-lounger deck & illuminated walk-in robe.' },
+    { pos: [1.6, 9.0, -6.4],   target: [-0.25, 8.05, -2.75], mode: 'cutaway', mep: 'standard', arcOut: 17, badge: 'GUIDED TOUR 6/10 · LUXURY SPA BATH & LIVE RAIN SHOWER', title: 'Master Spa — Freestanding Egg Tub & Animated Rain Shower', desc: 'Inspect BOTH the freestanding soaking tub AND the frosted-glass walk-in rainfall & handheld shower pouring live animated water spray across all 8 baths.' },
+    { pos: [-11.2, 12.6, 5.2], target: [-4.6, 11.2, 1.2],  mode: 'cutaway',  mep: 'standard', arcOut: 18, badge: 'GUIDED TOUR 7/10 · ROOFTOP AC GAMING STUDIO & VR CAR', title: 'Zero-Glitch RGB Gaming Studio, VR Motion Car & Arcade', desc: 'Climate-controlled rooftop studio with Split-Inverter AC, triple 240Hz PC racing HUD, hydraulic VR motion car, rear arcade & Media Lounge TV 3.' },
+    { pos: [-12.2, 16.4, 8.4], target: [-4.2, 13.0, -0.6], mode: 'exterior', mep: 'standard', arcOut: 19, badge: 'GUIDED TOUR 8/10 · PARTY SHED, SKY-BRIDGE & GAS BBQ', title: 'All-Weather Party Shed & Gas-Piped Outdoor BBQ Pergola', desc: 'Monsoon-proof Party Shed with karaoke visualizer TV, mini-bar & glass sky-bridge above the L-shaped marble/walnut BBQ chef kitchen.' },
+    { pos: [-6.4, 4.2, -13.2], target: [-1.5, 0.75, -9.8], mode: 'exterior', mep: 'standard', arcOut: 19, badge: 'GUIDED TOUR 9/10 · GARDEN PATIO, BENCHES & VEG FARM', title: 'Rear Landscaped Garden, Teak Benches & Organic Veg Farm', desc: 'Zero-glitch slatted-teak garden benches on travertine patio, stepping-stone walkways, bougainvillea beds & 3-bed organic vegetable farm.' },
+    { pos: [12.4, 5.6, -11.4], target: [1.2, 4.4, -2.6],   mode: 'exterior', mep: 'mepIsolate', arcOut: 20, gasOpen: true, badge: 'GUIDED TOUR 10/10 · LOCKED GAS VAULT & ANIMATED 3D MEP', title: 'Waterproof Gas Vault & Zero-Glitch Animated 3D MEP Flow', desc: 'Padlock opens on the rainproof LPG vault as constant-velocity animated flow glides through 18,000 L Water, Solar Hot, DWV, HVAC & Gas risers!' }
   ];
   document.getElementById('tourModel').onclick = () => {
     if (walkMode) exitWalkthrough(false);
-    tour = !tour; spinning = false; camGoalPos = null; tourStart = performance.now(); lastTourStop = -1;
+    tour = !tour; spinning = false; camGoalPos = camGoalTarget = null;
+    if (tour) {
+      if (exploded) { exploded = false; arrangeFloors(); document.getElementById('explodeModel').setAttribute('aria-pressed', 'false'); }
+      document.getElementById('modelLevel').value = 'all';
+      Object.values(levels).forEach(g => { g.visible = true; });
+      tower.visible = true;
+      tourStart = performance.now();
+      lastTourStop = -1;
+      tourEntryPos = camera.position.clone();
+      tourEntryTgt = controls.target.clone();
+      isSkipped = false;
+    } else {
+      if (document.getElementById('waterSystemMode').value !== 'standard') {
+        document.getElementById('waterSystemMode').value = 'standard';
+        applyWaterMode('standard');
+      }
+    }
     document.getElementById('tourModel').setAttribute('aria-pressed', String(tour));
     document.getElementById('rotateModel').setAttribute('aria-pressed', 'false');
-    announceStatus(tour ? 'Started real-home cinematic guided tour' : 'Stopped guided tour');
+    announceStatus(tour ? 'Started 10-stop cinematic guided tour' : 'Stopped guided tour');
     startLoop();
   };
   /* Dual-Engine Fullscreen hook wired into top-level Invoker Commands (`#modelStage` `command` event) */
@@ -5153,8 +5336,9 @@ async function init3DViewer() {
   /* Efficient Background Processing (per modern-web-guidance) */
   const modelSection = document.getElementById('model');
   const _walkFwd = new THREE.Vector3(), _walkRight = new THREE.Vector3(), _walkMove = new THREE.Vector3();
-  const _tourPosA = new THREE.Vector3(), _tourPosB = new THREE.Vector3(), _tourTgtA = new THREE.Vector3(), _tourTgtB = new THREE.Vector3();
+  const _tourPosA = new THREE.Vector3(), _tourPosB = new THREE.Vector3(), _tourTgtA = new THREE.Vector3(), _tourTgtB = new THREE.Vector3(), _tourMid = new THREE.Vector3();
   const _doorPosMain = new THREE.Vector3(4.5, 1.8, 6.2), _doorPosGarage = new THREE.Vector3(-3.0, 1.8, 5.2), _doorPosGas = new THREE.Vector3(8.95, 1.8, -3.25), _sdWorldPos = new THREE.Vector3();
+  let atriumSlidePos = 1;
 
   function startLoop() {
     if (rafId || isSkipped || isHidden) return;
@@ -5249,28 +5433,41 @@ async function init3DViewer() {
       updateFloodBarriers(eF);
     }
 
-    // Real-Time Sliding Door Simulation: Smooth soft-close glide for ALL 28 balcony & frosted suite sliding doors (+ choreographed Demo Wave & Walkthrough Proximity Sensor!)
-    if (slidingDemo && !reduced) {
+    // Rebuilt Silky-Smooth Sliding Door Simulation: Zero-Pop Ramp-In/Out, Floor-Cascaded Wave (GF -> 1F -> 2F -> Roof) & Walkthrough Proximity Auto-Open!
+    if (slidingDemo) {
       const elapsed = (time - slidingDemoStart) * 0.001;
-      const cycleDur = 5.6;
+      const cycleDur = 5.8;
       const waveVal = (t) => {
         const u = ((t % cycleDur) + cycleDur) % cycleDur;
-        if (u < 1.35) return u / 1.35;          // Smooth glide open
-        if (u < 2.80) return 1;                 // Pause open
-        if (u < 4.15) return 1 - (u - 2.80) / 1.35; // Soft-close glide shut
-        return 0;                               // Pause sealed
+        if (u < 1.45) return u / 1.45;                 // Smooth soft-start glide open
+        if (u < 2.95) return 1;                        // Hold wide open
+        if (u < 4.40) return 1 - (u - 2.95) / 1.45;    // Smooth soft-close glide shut
+        return 0;                                      // Hold sealed
       };
-      // Sync bi-parting glass atrium entry door cleanly in the live sliding simulation!
-      const atriumW = waveVal(elapsed);
-      const atriumE = atriumW < 0.5 ? 4 * atriumW * atriumW * atriumW : 1 - Math.pow(-2 * atriumW + 2, 3) / 2;
+      const blend = Math.min(1, dt * 6.0);
+      // Smoothly ramp bi-parting glass atrium entry door into the live wave (ZERO teleport on start/stop!)
+      const atriumGoal = waveVal(elapsed);
+      atriumSlidePos += (atriumGoal - atriumSlidePos) * blend;
+      const atriumE = atriumSlidePos < 0.5 ? 4 * atriumSlidePos * atriumSlidePos * atriumSlidePos : 1 - Math.pow(-2 * atriumSlidePos + 2, 3) / 2;
       entryLeafLeft.position.x = CX - 0.56 - atriumE * 0.94;
       entryLeafRight.position.x = CX + 0.56 + atriumE * 0.94;
       for (let i = 0; i < slidingDoors.length; i++) {
         const sd = slidingDoors[i];
-        sd.pos = waveVal(elapsed + sd.phase);
+        sd.doorGroup.getWorldPosition(_sdWorldPos);
+        // Cascade smoothly by floor height so the opening wave climbs visibly up GF -> 1F -> 2F -> Roof!
+        const floorPhase = Math.max(0, _sdWorldPos.y) * 0.14 + (i % 4) * 0.16;
+        const targetWave = waveVal(elapsed - floorPhase);
+        sd.pos += (targetWave - sd.pos) * blend;
         applySlidingDoorPose(sd, sd.pos);
       }
     } else {
+      // Smoothly return atrium entry door back to mainDoorPos if stopping Slide Sim (zero jump!)
+      if (Math.abs(atriumSlidePos - mainDoorPos) > 0.002) {
+        atriumSlidePos += (mainDoorPos - atriumSlidePos) * Math.min(1, dt * 6.0);
+        const ae = atriumSlidePos < 0.5 ? 4 * atriumSlidePos * atriumSlidePos * atriumSlidePos : 1 - Math.pow(-2 * atriumSlidePos + 2, 3) / 2;
+        entryLeafLeft.position.x = CX - 0.56 - ae * 0.94;
+        entryLeafRight.position.x = CX + 0.56 + ae * 0.94;
+      }
       for (let i = 0; i < slidingDoors.length; i++) {
         const sd = slidingDoors[i];
         if (walkMode) {
@@ -5280,52 +5477,53 @@ async function init3DViewer() {
           const dy = Math.abs(camera.position.y - (_sdWorldPos.y + 1.2));
           const horizDist = Math.hypot(dx, dz);
           const baseT = slidingDoorMode === 'open' ? 1 : slidingDoorMode === 'closed' ? 0 : sd.defaultOpen;
-          if (horizDist < 3.2 && dy < 2.2) sd.target = 1;
-          else if (horizDist > 3.7 || dy >= 2.2) sd.target = baseT;
+          if (horizDist < 3.4 && dy < 2.3) sd.target = 1;
+          else if (horizDist > 3.9 || dy >= 2.3) sd.target = baseT;
         }
         const diff = sd.target - sd.pos;
         if (Math.abs(diff) > 0.001) {
-          const step = Math.min(Math.abs(diff), dt * 0.95);
+          const step = Math.min(Math.abs(diff), dt * 1.05);
           sd.pos += Math.sign(diff) * step;
           applySlidingDoorPose(sd, sd.pos);
         }
       }
     }
 
-    // First-Person Real-Home Walkthrough Physics (WASD / Touch D-Pad + Head-Bob + Proximity Auto-Doors!)
+    // Rebuilt First-Person Real-Home Walkthrough Physics (Smooth Inertia + Smooth Floor Glide + Proximity Auto-Doors!)
     if (walkMode && !camGoalPos) {
       const fwdAmt = (walkKeys.fwd ? 1 : 0) - (walkKeys.back ? 1 : 0);
       const strafeAmt = (walkKeys.right ? 1 : 0) - (walkKeys.left ? 1 : 0);
+      _walkMove.set(0, 0, 0);
       if (fwdAmt || strafeAmt) {
         camera.getWorldDirection(_walkFwd);
         _walkFwd.y = 0;
         if (_walkFwd.lengthSq() > 0.0001) _walkFwd.normalize();
         _walkRight.crossVectors(_walkFwd, camera.up).normalize();
-        _walkMove.set(0, 0, 0).addScaledVector(_walkFwd, fwdAmt).addScaledVector(_walkRight, strafeAmt).normalize();
-        const spd = (walkKeys.fast ? 5.6 : 3.2) * dt;
-        _walkMove.multiplyScalar(spd);
-        camera.position.add(_walkMove);
-        controls.target.add(_walkMove);
-        // Keep within estate grounds cleanly
-        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -15.5, 15.5);
-        camera.position.z = THREE.MathUtils.clamp(camera.position.z, -14.5, 15.5);
-        if (!reduced) {
-          walkBobPhase += dt * (walkKeys.fast ? 11.5 : 8.2);
-          const targetY = walkFloors[walkFloorIdx] + Math.sin(walkBobPhase) * 0.032;
-          const dy = (targetY - camera.position.y) * Math.min(1, dt * 10);
-          camera.position.y += dy; controls.target.y += dy;
-        }
+        _walkMove.addScaledVector(_walkFwd, fwdAmt).addScaledVector(_walkRight, strafeAmt).normalize();
+        _walkMove.multiplyScalar(walkKeys.fast ? 5.2 : 3.0);
+      }
+      const accel = 1 - Math.exp(-dt * 11.0);
+      walkVel.lerp(_walkMove, accel);
+      if (walkVel.lengthSq() > 0.0004) {
+        const prevX = camera.position.x, prevZ = camera.position.z;
+        camera.position.x = THREE.MathUtils.clamp(prevX + walkVel.x * dt, -13.8, 13.8);
+        camera.position.z = THREE.MathUtils.clamp(prevZ + walkVel.z * dt, -12.8, 13.8);
+        controls.target.x += camera.position.x - prevX;
+        controls.target.z += camera.position.z - prevZ;
+        if (!reduced) walkBobPhase += dt * (walkKeys.fast ? 10.5 : 7.6);
+      }
+      // Smooth floor-elevation glide + subtle natural walking step bob
+      const bob = (!reduced && walkVel.lengthSq() > 0.05) ? Math.sin(walkBobPhase) * 0.024 : 0;
+      const desiredY = walkTargetY + bob;
+      const dy = (desiredY - camera.position.y) * Math.min(1, dt * 8.5);
+      if (Math.abs(dy) > 0.0003) {
+        camera.position.y += dy;
+        controls.target.y += dy;
       }
       // Proximity auto-opening doors when walking nearby!
-      if (camera.position.distanceTo(_doorPosMain) < 4.5 && mainDoorTarget < 0.5) {
-        mainDoorTarget = 1; syncDoorButtons();
-      }
-      if (camera.position.distanceTo(_doorPosGarage) < 4.5 && garageDoorTarget < 0.5) {
-        garageDoorTarget = 1; syncDoorButtons();
-      }
-      if (camera.position.distanceTo(_doorPosGas) < 4.2 && gasVaultTarget < 0.5) {
-        gasVaultTarget = 1; syncDoorButtons();
-      }
+      if (camera.position.distanceTo(_doorPosMain) < 4.6 && mainDoorTarget < 0.5) { mainDoorTarget = 1; syncDoorButtons(); }
+      if (camera.position.distanceTo(_doorPosGarage) < 4.6 && garageDoorTarget < 0.5) { garageDoorTarget = 1; syncDoorButtons(); }
+      if (camera.position.distanceTo(_doorPosGas) < 4.2 && gasVaultTarget < 0.5) { gasVaultTarget = 1; syncDoorButtons(); }
     }
 
     // Disable OrbitControls damping during automated camera glides/tour so momentum NEVER fights or snaps the camera back!
@@ -5343,35 +5541,79 @@ async function init3DViewer() {
       }
     }
 
-    // Glitch-Free Multi-Stop Real-Home Cinematic Guided Tour
-    if (tour && !reduced) {
-      const dur = 6.2;
-      const totalT = (time - tourStart) / 1000;
-      const idx = Math.floor(totalT / dur) % TOUR_STOPS.length;
-      const nextIdx = (idx + 1) % TOUR_STOPS.length;
-      const u = (totalT % dur) / dur;
-      const g = u < 0.48 ? 0 : (u - 0.48) / 0.52;
-      const s = g < 0.5 ? 4 * g * g * g : 1 - Math.pow(-2 * g + 2, 3) / 2;
-      const A = TOUR_STOPS[idx], B = TOUR_STOPS[nextIdx];
-      if (idx !== lastTourStop) {
-        lastTourStop = idx;
-        document.getElementById('modelDisplay').value = A.mode;
-        document.getElementById('waterSystemMode').value = A.mep;
-        applyDisplay(); applyWaterMode(A.mep);
-        if (A.gasOpen) { gasVaultTarget = 1; syncDoorButtons(); }
-        document.getElementById('viewerBadge').textContent = A.badge;
-        if (captionTextEl) captionTextEl.innerHTML = `<strong>${A.title}</strong>${A.desc}`;
+    // Rebuilt Zero-Clipping Arc-Glide 10-Stop Cinematic Guided Tour (Exterior Bezier Arcs + Smooth Entry + Gentle Parallax Drift!)
+    if (tour) {
+      const entryDur = reduced ? 0.01 : 1.45;
+      const stopDur = reduced ? 4.8 : 6.6;
+      const elapsedS = Math.max(0, (time - tourStart) / 1000);
+      if (elapsedS < entryDur && tourEntryPos && tourEntryTgt) {
+        const u = elapsedS / entryDur;
+        const s = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+        const S0 = TOUR_STOPS[0];
+        if (lastTourStop !== 0) {
+          lastTourStop = 0;
+          document.getElementById('modelDisplay').value = S0.mode;
+          document.getElementById('waterSystemMode').value = S0.mep;
+          applyDisplay(); applyWaterMode(S0.mep);
+          document.getElementById('viewerBadge').textContent = S0.badge;
+          if (captionTextEl) captionTextEl.innerHTML = `<strong>${S0.title}</strong>${S0.desc}`;
+        }
+        _tourPosB.set(...S0.pos); _tourTgtB.set(...S0.target);
+        camera.position.lerpVectors(tourEntryPos, _tourPosB, s);
+        controls.target.lerpVectors(tourEntryTgt, _tourTgtB, s);
+      } else {
+        const totalT = Math.max(0, elapsedS - entryDur);
+        const idx = Math.floor(totalT / stopDur) % TOUR_STOPS.length;
+        const nextIdx = (idx + 1) % TOUR_STOPS.length;
+        const u = (totalT % stopDur) / stopDur;
+        const A = TOUR_STOPS[idx], B = TOUR_STOPS[nextIdx];
+        if (idx !== lastTourStop) {
+          lastTourStop = idx;
+          document.getElementById('modelDisplay').value = A.mode;
+          document.getElementById('waterSystemMode').value = A.mep;
+          applyDisplay(); applyWaterMode(A.mep);
+          if (A.gasOpen) { gasVaultTarget = 1; syncDoorButtons(); }
+          if (A.garageOpen) { garageDoorTarget = 1; syncDoorButtons(); }
+          document.getElementById('viewerBadge').textContent = A.badge;
+          if (captionTextEl) captionTextEl.innerHTML = `<strong>${A.title}</strong>${A.desc}`;
+        }
+        _tourPosA.set(...A.pos); _tourPosB.set(...B.pos);
+        _tourTgtA.set(...A.target); _tourTgtB.set(...B.target);
+        if (reduced || u < 0.54) {
+          // Gentle slow cinematic parallax sway while showcasing the active room/feature!
+          const dwellU = Math.min(1, u / 0.54);
+          const sway = reduced ? 0 : Math.sin((dwellU - 0.5) * Math.PI) * 0.085;
+          const dx = _tourPosA.x - _tourTgtA.x, dz = _tourPosA.z - _tourTgtA.z;
+          const cosS = Math.cos(sway), sinS = Math.sin(sway);
+          camera.position.set(_tourTgtA.x + dx * cosS - dz * sinS, _tourPosA.y + (reduced ? 0 : Math.sin(dwellU * Math.PI) * 0.22), _tourTgtA.z + dx * sinS + dz * cosS);
+          controls.target.copy(_tourTgtA);
+        } else {
+          // Outward elevated quadratic Bezier arc cleanly around the exterior envelope — ZERO wall or slab clipping!
+          const g = (u - 0.54) / 0.46;
+          const s = g < 0.5 ? 4 * g * g * g : 1 - Math.pow(-2 * g + 2, 3) / 2;
+          _tourMid.addVectors(_tourPosA, _tourPosB).multiplyScalar(0.5);
+          const horizR = Math.hypot(_tourMid.x, _tourMid.z);
+          const minR = Math.max(A.arcOut || 17, B.arcOut || 17);
+          if (horizR < minR) {
+            if (horizR > 0.2) { _tourMid.x *= minR / horizR; _tourMid.z *= minR / horizR; }
+            else { _tourMid.x = -minR; _tourMid.z = minR * 0.4; }
+          }
+          _tourMid.y = Math.max(_tourPosA.y, _tourPosB.y) + 2.4;
+          const omt = 1 - s;
+          camera.position.set(
+            omt * omt * _tourPosA.x + 2 * omt * s * _tourMid.x + s * s * _tourPosB.x,
+            omt * omt * _tourPosA.y + 2 * omt * s * _tourMid.y + s * s * _tourPosB.y,
+            omt * omt * _tourPosA.z + 2 * omt * s * _tourMid.z + s * s * _tourPosB.z
+          );
+          controls.target.lerpVectors(_tourTgtA, _tourTgtB, s);
+        }
       }
-      _tourPosA.set(...A.pos); _tourPosB.set(...B.pos);
-      _tourTgtA.set(...A.target); _tourTgtB.set(...B.target);
-      camera.position.lerpVectors(_tourPosA, _tourPosB, s);
-      controls.target.lerpVectors(_tourTgtA, _tourTgtB, s);
     }
 
     controls.autoRotate = spinning && !tour && !walkMode && !reduced;
     controls.autoRotateSpeed = 0.72;
 
-    // Smooth Live Simulation: TVs/Gaming/Water SCADA (adaptive FPS on mobile!), VR Motion Car, 5-Stage Water Drops, Fans & MEP Flow!
+    // Smooth Live Simulation: TVs/Gaming/Water SCADA (adaptive FPS on mobile!), Live Showers, VR Car, 5-Stage Filter & Zero-Glitch Pipe Flow!
     if (!reduced) {
       const screenInterval = (isTouchDevice() || activeDpr < targetDpr) ? 120 : 62;
       if (time - lastScreenTick > screenInterval) {
@@ -5381,6 +5623,20 @@ async function init3DViewer() {
       for (let i = 0; i < spinningFans.length; i++) {
         const f = spinningFans[i];
         f.obj.rotation[f.axis] += dt * f.speed;
+      }
+      // Live Animated Falling Shower Water Spray & Floor Splash Ripples across ALL 8 Bathrooms!
+      for (let i = 0; i < showerDrops.length; i++) {
+        const sd = showerDrops[i];
+        const u = (tSec * sd.speed + sd.phase) % 1;
+        sd.mesh.position.y = sd.topY - u * (sd.topY - sd.botY);
+        const sFade = Math.sin(u * Math.PI);
+        sd.mesh.scale.set(1, 0.55 + sFade * 0.85, 1);
+      }
+      for (let i = 0; i < showerRipples.length; i++) {
+        const sr = showerRipples[i];
+        const u = (tSec * 1.15 + sr.phase) % 1;
+        const sc = 0.35 + u * 0.95;
+        sr.mesh.scale.set(sc, sc, 1);
       }
       // Active VR Sim-Racing Steering Wheel + Smooth Hydraulic Motion Cockpit Tilt!
       if (vrSteeringWheel && vrCarMotionPivot) {
@@ -5396,11 +5652,11 @@ async function init3DViewer() {
       rgbCyanMat.emissive.setHSL(hueC, 0.9, 0.50);
       gameRgbLight.color.setHSL(hueP, 0.7, 0.65);
 
-      // Live 5-Stage Water Purification Color-Shifting Simulation (Amber Raw -> Teal -> Cyan -> UV-C Violet -> Crystal Pure Blue!)
+      // Live 5-Stage Water Purification Color-Shifting Simulation (Constant-Velocity Polyline Track — Zero Elbow Glitches!)
       for (let i = 0; i < filterSimDrops.length; i++) {
         const d = filterSimDrops[i];
         const p = (tSec * 0.14 + d.phase) % 1;
-        d.curve.getPointAt(p, d.mesh.position);
+        samplePolylineTrack(d.track, p, d.mesh.position, null);
         if (p < 0.20) d.mat.color.setHex(0xd97706);      // Stage 1: Raw amber water
         else if (p < 0.42) d.mat.color.setHex(0x14b8a6); // Stage 2: Sand & carbon filtered
         else if (p < 0.65) d.mat.color.setHex(0x38bdf8); // Stage 3-4: Softened cyan
@@ -5415,19 +5671,23 @@ async function init3DViewer() {
       const fPulse = 0.94 + 0.08 * Math.sin(tSec * 10);
       for (let i = 0; i < gasFlameMeshes.length; i++) gasFlameMeshes[i].scale.setScalar(fPulse);
 
-      // Animated directional flow pulses along visible concealed MEP pipes & ventilation ducts (ONLY when X-Ray/Spotlight active!)
+      // Zero-Glitch Constant-Velocity Oriented Directional Flow Pulses along Concealed MEP Pipes & Ducts!
       for (let i = 0; i < mepFlowBeads.length; i++) {
         const b = mepFlowBeads[i];
         if (!b.grp.visible) continue;
         const pT = (tSec * b.speed + b.phase) % 1;
-        b.curve.getPointAt(pT, b.mesh.position);
+        samplePolylineTrack(b.track, pT, b.mesh.position, b.mesh.quaternion);
+        const edgeFade = Math.min(1, Math.sin(pT * Math.PI) * 5.0);
+        b.mesh.scale.set(b.radScale * edgeFade, edgeFade, b.radScale * edgeFade);
       }
-      // Animated amber lightning-grounding pulses along copper down-conductors in Structural Safety X-Ray mode!
+      // Zero-Glitch Oriented Amber Lightning-Grounding Pulses along Copper Down-Conductors!
       for (let i = 0; i < lightningFlowBeads.length; i++) {
         const b = lightningFlowBeads[i];
         if (!b.grp.visible) continue;
         const pT = (tSec * b.speed + b.phase) % 1;
-        b.curve.getPointAt(pT, b.mesh.position);
+        samplePolylineTrack(b.track, pT, b.mesh.position, b.mesh.quaternion);
+        const edgeFade = Math.min(1, Math.sin(pT * Math.PI) * 5.0);
+        b.mesh.scale.set(b.radScale * edgeFade, 1.15 * edgeFade, b.radScale * edgeFade);
       }
     }
     controls.update();

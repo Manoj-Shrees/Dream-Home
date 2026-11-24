@@ -1375,6 +1375,12 @@
       }
     }
 
+    .walk-hud button.active {
+      background: linear-gradient(135deg, #fbe5ba, #cfa056);
+      color: #0a1522;
+      border-color: #fff2d1;
+    }
+
     .walk-hud button.walk-exit {
       background: linear-gradient(135deg, #f8dfae, #c89a54);
       color: #0b1624;
@@ -3859,16 +3865,19 @@
             <div class="walk-hud" id="walkHud" aria-label="Real-home walkthrough navigation">
               <div class="walk-hud-row" id="walkRoomJumps">
                 <button type="button" data-walk="entry">🚪 Entry</button>
+                <button type="button" data-walk="garage">🚘 Garage</button>
+                <button type="button" data-walk="spiral">🌀 Spiral</button>
                 <button type="button" data-walk="living">🛋️ Living &amp; TV</button>
                 <button type="button" data-walk="kitchen">🍳 GF Kitchen</button>
                 <button type="button" data-walk="family">💼 1F Family</button>
                 <button type="button" data-walk="master">👑 2F Master</button>
-                <button type="button" data-walk="spa">🛁 Spa Bath</button>
+                <button type="button" data-walk="spa">🚿 Spa &amp; Shower</button>
                 <button type="button" data-walk="game">🎮 Game Room</button>
-                <button type="button" data-walk="bbq">🍖 BBQ &amp; Party</button>
+                <button type="button" data-walk="bbq">🍖 BBQ</button>
+                <button type="button" data-walk="party">🎉 Party Shed</button>
+                <button type="button" data-walk="garden">🌿 Garden</button>
                 <button type="button" data-walk="gas">🔒 Gas Vault</button>
                 <button type="button" data-walk="filter">🧪 Water Filter</button>
-                <button type="button" data-walk="veg">🥬 Veg Farm</button>
               </div>
               <div class="walk-hud-pad">
                 <div class="walk-arrows">
@@ -3878,12 +3887,14 @@
                   <button type="button" data-move="right" aria-label="Strafe right">▶ <span class="walk-lbl">Right</span></button>
                 </div>
                 <div class="walk-meta-btns">
+                  <button type="button" id="walkPrevStop" aria-label="Previous room">⟨ <span class="walk-lbl">Prev</span></button>
+                  <button type="button" id="walkNextStop" aria-label="Next room"><span class="walk-lbl">Next</span> ⟩</button>
                   <button type="button" id="walkFloorDown" aria-label="Step down one floor">↓ <span class="walk-lbl">Floor</span></button>
                   <button type="button" id="walkFloorUp" aria-label="Step up one floor">↑ <span class="walk-lbl">Floor</span></button>
-                  <button type="button" class="walk-exit" id="exitWalkBtn">✕ <span class="walk-lbl">Exit Walk</span></button>
+                  <button type="button" class="walk-exit" id="exitWalkBtn">✕ <span class="walk-lbl">Exit</span></button>
                 </div>
               </div>
-              <div class="walk-hud-hint">W/A/S/D or Arrows to walk · Drag to look 360° · Shift to jog · Doors auto-open nearby</div>
+              <div class="walk-hud-hint">W/A/S/D or Arrows to walk · Drag to look 360° · Scroll to step · Doors auto-open nearby</div>
             </div>
             <div class="viewer-tools" id="viewerToolsBar" role="toolbar" focusgroup="toolbar wrap"
               aria-label="3D studio actions" aria-controls="modelCanvas">
