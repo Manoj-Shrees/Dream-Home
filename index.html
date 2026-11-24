@@ -1316,6 +1316,10 @@
       margin-top: 18px
     }
 
+    .arch-callout-grid.cols-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .arch-callout {
       padding: 18px 20px;
       border-radius: 16px;
@@ -3017,7 +3021,8 @@
               <button type="button" aria-pressed="false" data-cam="rooftopParty" interestfor="tip-cam-party">Party Shed</button>
               <button type="button" aria-pressed="false" data-cam="laundry" interestfor="tip-cam-laundry">Laundry Wing</button>
               <button type="button" aria-pressed="false" data-cam="spiralBack" interestfor="tip-cam-spiral">Behind Spiral</button>
-              <button type="button" aria-pressed="false" data-cam="stairTop" interestfor="tip-cam-stairtop">Stair-Top Dome</button>
+              <button type="button" aria-pressed="false" data-cam="stairTop" interestfor="tip-cam-stairtop">Stair-Top Skylight</button>
+              <button type="button" aria-pressed="false" data-cam="structuralSafety" interestfor="tip-cam-safety">Foundation &amp; Safety</button>
               <button type="button" aria-pressed="false" data-cam="gasVault" interestfor="tip-cam-gas">Gas Vault &amp; Lines</button>
               <button type="button" aria-pressed="false" data-cam="waterFilter" interestfor="tip-cam-filter">Water Filter Sim</button>
               <button type="button" aria-pressed="false" data-cam="stormDrains" interestfor="tip-cam-storm">Storm &amp; Strainers</button>
@@ -3061,6 +3066,7 @@
               <button type="button" id="toggleGarageDoor" aria-pressed="true" interestfor="tip-tool-garage"><span class="btn-dot is-open" id="dotGarageDoor" aria-hidden="true"></span>🚘 Garage Roll</button>
               <button type="button" id="toggleCurtains" aria-pressed="false" interestfor="tip-tool-curtains"><span class="btn-dot is-closed" id="dotCurtains" aria-hidden="true"></span>🪟 Curtains</button>
               <button type="button" id="toggleGasLock" aria-pressed="false" interestfor="tip-tool-gaslock"><span class="btn-dot is-locked" id="dotGasLock" aria-hidden="true"></span>🔒 Gas Lock</button>
+              <button type="button" id="toggleFloodGate" aria-pressed="false" interestfor="tip-tool-flood"><span class="btn-dot is-closed" id="dotFloodGate" aria-hidden="true"></span>🌊 Flood Gate</button>
               <button type="button" id="explodeModel" aria-pressed="false" interestfor="tip-tool-explode">Explode Floors</button>
               <button type="button" id="togglePins" aria-pressed="true" interestfor="tip-tool-pins">🏷️ Room Pins</button>
               <button type="button" id="rotateModel" aria-pressed="false" interestfor="tip-tool-rotate">⟳ Auto-Rotate</button>
@@ -3102,6 +3108,13 @@
               <span><i class="water-dot" style="background:#a9d8f0"></i>HVAC &amp; Exhaust Vents</span>
               <span><i class="water-dot" style="background:#f6c93b"></i>LPG Gas (Locked Vault → Both Kitchens)</span>
             </div>
+            <div class="mep-live-legend" id="safetyLiveLegend" aria-label="Structural foundation and disaster safety legend">
+              <span><i class="water-dot" style="background:#8b98a6"></i>16 RCC Friction Piles &amp; Waterproof Raft</span>
+              <span><i class="water-dot" style="background:#f97316"></i>Lead-Rubber Seismic Base Isolators (NBC-105)</span>
+              <span><i class="water-dot" style="background:#ef4444"></i>Ductile Shear Core &amp; Viscous Dampers</span>
+              <span><i class="water-dot" style="background:#eab308"></i>Hydraulic Aluminum Flood Barriers &amp; Sump Pumps</span>
+              <span><i class="water-dot" style="background:#d97706"></i>ESE Lightning Mast, Faraday Ring &amp; 3 Copper Earth Pits</span>
+            </div>
           </div>
           <p id="viewerLiveStatus" class="sr-only" role="status" aria-live="polite"></p>
         </div>
@@ -3137,9 +3150,10 @@
             <option value="walls">Show interior partitions</option>
           </select>
 
-          <label for="waterSystemMode">MEP · Water, Vents &amp; Piping</label>
+          <label for="waterSystemMode">MEP, Foundation &amp; Safety X-Ray</label>
           <select id="waterSystemMode">
-            <option value="standard">Standard (tanks, gas vault &amp; hoods)</option>
+            <option value="standard">Standard (clean architectural view)</option>
+            <option value="structural">Foundation, Seismic, Flood &amp; Lightning X-Ray</option>
             <option value="xray">Full MEP X-Ray (water · vents · drain · gas)</option>
             <option value="mepIsolate">Piping &amp; Ventilation Spotlight</option>
           </select>
@@ -3190,6 +3204,7 @@
             <button type="button" class="btn small gold" id="panelGarageDoor" aria-pressed="true" style="width:100%">🚘 Garage Rolling Door: Open</button>
             <button type="button" class="btn small" id="panelCurtains" aria-pressed="false" style="width:100%">🪟 Motorized Curtains: Folded</button>
             <button type="button" class="btn small" id="panelGasLock" aria-pressed="false" style="width:100%">🔒 Gas Cylinder Vault: Locked</button>
+            <button type="button" class="btn small" id="panelFloodGate" aria-pressed="false" style="width:100%">🌊 Hydraulic Flood Barriers: Stowed</button>
             <button type="button" class="btn small" id="panelWalkBtn" aria-pressed="false" style="width:100%">🚶 Real-Home Walkthrough</button>
           </div>
 
@@ -3231,8 +3246,8 @@
           washer/dryer room, covered monsoon drying shed, hot/cold risers &amp; Rooftop WC.</div>
         <div id="tip-cam-spiral" class="ui-tip" popover="hint"><strong>Behind Spiral · Bed 6 &amp; Baths</strong>Bedroom
           6 + Ensuite 6, Ground Guest WC, Ensuites 1 &amp; 4, framed art &amp; spiral landings.</div>
-        <div id="tip-cam-stairtop" class="ui-tip" popover="hint"><strong>Stair-Top Glass Skylight Dome</strong>Champagne-gold
-          radial skylight observatory crowning the spiral atrium with passive thermal vents, Party Shed sky-bridge &amp; lightning rod.</div>
+        <div id="tip-cam-stairtop" class="ui-tip" popover="hint"><strong>Stair-Top Flush Skylight Oculus</strong>Sleek flat-topped white drum crown with flush recessed low-iron glass skylight oculus, passive louvers, Party Shed sky-bridge &amp; discreet rear ESE lightning mast.</div>
+        <div id="tip-cam-safety" class="ui-tip" popover="hint"><strong>Foundation, Seismic, Flood &amp; Lightning Safety</strong>X-Ray view of 16 deep RCC piles &amp; waterproof raft, 16 lead-rubber seismic base isolators (NBC-105), ductile shear core, deployable hydraulic flood barriers &amp; IEC-62305 lightning earth pits.</div>
         <div id="tip-cam-gas" class="ui-tip" popover="hint"><strong>Waterproof Lockable Gas Vault</strong>Elevated
           rainproof dual-LPG enclosure with keyed padlock door &amp; concealed wall-aligned safety-yellow piping to both kitchens.</div>
         <div id="tip-cam-filter" class="ui-tip" popover="hint"><strong>5-Stage Water Filtration Simulation</strong>Live
@@ -3262,6 +3277,7 @@
         <div id="tip-tool-garage" class="ui-tip" popover="hint"><strong>Rolling Garage Door</strong>Roll the 12-slat articulated overhead sectional garage door up or down smoothly.</div>
         <div id="tip-tool-curtains" class="ui-tip" popover="hint"><strong>Motorized Smart Curtains</strong>Unfold or fold all pleated velvet &amp; sheer window curtains smoothly across every room in the villa.</div>
         <div id="tip-tool-gaslock" class="ui-tip" popover="hint"><strong>Lockable Waterproof Gas Vault</strong>Unlock and swing open the external rainproof LPG cylinder cabinet to inspect twin cylinders &amp; regulator.</div>
+        <div id="tip-tool-flood" class="ui-tip" popover="hint"><strong>Hydraulic Aluminum Flood Barriers</strong>Raise or retract the recessed monsoon flood-stop walls across the main street portal &amp; 2-car garage threshold.</div>
         <div id="tip-tool-pins" class="ui-tip" popover="hint">Show or hide interactive 3D room hover pins on the villa
         </div>
         <div id="tip-tool-rotate" class="ui-tip" popover="hint">Slowly orbit 360° around the entire 3D estate</div>
@@ -3271,8 +3287,8 @@
         <div id="tip-tool-reset" class="ui-tip" popover="hint">Reset all floors, pins and camera to default state</div>
       </div>
 
-      <!-- Dedicated Architectural Explanations for Spiral Back Core, 3D Interiors, Garden Benches & Water System -->
-      <div class="arch-callout-grid">
+      <!-- Dedicated Architectural Explanations for Spiral Back Core, 3D Interiors, MEP & Multi-Hazard Disaster Safety -->
+      <div class="arch-callout-grid cols-4">
         <article class="arch-callout">
           <div class="eyebrow">Spiral Atrium Back Side</div>
           <h3>What is behind the Glass Spiral Staircase?</h3>
@@ -3332,6 +3348,25 @@
             <span><i class="water-dot" style="background:#f6c93b"></i>LPG Gas</span>
           </div>
         </article>
+
+        <article class="arch-callout">
+          <div class="eyebrow">Foundation &amp; Multi-Hazard Safety</div>
+          <h3>Earthquake, Monsoon Flood &amp; Thunderstorm Defense</h3>
+          <p>Click <strong>Foundation &amp; Safety</strong> or toggle <strong>🌊 Flood Gate</strong> to inspect the full subterranean structure and disaster-resilience engineering:</p>
+          <ul>
+            <li><strong>Deep Pile-Raft Foundation:</strong> 16 bored cast-in-situ RCC friction piles (Ø 0.56 m, -3.85 m) tied into a crystalline waterproof M30 mat slab, plinth tie-beams &amp; HDPE damp-proof membrane.</li>
+            <li><strong>Earthquake Safety (NBC-105 Zone V):</strong> 16 laminated steel &amp; lead-rubber Seismic Base Isolators, full-height ductile shear-wall core with X-braced dampers, and automatic &gt;0.15g seismic LPG shutoff valve.</li>
+            <li><strong>Monsoon Flood Safety:</strong> Raised 1.04 m atrium plinth, deployable hydraulic aluminum Flood Barriers at street (1.12 m) &amp; garage (0.92 m) portals, twin submersible dewatering sump pumps &amp; brass non-return flap.</li>
+            <li><strong>Thunderstorm &amp; Lightning (IEC-62305):</strong> Discreet rear brushed-stainless ESE lightning mast (keeping the flat-topped flush-skylight spiral crown clean), roof copper Faraday ring, Type-1+2 SPD &amp; 3 deep copper Earth Pits.</li>
+          </ul>
+          <div class="water-legend">
+            <span><i class="water-dot" style="background:#8b98a6"></i>16 RCC Piles &amp; Raft</span>
+            <span><i class="water-dot" style="background:#f97316"></i>Seismic Isolators</span>
+            <span><i class="water-dot" style="background:#ef4444"></i>Ductile Shear Core</span>
+            <span><i class="water-dot" style="background:#eab308"></i>Flood Barriers</span>
+            <span><i class="water-dot" style="background:#d97706"></i>ESE Mast &amp; Earth Pits</span>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -3346,6 +3381,7 @@
         </div>
         <div class="tabs" id="floorTabs" role="tablist" aria-label="Floor plan selector">
           <button type="button" class="active" data-floor="site" role="tab" aria-selected="true">Site</button>
+          <button type="button" data-floor="foundation" role="tab" aria-selected="false">Foundation &amp; Safety</button>
           <button type="button" data-floor="ground" role="tab" aria-selected="false">Ground</button>
           <button type="button" data-floor="first" role="tab" aria-selected="false">First</button>
           <button type="button" data-floor="second" role="tab" aria-selected="false">Second</button>
@@ -3842,9 +3878,9 @@
       master: [1200, 805], 'private': [1200, 805], bedroom: [1200, 805], bathroom: [1200, 805],
       office: [1200, 805], gaming: [1200, 805], front: [1600, 1000], rear: [1600, 1000],
       right: [1600, 1000], left: [1600, 1000], aerial: [1600, 1000], site: [1600, 1066],
-      ground: [1600, 1066], first: [1600, 1066], second: [1600, 1066], roof: [1600, 1066],
-      water: [1600, 1066], bbq: [1600, 1000], game: [1600, 1000], outdoor: [1600, 1000],
-      garden: [1600, 1000], entertainment: [1600, 1000], solar: [1600, 1066],
+      foundation: [1600, 1066], ground: [1600, 1066], first: [1600, 1066], second: [1600, 1066],
+      roof: [1600, 1066], water: [1600, 1066], bbq: [1600, 1000], game: [1600, 1000],
+      outdoor: [1600, 1000], garden: [1600, 1000], entertainment: [1600, 1000], solar: [1600, 1066],
       'party-shed': [1600, 1066], laundry: [1600, 1066]
     };
 
@@ -3853,119 +3889,148 @@
       return `<img class="img-fade" src="assets/${id}.webp" srcset="assets/thumbs/${id}.webp 540w, assets/${id}.webp ${w}w" sizes="${sizes}" width="${w}" height="${h}" loading="lazy" fetchpriority="low" decoding="async" alt="${alt}">`;
     }
 
-    /* Floor Plans Data with exact dimensions from infographic */
+    /* Floor Plans Data — Matched 1:1 to Interactive 3D Villa Model, Disaster Safety & MEP Engineering */
     const floorData = {
       site: {
-        name: 'Site plan',
-        meta: ['16 Aana (1 Ropani)', '5,476 sq ft (508.7 m²)', '55 ft × 100 ft'],
-        desc: 'Conceptual site allocation for a 16-aana Chitwan plot: ~1,350 sq ft (~25%) building footprint and ~4,100 sq ft (~75%) open landscaped garden, driveway and arrival court.',
+        name: 'Site plan (16 Aana)',
+        meta: ['16 Aana · 55 × 100 ft', 'Veg Farm + 5-Stage Filter', 'Flood Gate & 3 Earth Pits'],
+        desc: '1-to-1 estate allocation matching the 3D studio: ~1,350 sq ft (~25%) pile-raft villa footprint surrounded by ~4,100 sq ft (~75%) open tropical garden, Organic Kitchen Vegetable Farm, 5-Stage Water Filter vault, perimeter storm trench drains, hydraulic flood barriers, locked LPG vault & 3 copper lightning earth pits.',
         rooms: [
-          'Front landscaped garden, arrival court and fire-pit seating patio',
-          'Two-car driveway leading directly to covered ground-level garage',
-          'Main villa footprint (~1,350 sq ft) with peripheral setback walkways',
-          '15,000 L underground filtered water storage & ventilated outdoor LPG bay',
-          'Rear tropical garden lawn and outdoor lounge terrace'
+          'Rear-Left Organic Kitchen Vegetable Farm (3 raised cedar beds, mini cold-frame greenhouse, drip barrel & composter)',
+          'Rear Travertine Garden Patio with 4 slatted-teak benches, Bio-Septic vault & baffled Kitchen/BBQ Grease Trap',
+          'Main Villa Footprint (~1,350 sq ft) with 3-side stormwater trench drains, 4 silt catch basins & right LPG vault',
+          'Front-Left 15,000 L UG Vault + 5-Stage UV/RO Water Filtration Skid (glass hatch & live SCADA)',
+          '2-Car Travertine Driveway (Rolls-Royce & Mercedes-Benz) with Motorized Sliding Gate & Hydraulic Flood Barriers',
+          'Front-Right Circular Sunken Fire-Pit Lounge (3 curved benches), Dual Sump Outfall & 3 Lightning Earth Pits (E1–E3)'
         ],
         cells: [
-          ['Rear Garden & Patio', 0, 0, 6, 1],
-          ['Side Lawn', 0, 1, 1, 3],
-          ['Main Villa Footprint / ~1,350 sq ft', 1, 1, 4, 2.4],
-          ['Stepping Path', 5, 1, 1, 3],
-          ['2-Car Driveway', 1, 3.4, 2.2, 1.6],
-          ['Front Lawn & Fire Pit', 3.2, 3.4, 2.8, 1.6]
+          ['Organic Veg Farm / 3 Beds + Greenhouse', 0, 0, 2.2, 1.15],
+          ['Rear Garden Patio / 4 Teak Benches + Grease Trap', 2.2, 0, 3.8, 1.15],
+          ['Bio-Septic & / West Storm Trench', 0, 1.15, 1.1, 2.25],
+          ['Main Villa Footprint / ~1,350 sq ft · Flush Skylight', 1.1, 1.15, 3.7, 2.25],
+          ['Locked LPG Vault / & Stepping Path', 4.8, 1.15, 1.2, 2.25],
+          ['15,000 L UV/RO / Water Filter Vault', 0, 3.4, 1.5, 1.6],
+          ['2-Car Driveway (RR & Benz) / Sliding + Flood Gate', 1.5, 3.4, 2.5, 1.6],
+          ['Sunken Fire Pit & / Sump Outfall (E1–E3)', 4.0, 3.4, 2.0, 1.6]
+        ]
+      },
+      foundation: {
+        name: 'Foundation & multi-hazard safety',
+        meta: ['16 RCC Friction Piles (-3.85m)', 'NBC-105 Seismic Isolators', 'Flood Barriers & IEC-62305 ESE'],
+        desc: 'Complete Chitwan multi-hazard structural defense: 16 deep bored cast-in-situ RCC friction piles & crystalline waterproof M30 raft with DPM liner, 16 laminated lead-rubber Seismic Base Isolators + ductile shear core, deployable hydraulic aluminum Monsoon Flood Barriers & dewatering sump pumps, and rear ESE Lightning Mast bonded to a roof copper Faraday ring & 3 deep copper Earth Pits.',
+        rooms: [
+          'Deep Foundation: 16 Bored Cast-in-Situ RCC Friction Piles (Ø 0.56 m, -3.85 m) + Waterproof M30 Raft & HDPE DPM Liner',
+          'Earthquake Defense (NBC-105 Zone V): 16 Lead-Rubber Seismic Base Isolators + Plinth Tie-Beams + X-Braced Ductile Shear Core',
+          'Seismic Gas Protection: Automatic >0.15g Accelerometer LPG Shutoff Valve directly on the external Gas Vault manifold',
+          'Monsoon Flood Defense: Raised 1.04 m Atrium Plinth + Deployable 1.12 m Street & 0.92 m Garage Hydraulic Aluminum Flood Barriers',
+          'Stormwater & Backflow Defense: Perimeter Trench Grates, 4 Silt Catch Basins, Twin Submersible Sump Pumps & Brass Backflow Flap',
+          'Thunderstorm & Lightning (IEC-62305): Discreet Rear Brushed-Stainless ESE Mast, Copper Roof Faraday Ring, Type-1+2 SPD & 3 Copper Earth Pits'
+        ],
+        cells: [
+          ['Earth Pit E3 (-3.2m) / Equipotential Ring', 0, 0, 1.4, 1.2],
+          ['Waterproof M30 Raft Slab + HDPE DPM / 16 Bored RCC Friction Piles (-3.85 m)', 1.4, 0, 3.2, 1.2],
+          ['Earth Pit E2 (-3.2m) / Seismic LPG Shutoff', 4.6, 0, 1.4, 1.2],
+          ['16 Lead-Rubber Seismic / Base Isolators (Zone V)', 0, 1.2, 2.5, 1.6],
+          ['Ductile Shear Core / X-Braced Dampers · SPD', 2.5, 1.2, 2.1, 1.6],
+          ['Rear ESE Lightning / Mast & Faraday Ring', 4.6, 1.2, 1.4, 1.6],
+          ['Garage Hydraulic Flood / Barrier (0.92 m High)', 0, 2.8, 3.0, 1.05],
+          ['Raised Flood-Free Plinth / 1.04 m Atrium Level', 3.0, 2.8, 3.0, 1.05],
+          ['Earth Pit E1 (-3.2m)', 0, 3.85, 1.3, 1.15],
+          ['Street Hydraulic Aluminum Flood Gate (1.12 m)', 1.3, 3.85, 3.2, 1.15],
+          ['Dual Sump Pumps & / Non-Return Flap', 4.5, 3.85, 1.5, 1.15]
         ]
       },
       ground: {
         name: 'Ground floor',
-        meta: ['≈ 1,350 sq ft', 'Living + Dining + Kitchen', '2-Car Covered Garage'],
-        desc: 'Welcoming entertaining level organized around a spacious living & dining axis, modern kitchen with pantry, ground guest suite and recessed two-car garage beside the sculptural glass spiral staircase.',
+        meta: ['≈ 1,350 sq ft', 'Rolls-Royce & Benz Garage', 'Piped Gas Kitchen & Safety Doors'],
+        desc: 'Matched 1-to-1 to the 3D ground level: Living (85" Live TV 1, motorized curtains), 8–10 seat Dining, 4-burner piped Gas Kitchen with island chimney hood & RO tap, 2-Car Garage with rolling door & hydraulic flood barrier, 62-step Spiral Atrium with 4 marble transition steps & biometric safety doors, Guest Suite + Guest WC, and external waterproof lockable LPG Vault.',
         rooms: [
-          'Main Living Room (TV 1) — 5.4 × 4.8 m',
-          'Dining Room (8–10 Seater) — 4.2 × 3.9 m',
-          'Modern Kitchen (3.6 × 3.6 m) + Walk-in Pantry (2.0 × 2.4 m)',
-          'Bedroom 1 (Guest Ensuite) — 3.6 × 4.2 m + Guest WC (1.8 × 1.7 m)',
-          'Grand Arrival Foyer (2.7 × 3.6 m) & Glass Spiral Staircase Atrium',
-          'Covered 2-Car Garage — 5.5 × 5.5 m'
+          'Main Living Room (85" Live TV 1, Fluted Marble Wall, Cove Fan & Motorized Curtains) — 5.4 × 4.8 m',
+          'Dining Room (8–10 Seater Marble Table & Gold Chandelier) — 4.2 × 3.9 m',
+          'Piped Gas Kitchen (3.6 × 3.6 m — 4-Burner Hob, Island Chimney Hood, RO Tap & Leak Sensor) + Walk-in Pantry (2.0 × 2.4 m)',
+          '2-Car Covered Garage (5.5 × 5.5 m — Rolls-Royce Phantom & Mercedes-Benz AMG, Rolling Door & Hydraulic Flood Barrier)',
+          'Grand Arrival Foyer (2.7 × 3.6 m) · Bi-Parting Sliding Glass Door · 62-Step Spiral Atrium & Armored Safety Doors',
+          'Bedroom 1 (Guest Ensuite · 3.6 × 4.2 m), Guest WC (1.8 × 1.7 m) & External Waterproof Lockable LPG Vault (24 cm Plinth)'
         ],
         cells: [
-          ['Dining / 4.2 × 3.9 m', 0, 0, 2, 1.7],
-          ['Kitchen / 3.6 × 3.6 m', 2, 0, 2.2, 1.7],
-          ['Pantry & LPG / 2.0 × 2.4 m', 4.2, 0, 1.8, 1.7],
-          ['Living (TV 1) / 5.4 × 4.8 m', 0, 1.7, 2.4, 1.6],
-          ['Guest WC / 1.8 × 1.7 m', 4.2, 1.7, 1.8, 1.2],
-          ['2-Car Garage / 5.5 × 5.5 m', 0, 3.3, 2.4, 1.7],
-          ['Foyer / 2.7 × 3.6 m', 2.4, 3.3, 1.5, 1.7],
-          ['Glass Spiral / Atrium', 2.4, 1.7, 1.8, 1.6],
-          ['Bedroom 1 / 3.6 × 4.2 m', 3.9, 2.9, 2.1, 2.1]
+          ['Dining / 4.2 × 3.9 m', 0, 0, 1.85, 1.65],
+          ['Gas Kitchen + Hood / 3.6 × 3.6 m · RO Tap', 1.85, 0, 2.1, 1.65],
+          ['Pantry / 2.0 × 2.4 m', 3.95, 0, 1.0, 1.65],
+          ['Locked LPG Vault / 24cm Plinth', 4.95, 0, 1.05, 1.65],
+          ['Living (Live TV 1) / 5.4 × 4.8 m · Curtains', 0, 1.65, 2.4, 1.65],
+          ['62-Step Spiral / Atrium + Safety Doors', 2.4, 1.65, 1.8, 1.65],
+          ['Guest WC / 1.8 × 1.7 m', 4.2, 1.65, 1.8, 1.2],
+          ['2-Car Garage (RR & Benz) / Rolling + Flood Gate', 0, 3.3, 2.4, 1.7],
+          ['Foyer + Sliding / Entry · 2.7 × 3.6 m', 2.4, 3.3, 1.5, 1.7],
+          ['Bedroom 1 (Ensuite) / 3.6 × 4.2 m', 3.9, 2.85, 2.1, 2.15]
         ]
       },
       first: {
         name: 'First floor',
-        meta: ['≈ 1,300 sq ft', '3 Ensuite Bedrooms', 'Family Lounge & Office'],
-        desc: 'Private family living level combining three generous ensuite bedrooms, a central family TV lounge, dedicated study/office and sweeping planted curved balcony.',
+        meta: ['≈ 1,300 sq ft', '3 Ensuite Bedrooms', 'Family TV & Office w/ Chairs'],
+        desc: 'Private family living level with open spiral landing bridges & biometric safety doors connecting both wings cleanly: 3 ensuite bedrooms with exhaust ventilation, acoustic Family TV Lounge with motorized curtains, Executive Family Office with ergonomic swivel + 2 guest chairs & dual CAD monitors, and sweeping planted curved balcony.',
         rooms: [
-          'Bedroom 2 (Ensuite) — 4.2 × 3.9 m',
-          'Bedroom 3 (Ensuite) — 4.2 × 3.9 m',
-          'Bedroom 4 (Ensuite) — 3.6 × 4.2 m',
-          'Family Lounge — 6.0 × 4.8 m',
-          'Study / Home Office — 3.8 × 3.0 m',
-          'Curved Front Balcony — 5.4 × 2.7 m'
+          'Bedroom 2 (Ensuite + Bath 2 · Motorized Curtains) — 4.2 × 3.9 m',
+          'Bedroom 3 (Ensuite + Bath 3 · Motorized Curtains) — 4.2 × 3.9 m',
+          'Bedroom 4 (Right Pavilion Ensuite + Bath 4) — 3.6 × 4.2 m',
+          'Family TV Lounge (Acoustic Walnut Wall, Cove Fan & Motorized Curtains) — 6.0 × 4.8 m',
+          'Executive Family Office (Walnut Desk, Swivel + 2 Guest Chairs & Dual Live CAD Displays) — 3.8 × 3.0 m',
+          'Open Spiral Bridge Landings with Biometric Safety Doors & Curved LED Balcony (5.4 × 2.7 m · Scupper Strainer)'
         ],
         cells: [
-          ['Bedroom 2 / 4.2 × 3.9 m', 0, 0, 2.4, 1.8],
-          ['Ensuites', 2.4, 0, 1.2, 1.8],
-          ['Bedroom 3 / 4.2 × 3.9 m', 3.6, 0, 2.4, 1.8],
-          ['Family Lounge / 6.0 × 4.8 m', 0, 1.8, 2.6, 1.8],
-          ['Glass Spiral / Atrium', 2.6, 1.8, 1.5, 1.8],
-          ['Study / Office / 3.8 × 3.0 m', 4.1, 1.8, 1.9, 1.4],
-          ['Curved Balcony / 5.4 × 2.7 m', 0, 3.6, 3.6, 1.4],
-          ['Bedroom 4 / 3.6 × 4.2 m', 3.6, 3.2, 2.4, 1.8]
+          ['Bedroom 2 / 4.2 × 3.9 m', 0, 0, 2.35, 1.75],
+          ['Baths 2 & 3 / WC + Rain', 2.35, 0, 1.3, 1.75],
+          ['Bedroom 3 / 4.2 × 3.9 m', 3.65, 0, 2.35, 1.75],
+          ['Family TV Lounge / 6.0 × 4.8 m · Curtains', 0, 1.75, 2.55, 1.85],
+          ['Spiral Bridge / Safety Doors · MEP', 2.55, 1.75, 1.55, 1.85],
+          ['Executive Office / Swivel + 2 Chairs', 4.1, 1.75, 1.9, 1.45],
+          ['Curved LED Balcony / 5.4 × 2.7 m · Strainer', 0, 3.6, 3.6, 1.4],
+          ['Bedroom 4 (Ensuite) / 3.6 × 4.2 m', 3.6, 3.2, 2.4, 1.8]
         ]
       },
       second: {
         name: 'Second floor',
-        meta: ['≈ 1,300 sq ft', 'Master Suite + WIR', 'Private Lounge (TV 2)'],
-        desc: 'Elevated sanctuary dedicated to the grand master bedroom with walk-in robe and spa ensuite, private family lounge, quiet reading study and Bedroom 6.',
+        meta: ['≈ 1,300 sq ft', 'Master + Luxury Spa Bath', 'Bed 6 Behind Spiral'],
+        desc: 'Elevated sanctuary matching the 3D upper level: Grand Master Suite with illuminated Walk-in Robe and Luxury Spa Ensuite (freestanding soaking tub with candle caddy, concealed-cistern bidet WC, halo mirror & rain shower), Private Lounge (TV 2) with motorized curtains, and Bedroom 6 + Ensuite 6 positioned cleanly directly behind the spiral landing.',
         rooms: [
-          'Master Bedroom Suite — 5.4 × 4.2 m',
-          'Walk-in Robe (2.4 × 2.4 m) & Spa Ensuite (3.6 × 2.4 m)',
-          'Private Lounge (TV 2) — 5.4 × 4.8 m',
-          'Bedroom 6 (Ensuite) — 3.6 × 4.2 m',
-          'Study / Reading Corner — 3.8 × 2.4 m',
-          'Curved Panoramic Balcony — 5.4 × 2.7 m'
+          'Grand Master Bedroom Suite (Wall Art, Gold Pendants, Cove Fan & Motorized Drapes) — 5.4 × 4.2 m',
+          'Illuminated Walk-in Robe (2.4 × 2.4 m) & Luxury Master Spa Ensuite (3.6 × 2.4 m — Tub, Bidet WC, Twin Vanity & Rain Shower)',
+          'Private Lounge (TV 2 · Motorized Curtains & Balcony Access) — 5.4 × 4.8 m',
+          'Bedroom 6 (3.6 × 4.2 m) + Ensuite 6 directly behind the Spiral Atrium (completing all 6 suites)',
+          'Open Spiral Landing Bridges with Biometric Safety Doors & Concealed MEP/Shear Spine',
+          'Panoramic Curved LED Balcony — 5.4 × 2.7 m with Stainless Dome Scupper Strainer'
         ],
         cells: [
-          ['Master Suite / 5.4 × 4.2 m', 0, 0, 2.7, 1.8],
-          ['Walk-in Robe / 2.4 × 2.4 m', 2.7, 0, 1.4, 1.8],
-          ['Master Ensuite / 3.6 × 2.4 m', 4.1, 0, 1.9, 1.8],
-          ['Private Lounge (TV 2) / 5.4 × 4.8 m', 0, 1.8, 2.6, 1.8],
-          ['Glass Spiral / Atrium', 2.6, 1.8, 1.5, 1.8],
-          ['Study / 3.8 × 2.4 m', 4.1, 1.8, 1.9, 1.3],
-          ['Curved Balcony / 5.4 × 2.7 m', 0, 3.6, 3.6, 1.4],
-          ['Bedroom 6 / 3.6 × 4.2 m', 3.6, 3.1, 2.4, 1.9]
+          ['Master Suite / 5.4 × 4.2 m · Fan', 0, 0, 2.65, 1.8],
+          ['Walk-in Robe / 2.4 × 2.4 m', 2.65, 0, 1.35, 1.8],
+          ['Master Spa Bath / Tub · Bidet WC · Rain', 4.0, 0, 2.0, 1.8],
+          ['Private Lounge (TV 2) / 5.4 × 4.8 m', 0, 1.8, 2.55, 1.8],
+          ['Spiral Bridge / Safety Doors · MEP', 2.55, 1.8, 1.55, 1.8],
+          ['Ensuite 6 / Behind Spiral', 4.1, 1.8, 1.9, 1.3],
+          ['Panoramic Balcony / 5.4 × 2.7 m', 0, 3.6, 3.6, 1.4],
+          ['Bedroom 6 (Behind Spiral) / 3.6 × 4.2 m', 3.6, 3.1, 2.4, 1.9]
         ]
       },
       roof: {
-        name: 'Rooftop',
-        meta: ['≈ 1,250 sq ft Sky-Deck', 'Party Shed + BBQ Kitchen', 'Laundry + Drying Shed'],
-        desc: 'Redesigned all-weather rooftop lifestyle & service deck featuring a monsoon-proof Party Shed & mini-bar, L-shaped BBQ chef pergola, enclosed PC/VR gaming studio, full Laundry Room with rain-safe covered drying shed, Guest WC, yoga corner and solar/tank deck.',
+        name: 'Rooftop sky-deck',
+        meta: ['≈ 1,250 sq ft Sky-Deck', 'VR Car Game Room & Party Shed', 'BBQ · Laundry · Rear ESE Mast'],
+        desc: 'All-weather Chitwan sky-deck matched 1-to-1 to the 3D rooftop: direct Glass Sky-Bridge from the flush-skylight spiral crown into the monsoon-proof Party Shed, enclosed RGB Gaming Studio with hydraulic VR Motion Sim-Racing Car & Arcade, piped 4-burner Gas BBQ pergola with stainless canopy hood, screened Laundry & Monsoon Drying Shed, 3,000 L tanks, 500 L solar heater, ERV HVAC, metal barriers & discreet rear ESE lightning mast.',
         rooms: [
-          'BBQ & Outdoor Chef Kitchen Pergola — 6.0 × 4.2 m (4-burner grill, sink, bar & 8-seat dining)',
-          'All-Weather Room Party Shed & Mini-Bar — 6.0 × 4.8 m (monsoon roof, festoon lights, karaoke TV 3 & yoga corner)',
-          'Enclosed Gaming Studio (PC / Console / VR) — 4.2 × 4.0 m + Party Buffet Hub',
-          'Dedicated Laundry Room (2.2 × 2.4 m — washer, dryer, marble folding counter & utility sink)',
-          'Covered Monsoon Drying Shed (3.0 × 2.4 m — translucent UV polycarbonate roof & breeze louvers)',
-          'Rooftop Guest WC (1.8 × 1.7 m), Spiral Atrium Lobby, 3,000 L Reserve Tanks & Solar PV/Thermal Array'
+          'Gas BBQ Chef Kitchen Pergola — 6.0 × 4.2 m (4-burner piped gas grill, stainless canopy hood, prep sink & 8-seat dining)',
+          'Enclosed RGB Gaming Studio — 4.2 × 4.0 m (Hydraulic VR Motion Car Cockpit, Retro Arcade, Triple 240Hz PC, Nanoleaf & TV 3)',
+          'All-Weather Party Shed & Mini-Bar — 6.0 × 4.8 m (monsoon steel/timber roof, festoon lights, karaoke TV, fan, yoga deck & Sky-Bridge)',
+          'Screened Laundry Room (2.2 × 2.4 m), UV Polycarbonate Monsoon Drying Shed (3.0 × 2.4 m) & Rooftop Guest WC (1.8 × 1.7 m)',
+          '3,000 L Stainless Reserve Tanks, 500 L Solar Heater, 5–8 kW Solar PV, ERV Fresh-Air HVAC & Spinning Roof Turbo-Vent',
+          'Flush Glass Skylight Spiral Crown (flat modernist top), Metal Safety Barriers, Copper Faraday Ring & Discreet Rear ESE Lightning Mast'
         ],
         cells: [
-          ['BBQ Chef Kitchen / 6.0 × 4.2 m', 0, 0, 3.8, 1.7],
-          ['Laundry Room / 2.2 × 2.4 m', 3.8, 0, 2.2, 1.25],
-          ['Gaming Studio / 4.2 × 4.0 m', 0, 1.7, 2.4, 1.6],
-          ['Party Bar & / Buffet Hub', 2.4, 1.7, 1.4, 1.6],
-          ['Covered Drying Shed / 3.0 × 2.4 m', 3.8, 1.25, 2.2, 1.35],
-          ['Guest WC / 1.8 × 1.7 m', 3.8, 2.6, 2.2, 1.0],
-          ['All-Weather Party Shed / 6.0 × 4.8 m · Yoga Deck', 0, 3.3, 3.8, 1.7],
-          ['Spiral Atrium & / Solar / 3,000 L', 3.8, 3.6, 2.2, 1.4]
+          ['Gas BBQ Pergola + Hood / 6.0 × 4.2 m · 8-Seat', 0, 0, 3.75, 1.65],
+          ['Laundry Room / 2.2 × 2.4 m', 3.75, 0, 2.25, 1.15],
+          ['Gaming Studio (VR Car / Arcade · Triple 240Hz PC)', 0, 1.65, 3.75, 1.65],
+          ['Monsoon Drying Shed / 3.0 × 2.4 m · UV Roof', 3.75, 1.15, 2.25, 1.25],
+          ['Rooftop Guest WC / 1.8 × 1.7 m · Exhaust', 3.75, 2.4, 2.25, 0.9],
+          ['All-Weather Party Shed / 6.0 × 4.8 m · Sky-Bridge', 0, 3.3, 3.75, 1.7],
+          ['Flush Skylight Spiral / Solar · ERV · ESE Mast', 3.75, 3.3, 2.25, 1.7]
         ]
       }
     };
@@ -4006,11 +4071,17 @@
       f.cells.forEach(([label, x, y, cw, ch], i) => {
         const X = 32 + x * 109, Y = 32 + y * 79, W = cw * 109 - 7, H = ch * 79 - 7;
         const isAtrium = /Spiral|Atrium/i.test(label);
+        const isSafety = /Seismic|Shear|Raft|Pile|ESE|Earth Pit/i.test(label);
+        const isFlood = /Flood/i.test(label);
+        const isGreen = /Veg Farm|Garden/i.test(label);
+        const isWater = /Water Filter|Sump|Storm/i.test(label);
+        const fillCol = isAtrium ? '#2c3d52' : isGreen ? '#183d2c' : isFlood ? '#3d3316' : isSafety ? '#3b2422' : isWater ? '#12364a' : (i % 2 ? '#1f364b' : '#162b40');
+        const strokeCol = isAtrium ? '#f5d89e' : isGreen ? '#6ed494' : isFlood ? '#eab308' : isSafety ? '#f97316' : isWater ? '#38bdf8' : '#cca96e';
         el('rect', {
           x: X, y: Y, width: W, height: H, rx: isAtrium ? 22 : 6,
-          fill: isAtrium ? '#2c3d52' : (i % 2 ? '#1f364b' : '#162b40'),
-          stroke: isAtrium ? '#f5d89e' : '#cca96e',
-          'stroke-width': isAtrium ? 2.5 : 1.7
+          fill: fillCol,
+          stroke: strokeCol,
+          'stroke-width': (isAtrium || isSafety || isFlood) ? 2.3 : 1.7
         });
         const lines = label.split(' / ');
         lines.forEach((line, j) => {
@@ -4140,25 +4211,25 @@
     $('floorPhotoWrap').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCurrentFloor(); } });
     renderFloor('site');
 
-    /* Interiors & Rooftop Galleries */
+    /* Interiors & Rooftop Galleries — Model-Matched HD Renders */
     const interiors = [
-      ['Living room', 'living', 'HD Concept', 'Main lounge (5.4 × 4.8 m) with warm LED cove ceiling, opposing ivory sofas and garden glazing.'],
-      ['Dining room', 'dining', 'HD Concept', '10-seater marble & walnut dining room (4.2 × 3.9 m) with cascading gold chandelier.'],
-      ['Kitchen & pantry', 'kitchen', 'HD Concept', 'Matte charcoal & fluted oak kitchen (3.6 × 3.6 m) with marble waterfall island and walk-in pantry.'],
-      ['Master bedroom', 'master', 'HD Concept', 'Calm second-floor master suite (5.4 × 4.2 m) with walnut paneling, walk-in robe and balcony views.'],
-      ['Guest bedroom', 'bedroom', 'HD Concept', 'Warm ensuite guest bedroom (3.6 × 4.2 m) with indirect timber headboard glow and garden aspect.'],
-      ['Gaming studio', 'gaming', 'HD Concept', 'Dedicated PC & VR gaming room (4.2 × 4.0 m) with acoustic slat walls and refined RGB cove lighting.'],
-      ['Home office', 'office', 'HD Concept', 'Executive study (3.8 × 3.0 m) with backlit oak shelving, dark bronze glazing and garden outlook.'],
-      ['Ensuite bathroom', 'bathroom', 'HD Concept', 'Spa-grade bathroom featuring freestanding soaking tub, veined travertine and champagne-gold rain shower.'],
-      ['Family lounge', 'family', 'HD Concept', 'First-floor family TV lounge (6.0 × 4.8 m) opening onto the sweeping planted curved balcony.']
+      ['Living room (Live TV 1)', 'living', 'HD Concept', 'Main lounge (5.4 × 4.8 m) with 85" OLED TV on fluted marble & walnut wall, spinning cove fan, opposing ivory sofas & motorized curtains.'],
+      ['Dining room (8–10 Seat)', 'dining', 'HD Concept', 'Marble & walnut dining room (4.2 × 3.9 m) with cascading gold chandelier opening cleanly to the rear garden patio.'],
+      ['Piped gas kitchen & pantry', 'kitchen', 'HD Concept', 'Matte charcoal & fluted oak kitchen (3.6 × 3.6 m) with 4-burner piped gas hob, stainless island chimney hood, RO drinking tap & walk-in pantry.'],
+      ['Grand master suite', 'master', 'HD Concept', 'Second-floor master sanctuary (5.4 × 4.2 m) with walnut wall art, hanging gold pendants, spinning cove ceiling fan, motorized drapes & walk-in robe.'],
+      ['Bedroom 6 (Behind spiral)', 'bedroom', 'HD Concept', 'Warm ensuite bedroom (3.6 × 4.2 m) positioned cleanly behind the spiral atrium with timber headboard glow, ceiling fan & garden view.'],
+      ['VR car & RGB gaming studio', 'gaming', 'HD Concept', 'Enclosed rooftop gaming studio (4.2 × 4.0 m) featuring a hydraulic VR motion sim-racing car cockpit, retro arcade, triple 240Hz PC & Nanoleaf lighting.'],
+      ['Executive family office', 'office', 'HD Concept', 'First-floor study (3.8 × 3.0 m) with walnut executive desk, ergonomic swivel chair, 2 guest chairs, dual live BIM/CAD monitors & backlit oak shelving.'],
+      ['Luxury spa bathroom & WC', 'bathroom', 'HD Concept', 'Spa-grade ensuite with freestanding egg soaking tub & teak candle caddy, concealed-cistern bidet WC with chrome flush plate, halo mirror & rain shower.'],
+      ['1F family TV lounge', 'family', 'HD Concept', 'First-floor acoustic walnut family lounge (6.0 × 4.8 m) with motorized curtains opening onto the sweeping planted curved LED balcony.']
     ];
     const rooftop = [
-      ['BBQ & outdoor chef kitchen', 'bbq', 'Chef BBQ', 'L-shaped stone BBQ kitchen (6.0 × 4.2 m) with 4-burner grill, prep sink, beverage cooler, bar stools & 8-seat timber pergola dining.'],
-      ['All-weather party shed & bar', 'party-shed', 'Party Shed', 'Monsoon-proof insulated steel-and-timber rooftop party pavilion (6.0 × 4.8 m) with festoon lights, cocktail bar, karaoke TV & audio.'],
-      ['Laundry & monsoon drying wing', 'laundry', 'Laundry Wing', 'Enclosed washer/dryer & folding counter (2.2 × 2.4 m) paired with a translucent rain-safe ventilated drying shed (3.0 × 2.4 m).'],
-      ['PC & VR gaming studio', 'gaming', 'Entertainment', 'Climate-controlled acoustic rooftop gaming studio (4.2 × 4.0 m) with dual curved monitors, VR floor zone and refined RGB lighting.'],
-      ['Solar & 3,000 L energy deck', 'solar', 'Sustainability', 'South-facing 5–8 kW photovoltaic array, 300–500 L solar water heater and 3,000 L insulated stainless reserve tanks.'],
-      ['Garden fire pit & yoga lounge', 'garden', 'Outdoor Living', 'Sunken garden fire-pit lounge with curved teak benches plus a serene rooftop morning yoga & stargazing deck.']
+      ['Gas BBQ & chef kitchen pergola', 'bbq', 'Chef BBQ', 'L-shaped travertine BBQ bar (6.0 × 4.2 m) with piped 4-burner gas grill, commercial stainless canopy hood, prep sink, barstools & 8-seat pergola dining.'],
+      ['All-weather party shed & sky-bridge', 'party-shed', 'Party Shed', 'Monsoon-proof sloped steel-and-timber rooftop pavilion (6.0 × 4.8 m) linked via glass Sky-Bridge with cocktail bar, karaoke TV, fan, festoon lights & yoga deck.'],
+      ['Laundry & monsoon drying wing', 'laundry', 'Laundry Wing', 'Screened washer/dryer & folding counter (2.2 × 2.4 m) paired with a translucent UV polycarbonate rain-safe drying shed (3.0 × 2.4 m) & Rooftop Guest WC.'],
+      ['VR car & 240Hz gaming studio', 'gaming', 'Entertainment', 'Climate-controlled rooftop gaming room (4.2 × 4.0 m) with hydraulic VR motion sim-racing car rig, retro neon arcade, triple 240 FPS PC & esports console OLED.'],
+      ['Solar, tanks & lightning bonding', 'solar', 'Energy & Storm', 'South-facing 5–8 kW PV array, 500 L solar heater, 3,000 L stainless tanks, ERV HVAC, copper Faraday bonding ring & discreet rear ESE lightning mast.'],
+      ['Garden fire pit & organic veg farm', 'garden', 'Garden & Farm', 'Circular sunken stone fire-pit lounge with curved teak benches alongside the rear-left sunlit Organic Vegetable Farm (3 raised beds & mini greenhouse).']
     ];
 
     function populateGallery(containerId, items) {
@@ -4179,16 +4250,16 @@
       bindImageFade(container);
     }
 
-    /* Systems */
+    /* Systems — Multi-Hazard Disaster Safety, Water Filtration, Strainers & MEP */
     const systems = [
-      ['💧', 'Underground water', '15,000 L', 'Multi-stage filtration (sediment + carbon + UV/RO), pump bay and maintenance access.'],
-      ['🚰', 'Rooftop tanks', '3,000 L', 'Elevated domestic water reserve engineered for gravity distribution and structural load.'],
-      ['☀️', 'Solar & hot water', '300 – 500 L', 'Roof-mounted solar thermal heater with photovoltaic readiness subject to roof load study.'],
-      ['🔥', 'LPG safety zone', 'Outdoor vented', 'Dedicated ventilated exterior cylinder enclosure, gas leak detector and fire blanket/extinguisher.'],
-      ['🌧️', 'Rainwater harvesting', 'Optional ready', 'Concealed gutters, downpipes, overflow control and optional recharge pit for monsoon drainage.'],
-      ['⚡', 'Electrical & backup', 'Smart-ready', 'Surge-protected distribution boards, warm LED architectural dimming and inverter/hybrid backup.'],
-      ['📹', 'Security & smart gate', 'CCTV + Intercom', 'Perimeter CCTV coverage, video doorbell, secure boundary wall and motorized entry gate.'],
-      ['🧯', 'Seismic compliance', 'NBC Nepal', 'Earthquake-resistant RCC frame, tempered laminated atrium glass and code-compliant egress.']
+      ['🏗️', 'Deep pile-raft foundation', '16 Piles · -3.85m', 'Cast-in-situ bored RCC friction piles, crystalline waterproof M30 mat slab, plinth tie-beams & HDPE damp-proof membrane.'],
+      ['🛑', 'Earthquake safety', 'NBC-105 Zone V', '16 laminated lead-rubber Seismic Base Isolators, ductile shear-wall core with X-braced dampers & >0.15g seismic LPG shutoff valve.'],
+      ['🌊', 'Monsoon flood defense', '1.12m Flood Gates', 'Raised 1.04 m atrium plinth, deployable hydraulic aluminum barriers at street & garage portals, twin sump pumps & non-return flap.'],
+      ['⚡', 'Thunderstorm & lightning', 'IEC-62305 Level I', 'Discreet rear brushed-stainless ESE lightning mast (45 m cone), roof copper Faraday ring, Type-1+2 SPD & 3 deep copper Earth Pits.'],
+      ['🧪', '5-Stage water filtration', '18,000 L · 28 ppm', '15,000 L UG + 3,000 L roof tanks with Vortex Silt, Sand, Carbon, Softener & UV-C/RO purification + live SCADA telemetry.'],
+      ['🌧️', 'Storm trenches & strainers', '4 Catch Basins', 'Stainless gate/garage & 3-side perimeter trench grates, baffled kitchen/BBQ grease trap, rainwater mesh filter & 4 brass Y-strainers.'],
+      ['🔒', 'Waterproof lockable LPG', '24cm Rain Plinth', 'Keyed padlock ventilated steel vault with sloped monsoon hood, seismic valve & concealed wall-aligned lines to both kitchens.'],
+      ['☀️', 'Solar PV, HVAC & security', '5–8 kW + ERV', '500 L solar thermal, hybrid LiFePO4 backup, ERV fresh-air HVAC, turbo-vent, 8 bath fans, biometric safety doors & metal barriers.']
     ];
     function populateSystems() {
       const frag = document.createDocumentFragment();
@@ -4247,8 +4318,9 @@
       { id: 'right', title: 'Right Side Elevation', group: 'elevation' },
       { id: 'left', title: 'Left Side Elevation', group: 'elevation' },
       { id: 'aerial', title: 'Aerial Property View', group: 'elevation' },
-      { id: 'site', title: 'Site Plan (16 Aana)', group: 'floor' },
-      { id: 'ground', title: 'Ground Floor Plan', group: 'floor' },
+      { id: 'site', title: 'Site Plan (16 Aana + Veg Farm)', group: 'floor' },
+      { id: 'foundation', title: 'Foundation, Seismic, Flood & Lightning', group: 'floor' },
+      { id: 'ground', title: 'Ground Floor Plan (RR & Benz)', group: 'floor' },
       { id: 'first', title: 'First Floor Plan', group: 'floor' },
       { id: 'second', title: 'Second Floor Plan', group: 'floor' },
       { id: 'roof', title: 'Rooftop Plan', group: 'floor' },
@@ -6869,6 +6941,223 @@
       // Concealed Wall-Chase Steel Anchor Clamps (visible in X-Ray!)
       for (const rx of [6.2, 3.2, -0.5, -4.2, -7.0]) addBox(gasPipesGroup, 0.08, 0.10, 0.10, rx, 1.20, -4.88, steelMat, false, false);
       for (const ry of [2.8, 5.2, 7.6, 9.8]) addBox(gasPipesGroup, 0.10, 0.08, 0.10, -7.42, ry, -4.88, steelMat, false, false);
+      // Automatic Seismic LPG Shutoff Accelerometer Valve mounted directly on Gas Vault manifold (cuts gas at >0.15g tremor!)
+      addBox(lpgBay, 0.16, 0.16, 0.10, 0.42, 1.46, -0.34, new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x9a3412, emissiveIntensity: 0.45, roughness: 0.3 }), false, false);
+
+      /* === DEEP RCC FOUNDATION + MULTI-HAZARD DISASTER SAFETY (EARTHQUAKE NBC-105 · MONSOON FLOOD · THUNDERSTORM IEC-62305) === */
+      const safetySystemGroup = new THREE.Group();
+      scene.add(safetySystemGroup);
+      const structuralXrayOnly = [];
+      const lightningFlowBeads = [];
+
+      const rccFoundationMat = new THREE.MeshStandardMaterial({ color: 0x8b98a6, roughness: 0.84, metalness: 0.08 });
+      const dpmWaterproofMat = new THREE.MeshStandardMaterial({ color: 0x1e3a5f, emissive: 0x0c2440, emissiveIntensity: 0.35, roughness: 0.42, metalness: 0.15 });
+      const seismicIsolatorMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xc2410c, emissiveIntensity: 0.72, roughness: 0.32, metalness: 0.25 });
+      const rebarCoreMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x991b1b, emissiveIntensity: 0.65, roughness: 0.34, metalness: 0.62 });
+      const copperEarthMat = new THREE.MeshStandardMaterial({ color: 0xd97706, emissive: 0x92400e, emissiveIntensity: 0.68, roughness: 0.26, metalness: 0.85 });
+      const floodAlumMat = new THREE.MeshStandardMaterial({ color: 0xd5dee6, roughness: 0.24, metalness: 0.82 });
+      const floodHazardMat = new THREE.MeshStandardMaterial({ color: 0xeab308, emissive: 0x854d0e, emissiveIntensity: 0.45, roughness: 0.35 });
+      const earthPitGreenMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.52, metalness: 0.15 });
+
+      // 1. DEEP RCC PILE-RAFT FOUNDATION, DPM WATERPROOF MEMBRANE & 16 LEAD-RUBBER SEISMIC BASE ISOLATORS (Subterranean X-Ray!)
+      const foundationGrp = new THREE.Group();
+      safetySystemGroup.add(foundationGrp);
+      structuralXrayOnly.push(foundationGrp);
+
+      // Continuous M30 Crystalline Waterproof RCC Raft / Mat Slab + Bituminous/HDPE Damp-Proof Membrane (DPM)
+      addBox(foundationGrp, 18.2, 0.50, 11.4, 0.55, -0.78, 0.25, rccFoundationMat, false, true);
+      addBox(foundationGrp, 18.4, 0.08, 11.6, 0.55, -1.06, 0.25, dpmWaterproofMat, false, false);
+      // Interconnected Seismic Plinth Tie-Beams locking every structural column base into a rigid horizontal diaphragm
+      for (const bz of [-4.6, -0.4, 2.6, 4.8]) {
+        addBox(foundationGrp, 16.4, 0.34, 0.34, 0.45, -0.16, bz, rccFoundationMat, false, false);
+      }
+      for (const bx of [-7.4, -2.4, 2.0, 6.4, 8.4]) {
+        addBox(foundationGrp, 0.34, 0.34, 9.8, bx, -0.16, 0.15, rccFoundationMat, false, false);
+      }
+
+      // 16 Deep Bored Cast-in-Situ RCC Friction Piles (Ø 0.56 m, 3.85 m deep) + 16 Lead-Rubber Seismic Base Isolator Bearings (NBC-105 Zone V)!
+      const pileGeo = new THREE.CylinderGeometry(0.28, 0.28, 2.95, 14);
+      const pileCapGeo = new THREE.BoxGeometry(0.92, 0.34, 0.92);
+      const isoCoreGeo = new THREE.CylinderGeometry(0.27, 0.27, 0.26, 16);
+      const isoShimGeo = new THREE.TorusGeometry(0.275, 0.018, 6, 16);
+      const pileCoords = [
+        [-7.4, -4.6], [-2.4, -4.6], [2.0, -4.6], [6.4, -4.6],
+        [-7.4, -0.4], [-2.4, -0.4], [2.0, -0.4], [8.4, -0.4],
+        [-7.4,  4.8], [-2.4,  4.8], [1.6,  4.8], [8.4,  2.2],
+        [ 3.1,  2.4], [ 6.2,  2.4], [3.1,  5.4], [6.2,  5.4]
+      ];
+      pileCoords.forEach(([px, pz]) => {
+        const pile = new THREE.Mesh(pileGeo, rccFoundationMat);
+        pile.position.set(px, -2.52, pz);
+        foundationGrp.add(pile);
+        // Subtle helical ductile steel reinforcement ring bands along friction pile
+        for (const ry of [-3.55, -2.85, -2.15, -1.45]) {
+          const ring = new THREE.Mesh(isoShimGeo, rebarCoreMat);
+          ring.rotation.x = Math.PI / 2;
+          ring.position.set(px, ry, pz);
+          foundationGrp.add(ring);
+        }
+        const cap = new THREE.Mesh(pileCapGeo, rccFoundationMat);
+        cap.position.set(px, -0.82, pz);
+        foundationGrp.add(cap);
+        // Lead-Rubber Seismic Base Isolator Bearing (top/bottom steel plates + safety-orange elastomeric shear core!)
+        addBox(foundationGrp, 0.70, 0.05, 0.70, px, -0.49, pz, darkBronzeMat, false, false);
+        const core = new THREE.Mesh(isoCoreGeo, seismicIsolatorMat);
+        core.position.set(px, -0.34, pz);
+        foundationGrp.add(core);
+        for (const sy of [-0.40, -0.34, -0.28]) {
+          const sh = new THREE.Mesh(isoShimGeo, steelMat);
+          sh.rotation.x = Math.PI / 2;
+          sh.position.set(px, sy, pz);
+          foundationGrp.add(sh);
+        }
+        addBox(foundationGrp, 0.70, 0.05, 0.70, px, -0.19, pz, darkBronzeMat, false, false);
+      });
+
+      // 2. DUCTILE RCC SHEAR-WALL CORE, CORNER SEISMIC COLUMNS & X-BRACED VISCOUS DAMPERS (Structural X-Ray!)
+      const shearCoreGrp = new THREE.Group();
+      safetySystemGroup.add(shearCoreGrp);
+      structuralXrayOnly.push(shearCoreGrp);
+      // 4 Vertical ductile steel rebar shafts inside spiral MEP shear core (x=3.85..5.45, z=0.15..1.15, y=0..13.4)
+      for (const [rx, rz] of [[3.85, 0.15], [5.45, 0.15], [3.85, 1.15], [5.45, 1.15]]) {
+        addBox(shearCoreGrp, 0.09, 13.5, 0.09, rx, 6.75, rz, rebarCoreMat, false, false);
+      }
+      // Horizontal seismic confinement stirrup hoops every 1.1 m
+      for (let sy = 0.55; sy <= 13.0; sy += 1.1) {
+        addBox(shearCoreGrp, 1.66, 0.05, 0.05, 4.65, sy, 0.15, rebarCoreMat, false, false);
+        addBox(shearCoreGrp, 1.66, 0.05, 0.05, 4.65, sy, 1.15, rebarCoreMat, false, false);
+        addBox(shearCoreGrp, 0.05, 0.05, 1.06, 3.85, sy, 0.65, rebarCoreMat, false, false);
+        addBox(shearCoreGrp, 0.05, 0.05, 1.06, 5.45, sy, 0.65, rebarCoreMat, false, false);
+      }
+      // X-Braced Hydraulic Viscous Seismic Dampers across all 4 floor heights inside shear core
+      for (const by of [0.35, 3.65, 6.95, 10.20]) {
+        const d1 = addBox(shearCoreGrp, 0.075, 3.45, 0.075, 4.65, by + 1.55, 0.65, seismicIsolatorMat, false, false);
+        d1.rotation.z = 0.48;
+        const d2 = addBox(shearCoreGrp, 0.075, 3.45, 0.075, 4.65, by + 1.55, 0.65, seismicIsolatorMat, false, false);
+        d2.rotation.z = -0.48;
+      }
+      // Corner Ductile RCC Moment-Frame Column Cages (tying isolators to roof slab!)
+      for (const [cx, cz, ch] of [[-7.4, -4.6, 10.3], [-7.4, 4.8, 10.3], [1.6, 4.8, 10.3], [6.4, -4.6, 10.3], [8.4, -0.4, 7.0]]) {
+        addBox(shearCoreGrp, 0.16, ch, 0.16, cx, ch / 2, cz, rebarCoreMat, false, false);
+      }
+      // Twin Submersible Automatic Dewatering Sump Pumps + Float Alarm inside front-right storm outfall sump (x=12.85, z=14.0)
+      for (const dx of [-0.26, 0.22]) {
+        const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.44, 12), seismicIsolatorMat);
+        sp.position.set(12.85 + dx, -1.12, 14.0);
+        shearCoreGrp.add(sp);
+        addBox(shearCoreGrp, 0.06, 0.65, 0.06, 12.85 + dx, -0.62, 14.0, pipeStormMat, false, false);
+      }
+
+      // 3. MONSOON FLOOD SAFETY: INTERACTIVE DEPLOYABLE HYDRAULIC ALUMINUM FLOOD-GATE BARRIERS (Street Gate & 2-Car Garage!)
+      const floodBarrierGroup = new THREE.Group();
+      safetySystemGroup.add(floodBarrierGroup);
+      function buildFloodBarrier(cx, cz, width, height) {
+        const wrap = new THREE.Group();
+        wrap.position.set(cx, 0, cz);
+        // Permanent flush brushed-stainless floor slot + twin heavy EPDM side compression stanchions (clean architectural look when stowed!)
+        addBox(wrap, width + 0.24, 0.045, 0.18, 0, 0.046, 0, steelMat, false, true);
+        for (const sx of [-width / 2 - 0.08, width / 2 + 0.08]) {
+          addBox(wrap, 0.12, height + 0.10, 0.18, sx, (height + 0.10) / 2, 0, darkBronzeMat, true, false);
+          addBox(wrap, 0.05, height + 0.08, 0.05, sx, (height + 0.08) / 2, 0.08, floodHazardMat, false, false);
+        }
+        // Moving Extruded Marine-Aluminum Stop-Log Flood Wall with EPDM rubber seals & safety-yellow warning cap!
+        const wall = new THREE.Group();
+        const planks = Math.max(4, Math.round(height / 0.20));
+        const plankH = height / planks;
+        for (let i = 0; i < planks; i++) {
+          const py = plankH * (i + 0.5);
+          addBox(wall, width, plankH - 0.018, 0.09, 0, py, 0, floodAlumMat, true, true);
+          addBox(wall, width, 0.018, 0.098, 0, py + plankH / 2 - 0.008, 0, charcoalMat, false, false);
+        }
+        // High-visibility safety-yellow hazard top rail + vertical reinforcement ribs
+        addBox(wall, width + 0.04, 0.07, 0.11, 0, height + 0.03, 0, floodHazardMat, false, false);
+        const ribs = Math.max(3, Math.floor(width / 2.6));
+        for (let r = 1; r < ribs; r++) {
+          const rx = -width / 2 + (r / ribs) * width;
+          addBox(wall, 0.07, height, 0.13, rx, height / 2, 0, steelMat, false, false);
+        }
+        wrap.add(wall);
+        floodBarrierGroup.add(wrap);
+        return { wall, height };
+      }
+      const streetFloodBarrier = buildFloodBarrier(-0.50, 14.18, 16.50, 1.12); // Shields main street entrance cleanly behind sliding gate
+      const garageFloodBarrier = buildFloodBarrier(-3.20, 5.26, 7.65, 0.92);   // Shields Rolls-Royce & Mercedes-Benz garage portal!
+
+      function updateFloodBarriers(deployFrac) {
+        [streetFloodBarrier, garageFloodBarrier].forEach(({ wall, height }) => {
+          wall.visible = deployFrac > 0.015;
+          wall.position.y = -height + deployFrac * (height + 0.045);
+          wall.scale.y = Math.max(0.02, deployFrac);
+        });
+      }
+
+      // 4. THUNDERSTORM & LIGHTNING PROTECTION (IEC 62305 LEVEL I): DISCREET REAR ESE MAST + COPPER FARADAY RING + 3 DEEP COPPER EARTH PITS!
+      const lightningPermGrp = new THREE.Group();
+      safetySystemGroup.add(lightningPermGrp);
+      // Sleek Low-Profile Brushed-Stainless ESE (Early Streamer Emission) Lightning Mast tucked cleanly behind the crown on rear MEP parapet (x=4.65, z=0.55)!
+      const eseX = 4.65, eseZ = 0.55;
+      addBox(lightningPermGrp, 0.34, 0.14, 0.34, eseX, 13.84, eseZ, darkBronzeMat, false, false); // Anchor baseplate on rear MEP shaft top
+      const eseMast = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.042, 3.15, 12), steelMat);
+      eseMast.position.set(eseX, 15.46, eseZ); lightningPermGrp.add(eseMast);
+      // Aerodynamic brushed-stainless ESE ionizer bell + slim tungsten finial tip (modern architectural profile, hidden behind crown from front hero view!)
+      const eseBell = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.12, 0.26, 16), steelMat);
+      eseBell.position.set(eseX, 17.08, eseZ); lightningPermGrp.add(eseBell);
+      const eseRing = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.016, 8, 20), copperEarthMat);
+      eseRing.rotation.x = Math.PI / 2; eseRing.position.set(eseX, 17.02, eseZ); lightningPermGrp.add(eseRing);
+      const eseTip = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.28, 10), steelMat);
+      eseTip.position.set(eseX, 17.34, eseZ); lightningPermGrp.add(eseTip);
+
+      // Discreet Roof Perimeter Copper Faraday Air-Termination Ring (bonds Party Shed steel truss, Solar PV frames & 3,000 L tanks!)
+      const faradayY = 12.88;
+      addBox(lightningPermGrp, 15.1, 0.024, 0.024, 0.15, faradayY, -4.85, copperEarthMat, false, false);
+      addBox(lightningPermGrp, 0.024, 0.024, 9.6, -7.40, faradayY, -0.05, copperEarthMat, false, false);
+      addBox(lightningPermGrp, 0.024, 0.024, 5.4, 7.70, faradayY, -2.15, copperEarthMat, false, false);
+      addBox(lightningPermGrp, 3.05, 0.024, 0.024, 6.18, faradayY, 0.55, copperEarthMat, false, false);
+
+      // Three Flush Green Composite Earth-Pit Inspection Hatches cleanly at grade (y = 0.046)
+      const earthPitCoords = [[-12.2, 8.2], [11.8, -6.4], [-11.8, -4.4]];
+      earthPitCoords.forEach(([ex, ez]) => {
+        addBox(lightningPermGrp, 0.44, 0.04, 0.44, ex, 0.046, ez, darkBronzeMat, false, true);
+        addBox(lightningPermGrp, 0.36, 0.03, 0.36, ex, 0.058, ez, earthPitGreenMat, false, false);
+        addBox(lightningPermGrp, 0.06, 0.04, 0.06, ex, 0.072, ez, copperEarthMat, false, false);
+      });
+
+      // Concealed Copper Down-Conductors, Whole-Home Type-1+2 SPD Surge Panel & 3 Deep Underground Copper Earth Electrodes (Structural X-Ray!)
+      const lightningXrayGrp = new THREE.Group();
+      safetySystemGroup.add(lightningXrayGrp);
+      structuralXrayOnly.push(lightningXrayGrp);
+      function addLightningPath(pts) {
+        const vecs = pts.map(p => new THREE.Vector3(...p));
+        const path = new THREE.CurvePath();
+        for (let i = 0; i < vecs.length - 1; i++) path.add(new THREE.LineCurve3(vecs[i], vecs[i + 1]));
+        lightningXrayGrp.add(new THREE.Mesh(new THREE.TubeGeometry(path, Math.max(20, vecs.length * 10), 0.042, 8, false), copperEarthMat));
+        for (let k = 0; k < 3; k++) {
+          const b = new THREE.Mesh(flowBeadGeo, copperEarthMat);
+          b.scale.setScalar(0.92);
+          lightningXrayGrp.add(b);
+          lightningFlowBeads.push({ mesh: b, curve: path, phase: k / 3, speed: 0.34, grp: lightningXrayGrp });
+        }
+      }
+      // Down-Conductor 1: ESE Mast -> Rear MEP Chase -> SPD Surge Panel -> Rear-Right Earth Pit [11.8, -6.4]
+      addLightningPath([[eseX, 15.8, eseZ], [eseX, 12.88, eseZ], [eseX, -0.55, eseZ], [11.8, -0.55, eseZ], [11.8, -0.55, -6.4], [11.8, -3.25, -6.4]]);
+      // Down-Conductor 2: Roof Faraday Ring -> Rear-Left Corner -> Rear-Left Earth Pit [-11.8, -4.4]
+      addLightningPath([[-7.40, faradayY, -4.85], [-7.40, -0.55, -4.85], [-11.8, -0.55, -4.4], [-11.8, -3.25, -4.4]]);
+      // Down-Conductor 3: Roof Faraday Ring -> Front-Left Corner -> Front-Left Earth Pit [-12.2, 8.2] + Interconnecting Grounding Ring!
+      addLightningPath([[-7.40, faradayY, 4.75], [-7.40, -0.55, 4.75], [-12.2, -0.55, 8.2], [-12.2, -3.25, 8.2]]);
+      addLightningPath([[-12.2, -0.65, 8.2], [-11.8, -0.65, -4.4], [11.8, -0.65, -6.4]]); // Buried Copper Equipotential Grounding Ring!
+      // Deep 3.2 m Copper Grounding Rods + Charcoal/Bentonite Earth Pit Cylinders
+      const rodGeo = new THREE.CylinderGeometry(0.048, 0.036, 3.25, 10);
+      const pitGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.65, 12);
+      earthPitCoords.forEach(([ex, ez]) => {
+        const ePit = new THREE.Mesh(pitGeo, earthPitGreenMat);
+        ePit.position.set(ex, -0.35, ez); lightningXrayGrp.add(ePit);
+        const eRod = new THREE.Mesh(rodGeo, copperEarthMat);
+        eRod.position.set(ex, -1.68, ez); lightningXrayGrp.add(eRod);
+      });
+      // Whole-Home Type-1+2 SPD Surge Protection Panel inside Ground MEP Chase
+      addBox(lightningXrayGrp, 0.54, 0.68, 0.16, 3.85, 1.68, 0.55, darkBronzeMat, false, false);
+      addBox(lightningXrayGrp, 0.42, 0.14, 0.18, 3.85, 1.84, 0.55, copperEarthMat, false, false);
+      addBox(lightningXrayGrp, 0.10, 0.08, 0.19, 3.98, 1.56, 0.55, gasSensorLedMat, false, false);
 
       /* === CENTERPIECE: MONUMENTAL GLASS SPIRAL STAIRCASE ATRIUM + DETAILED BACK CORE & LANDINGS === */
       const tower = new THREE.Group();
@@ -7037,42 +7326,25 @@
       medallion.position.set(CX, 13.76, CZ);
       crownGroup.add(medallion);
 
-      /* === STAIR-TOP ARCHITECTURAL GLASS SKYLIGHT OBSERVATORY DOME, SKY-BRIDGE TO PARTY SHED & LIGHTNING PROTECTION === */
-      const domeBaseY = 15.52;
-      // Raised stepped champagne-gold clerestory collar ring + architectural night beacon LED halo!
-      const domeCollar = new THREE.Mesh(new THREE.CylinderGeometry(2.38, 2.52, 0.28, 48), darkBronzeMat);
-      domeCollar.position.set(CX, domeBaseY + 0.14, CZ); crownGroup.add(domeCollar);
-      const domeBeacon = new THREE.Mesh(new THREE.TorusGeometry(2.44, 0.045, 8, 48), warmLedMat);
-      domeBeacon.rotation.x = Math.PI / 2; domeBeacon.position.set(CX, domeBaseY + 0.26, CZ); crownGroup.add(domeBeacon);
-      // Low-Iron Glass Radial Skylight Observatory Dome (floods spiral chandelier with zenith natural light!)
-      const skylightDome = new THREE.Mesh(
-        new THREE.SphereGeometry(2.26, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.46),
-        atriumGlassMat
-      );
-      skylightDome.scale.set(1, 0.56, 1);
-      skylightDome.position.set(CX, domeBaseY + 0.22, CZ);
-      crownGroup.add(skylightDome);
-      // 8 Curved Champagne-Gold Structural Dome Ribs + Apex Lantern Cap + Copper Lightning Rod (Chitwan Monsoon Protection!)
-      for (let k = 0; k < 8; k++) {
-        const ang = (k / 8) * Math.PI * 2;
-        const ribPts = [];
-        for (let s = 0; s <= 12; s++) {
-          const phi = (s / 12) * Math.PI * 0.45;
-          const r = 2.28 * Math.sin(phi);
-          const y = domeBaseY + 0.22 + 2.28 * 0.56 * Math.cos(phi);
-          ribPts.push(new THREE.Vector3(CX + Math.cos(ang) * r, y, CZ + Math.sin(ang) * r));
-        }
-        crownGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ribPts), 16, 0.032, 6, false), goldMat));
+      /* === STAIR-TOP SLEEK FLUSH ARCHITECTURAL SKYLIGHT OCULUS & DIRECT PARTY SHED SKY-BRIDGE (Clean Flat Modernist Silhouette!) === */
+      const crownTopY = 15.52;
+      // Flush low-profile dark-bronze & champagne-gold oculus framing ring tucked neatly inside the flat white crown parapet lip!
+      const oculusCurb = new THREE.Mesh(new THREE.TorusGeometry(2.38, 0.075, 10, 64), darkBronzeMat);
+      oculusCurb.rotation.x = Math.PI / 2; oculusCurb.position.set(CX, crownTopY + 0.02, CZ); crownGroup.add(oculusCurb);
+      const oculusGoldLip = new THREE.Mesh(new THREE.TorusGeometry(2.44, 0.032, 8, 64), goldMat);
+      oculusGoldLip.rotation.x = Math.PI / 2; oculusGoldLip.position.set(CX, crownTopY + 0.04, CZ); crownGroup.add(oculusGoldLip);
+      const oculusLedRim = new THREE.Mesh(new THREE.TorusGeometry(2.30, 0.026, 8, 48), warmLedMat);
+      oculusLedRim.rotation.x = Math.PI / 2; oculusLedRim.position.set(CX, crownTopY + 0.015, CZ); crownGroup.add(oculusLedRim);
+      // Recessed Low-Iron Architectural Circular Glass Skylight Disc + Slim Flush Radial Gold Mullions (zero protruding dome!)
+      const oculusGlass = new THREE.Mesh(new THREE.CylinderGeometry(2.34, 2.34, 0.04, 48), atriumGlassMat);
+      oculusGlass.position.set(CX, crownTopY + 0.01, CZ); crownGroup.add(oculusGlass);
+      for (let k = 0; k < 4; k++) {
+        const ang = (k / 4) * Math.PI;
+        const bar = addBox(crownGroup, 4.64, 0.035, 0.04, CX, crownTopY + 0.032, CZ, goldMat, false, false);
+        bar.rotation.y = ang;
       }
-      const oculusRing = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.045, 8, 24), goldMat);
-      oculusRing.rotation.x = Math.PI / 2; oculusRing.position.set(CX, domeBaseY + 1.48, CZ); crownGroup.add(oculusRing);
-      const oculusLight = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.06, 20), chandelierOrbMat);
-      oculusLight.position.set(CX, domeBaseY + 1.46, CZ); crownGroup.add(oculusLight);
-      // Copper Lightning Protection Air Terminal (Lightning Rod + Arrestor Tip at Villa Apex!)
-      const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.026, 1.15, 8), brassMat);
-      rod.position.set(CX, domeBaseY + 2.06, CZ); crownGroup.add(rod);
-      const rodTip = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.14, 8), goldMat);
-      rodTip.position.set(CX, domeBaseY + 2.68, CZ); crownGroup.add(rodTip);
+      const oculusHub = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.055, 24), goldMat);
+      oculusHub.position.set(CX, crownTopY + 0.035, CZ); crownGroup.add(oculusHub);
       // Direct Stair-Top Glass Sky-Bridge linking the Spiral Atrium directly into the Upper Sky-Deck Party Shed!
       addBox(crownGroup, 1.45, 0.20, 1.65, 2.05, 12.70, 2.85, whiteMat, true, true);
       addBox(crownGroup, 1.45, 0.90, 0.04, 2.05, 13.25, 3.66, railGlassMat, false, false);
@@ -7596,7 +7868,7 @@
 
       /* Camera Presets with Smooth Glide, Exact Unobstructed Room Framing & Floor/Mode Metadata */
       const CAM_PRESETS = {
-        hero: { floor: 'all', mode: 'exterior', pos: [3.2, 11.4, 38.5], target: [0.4, 6.0, 2.0], badge: 'FULL VILLA NORMAL VIEW · SPIRAL ATRIUM · PARTY SHED · GARDEN', title: 'Normal Full-Estate Front View', desc: 'Complete normal view showing the entire villa, 2-car garage (Rolls-Royce & Mercedes-Benz), 3 curved LED balconies, stepped glass spiral staircase with skylight dome, rooftop Party Shed, metal security barriers, garden fire pit & front gate.' },
+        hero: { floor: 'all', mode: 'exterior', pos: [3.2, 11.4, 38.5], target: [0.4, 6.0, 2.0], badge: 'FULL VILLA NORMAL VIEW · SPIRAL ATRIUM · PARTY SHED · GARDEN', title: 'Normal Full-Estate Front View', desc: 'Complete normal view showing the entire villa, 2-car garage (Rolls-Royce & Mercedes-Benz), 3 curved LED balconies, stepped glass spiral staircase with flush skylight crown, rooftop Party Shed, metal security barriers, garden fire pit & front gate.' },
         garageCars: { floor: 'ground', mode: 'exterior', pos: [-2.4, 2.25, 10.6], target: [-3.2, 0.92, 2.42], badge: '2-CAR LUXURY GARAGE · ROLLS-ROYCE PHANTOM & MERCEDES-BENZ AMG', title: 'Luxury 2-Car Garage — Rolls-Royce Phantom & Mercedes-Benz S-Class AMG', desc: 'Left bay: two-tone obsidian & pearl-silver Rolls-Royce Phantom with upright Parthenon chrome grille, golden Spirit of Ecstasy & coachline. Right bay: metallic selenite-silver Mercedes-Benz AMG with iconic 3-pointed star grille, Multibeam LEDs & red brake calipers.' },
         cutaway: { floor: 'all', mode: 'cutaway', pos: [-16.2, 9.4, 12.6], target: [-3.2, 5.8, -0.8], badge: '3D INTERIORS · WALL & CEILING DECOR · LIVE TVS · 8 BATHS', title: '3D Furnished Interior Cutaway', desc: 'Opens left shell & roof canopy to showcase wall art, LED cove ceilings, spinning ceiling fans, live animated 4K TVs, RGB gaming studio, 6 bedrooms & 8 spa bathrooms.' },
         livingKitchen: { floor: 'ground', mode: 'cutaway', pos: [-10.4, 2.6, -5.8], target: [-3.1, 1.45, -2.2], badge: 'GROUND FLOOR · LIVE 4K TV · COVE FAN · PIPED GAS KITCHEN', title: 'Main Living Room, Wall Decor & Piped Gas Kitchen', desc: 'Live animated 85" OLED TV on marble & fluted walnut wall, gallery art, drapes, spinning cove ceiling fan, 8-seat dining chandelier, plus 4-burner piped gas hob with stainless island chimney hood & gas leak sensor.' },
@@ -7608,7 +7880,8 @@
         rooftopParty: { floor: 'roof', mode: 'exterior', pos: [-11.8, 16.6, 8.8], target: [-3.8, 13.7, 1.6], badge: 'ROOFTOP SKY-DECK · PARTY SHED · LIVE KARAOKE TV & FAN', title: 'All-Weather Room Party Shed, Mini-Bar & Karaoke Equalizer', desc: 'Elevated monsoon-proof steel & timber Party Shed featuring live animated karaoke audio-visualizer TV, spinning timber ceiling fan, draped festoon lights, backlit cocktail bar & morning yoga deck.' },
         laundry: { floor: 'roof', mode: 'exterior', pos: [10.4, 13.4, -8.4], target: [4.6, 11.4, -3.2], badge: 'ROOFTOP SERVICE WING · LAUNDRY · DRYING SHED · WC', title: 'Dedicated Laundry Room, Monsoon Drying Shed & Roof WC', desc: 'Enclosed laundry room (hot/cold piped washer & dryer, folding counter, sink), polycarbonate rain-safe drying shed with breeze louvers, stainless rails & Rooftop Guest WC with exhaust fan.' },
         spiralBack: { floor: 'second', mode: 'exterior', pos: [5.2, 8.4, -10.8], target: [4.6, 6.2, -2.6], badge: 'BEHIND SPIRAL · BEDROOM 6 · 6 ENSUITES · 2 GUEST WCS', title: 'Behind the Spiral Staircase — Bedroom 6, Baths & Landings', desc: 'Looks straight into 2F Bedroom 6 (king bed, wall art, ceiling fan & wardrobe) & Ensuite 6, Ground Guest WC & Ensuite 1, 1F Ensuite 4 & Study, Rooftop Guest WC, plus the 4 spiral bridge landings & MEP shaft.' },
-        stairTop: { floor: 'all', mode: 'exterior', pos: [11.8, 18.6, 11.8], target: [4.65, 15.6, 4.05], badge: 'STAIR-TOP OBSERVATORY · GLASS SKYLIGHT DOME · LIGHTNING ROD', title: 'Stair-Top Glass Skylight Observatory Dome & Party Sky-Bridge', desc: 'Radial champagne-gold & low-iron glass skylight dome crowning the 4-story spiral chandelier atrium with passive thermal relief vents, beacon halo, copper lightning rod & direct glass sky-bridge onto the Party Shed.' },
+        stairTop: { floor: 'all', mode: 'exterior', pos: [11.8, 18.6, 11.8], target: [4.65, 15.2, 3.85], badge: 'STAIR-TOP FLUSH SKYLIGHT OCULUS · PARTY SKY-BRIDGE · REAR ESE MAST', title: 'Stair-Top Flush Architectural Skylight Oculus & Party Sky-Bridge', desc: 'Clean flat-topped sculptural white drum crown featuring a recessed low-iron circular glass skylight oculus, passive stack-ventilation louvers, direct Party Shed glass sky-bridge & discreet rear-mounted brushed-stainless ESE lightning mast.' },
+        structuralSafety: { floor: 'all', mode: 'structural', pos: [-16.8, 5.2, 22.8], target: [0.8, 1.4, 1.8], badge: 'DEEP FOUNDATION · SEISMIC ISOLATORS · FLOOD BARRIERS · LIGHTNING', title: 'Deep RCC Pile-Raft Foundation, Seismic, Monsoon Flood & Lightning Protection', desc: 'Multi-hazard Chitwan resilience X-Ray: 16 deep bored RCC friction piles & waterproof raft with DPM liner, 16 safety-orange lead-rubber Seismic Base Isolators (NBC-105 Zone V), ductile shear-wall core with X-braced dampers, deployed hydraulic aluminum Flood Barriers & dewatering sump pumps, plus rear ESE Lightning Mast, roof Faraday copper ring & 3 deep copper Earth Pits.' },
         gasVault: { floor: 'all', mode: 'gas', pos: [12.3, 2.45, -0.25], target: [8.65, 1.05, -3.35], badge: 'WATERPROOF LOCKABLE LPG VAULT · CONCEALED WALL PIPING', title: 'Waterproof Lockable Dual-LPG Gas Cylinder Vault & Concealed Piping', desc: 'Elevated 24 cm rainproof concrete plinth, perforated steel drain grate, sloped monsoon hood, louvered vents, keyed padlock security door & twin cylinders piped via concealed wall-aligned safety-yellow lines to both GF Kitchen & Rooftop BBQ!' },
         waterFilter: { floor: 'all', mode: 'xray', pos: [-14.2, 3.2, 14.8], target: [-10.4, -0.6, 10.0], badge: '5-STAGE WATER PURIFICATION SIMULATION · LIVE TDS SCADA', title: 'Live 5-Stage Water Filtration Plant & Purification Simulation', desc: 'Watch raw water visibly transform from amber silt → Vortex Pre-Filter → Sand FRP → Activated Carbon → Hard-Water Softener → UV-C 254nm Quartz & RO Membrane into crystal-pure 28 ppm water with live digital SCADA telemetry.' },
         stormDrains: { floor: 'all', mode: 'xray', pos: [17.8, 11.4, 19.6], target: [0.4, 0.2, 2.5], badge: 'STORMWATER DRAINING & STRAINER LINES · TRENCHES · GREASE TRAP', title: 'Stormwater Draining & Strainer Line Network (X-Ray)', desc: 'Full monsoon protection: front gate & garage stainless trench grates, 3-side perimeter trench drains, 4 corner silt/leaf catch-basin strainers, baffled kitchen/BBQ grease trap, rainwater vortex mesh pre-filter, 4 inline brass Y-strainers & front-right non-return outfall valve.' },
@@ -7622,6 +7895,7 @@
       let activeCamKey = 'hero', pinsVisible = true, walkMode = false;
       const liveStatusEl = document.getElementById('viewerLiveStatus');
       const mepLegendEl = document.getElementById('mepLiveLegend');
+      const safetyLegendEl = document.getElementById('safetyLiveLegend');
       const captionTextEl = document.getElementById('viewerCaptionText');
       const announceStatus = msg => { if (liveStatusEl) liveStatusEl.textContent = msg; };
 
@@ -7656,7 +7930,8 @@
       const PIN_SPECS = [
         { id: 'gameRoom', icon: '🎮', title: 'Game Room & VR Car', sub: 'Motion Racing Rig · Arcade · PC', pos: new THREE.Vector3(-4.90, 11.40, 1.35), level: 'roof' },
         { id: 'rooftopParty', icon: '🎉', title: 'Party Shed & Bar', sub: 'Karaoke TV · Fan · Bar', pos: new THREE.Vector3(-3.80, 14.05, 1.70), level: 'roof' },
-        { id: 'stairTop', icon: '✨', title: 'Stair-Top Skylight', sub: 'Glass Dome · Lightning Rod', pos: new THREE.Vector3(4.65, 16.55, 4.05), level: 'all' },
+        { id: 'stairTop', icon: '✨', title: 'Stair-Top Skylight', sub: 'Flush Oculus · Sky-Bridge', pos: new THREE.Vector3(4.65, 15.75, 4.05), level: 'all' },
+        { id: 'structuralSafety', icon: '🏗️', title: 'Foundation & Safety', sub: 'Piles · Seismic · Flood · ESE', pos: new THREE.Vector3(-4.20, 0.95, 6.20), level: 'all' },
         { id: 'bbqKitchen', icon: '🍖', title: 'BBQ Chef Kitchen', sub: 'Gas Grill · Canopy Hood', pos: new THREE.Vector3(-5.20, 11.45, -2.90), level: 'roof' },
         { id: 'laundry', icon: '🧺', title: 'Laundry & Drying', sub: 'Washer/Dryer · Rain Shed', pos: new THREE.Vector3(4.80, 11.55, -3.30), level: 'roof' },
         { id: 'spiralBack', icon: '🛏️', title: 'Bedroom 6 & Bath 6', sub: 'Behind Spiral · Ensuite', pos: new THREE.Vector3(5.10, 8.15, -2.70), level: 'second' },
@@ -7716,24 +7991,27 @@
       let currentMepMode = 'standard';
       function applyWaterMode(mode) {
         currentMepMode = mode;
+        const isStruct = mode === 'structural';
         const xray = mode === 'xray' || mode === 'mepIsolate';
         const isolate = mode === 'mepIsolate';
+        const seeGround = xray || isStruct;
         waterXrayOnly.forEach(obj => { obj.visible = xray; });
-        serviceShaftMat.opacity = isolate ? 0.14 : xray ? 0.22 : 1.0;
-        serviceShaftMat.depthWrite = !xray;
+        structuralXrayOnly.forEach(obj => { obj.visible = isStruct; });
+        serviceShaftMat.opacity = isStruct ? 0.16 : isolate ? 0.14 : xray ? 0.22 : 1.0;
+        serviceShaftMat.depthWrite = !seeGround;
         serviceShaftMat.needsUpdate = true;
-        earth.material.transparent = xray;
-        earth.material.opacity = isolate ? 0.24 : xray ? 0.34 : 1.0;
-        earth.material.depthWrite = !xray;
+        earth.material.transparent = seeGround;
+        earth.material.opacity = isStruct ? 0.22 : isolate ? 0.24 : xray ? 0.34 : 1.0;
+        earth.material.depthWrite = !seeGround;
         earth.material.needsUpdate = true;
-        drivewayMat.transparent = xray;
-        drivewayMat.opacity = isolate ? 0.26 : xray ? 0.36 : 1.0;
-        drivewayMat.depthWrite = !xray;
+        drivewayMat.transparent = seeGround;
+        drivewayMat.opacity = isStruct ? 0.24 : isolate ? 0.26 : xray ? 0.36 : 1.0;
+        drivewayMat.depthWrite = !seeGround;
         drivewayMat.needsUpdate = true;
-        // In Piping & Ventilation Spotlight mode, keep depthWrite:true to prevent transparent alpha-sorting flicker!
+        // In Piping Spotlight or Structural X-Ray mode, keep depthWrite:true to prevent transparent alpha-sorting flicker!
         [whiteMat, warmWallMat].forEach(m => {
-          m.transparent = isolate;
-          m.opacity = isolate ? 0.28 : 1.0;
+          m.transparent = isolate || isStruct;
+          m.opacity = isolate ? 0.28 : isStruct ? 0.42 : 1.0;
           m.depthWrite = true;
           m.needsUpdate = true;
         });
@@ -7742,6 +8020,7 @@
         });
         ugChamber.visible = true;
         if (mepLegendEl) mepLegendEl.classList.toggle('is-visible', xray || activeCamKey === 'gasVault');
+        if (safetyLegendEl) safetyLegendEl.classList.toggle('is-visible', isStruct);
       }
       function goPreset(name) {
         const p = CAM_PRESETS[name];
@@ -7789,6 +8068,14 @@
           document.getElementById('waterSystemMode').value = mepMode;
           document.getElementById('modelDisplay').value = 'exterior';
           applyDisplay(); applyWaterMode(mepMode);
+        } else if (p.mode === 'structural') {
+          document.getElementById('waterSystemMode').value = 'structural';
+          document.getElementById('modelDisplay').value = 'exterior';
+          applyDisplay(); applyWaterMode('structural');
+          // Auto-deploy hydraulic monsoon flood barriers so the full disaster-safety suite is immediately showcased!
+          floodGateTarget = 1;
+          if (reduced) { floodGatePos = 1; updateFloodBarriers(1); }
+          syncDoorButtons();
         } else if (p.mode === 'gas') {
           document.getElementById('waterSystemMode').value = 'xray';
           document.getElementById('modelDisplay').value = 'exterior';
@@ -7807,7 +8094,8 @@
             applyWaterMode('standard');
           }
         }
-        if (mepLegendEl) mepLegendEl.classList.toggle('is-visible', currentMepMode !== 'standard' || name === 'gasVault');
+        if (mepLegendEl) mepLegendEl.classList.toggle('is-visible', (currentMepMode === 'xray' || currentMepMode === 'mepIsolate') || name === 'gasVault');
+        if (safetyLegendEl) safetyLegendEl.classList.toggle('is-visible', currentMepMode === 'structural');
         updatePins(true);
       }
       document.getElementById('cameraPresets').addEventListener('click', e => {
@@ -7855,23 +8143,27 @@
       let garageDoorPos = 1, garageDoorTarget = 1;
       let curtainPos = 0, curtainTarget = 0; // 0 = Folded/Open at sides, 1 = Unfolded/Closed across windows!
       let gasVaultPos = 0, gasVaultTarget = 0;
+      let floodGatePos = 0, floodGateTarget = 0; // 0 = Retracted flush below grade, 1 = Deployed hydraulic aluminum flood wall!
       const btnMainDoor = document.getElementById('toggleMainDoor');
       const btnSafetyDoors = document.getElementById('toggleSafetyDoors');
       const btnGarageDoor = document.getElementById('toggleGarageDoor');
       const btnCurtains = document.getElementById('toggleCurtains');
       const btnGasLock = document.getElementById('toggleGasLock');
+      const btnFloodGate = document.getElementById('toggleFloodGate');
       const btnWalk = document.getElementById('walkthroughBtn');
       const panelMainDoor = document.getElementById('panelMainDoor');
       const panelSafetyDoors = document.getElementById('panelSafetyDoors');
       const panelGarageDoor = document.getElementById('panelGarageDoor');
       const panelCurtains = document.getElementById('panelCurtains');
       const panelGasLock = document.getElementById('panelGasLock');
+      const panelFloodGate = document.getElementById('panelFloodGate');
       const panelWalkBtn = document.getElementById('panelWalkBtn');
       const dotMainDoor = document.getElementById('dotMainDoor');
       const dotSafetyDoors = document.getElementById('dotSafetyDoors');
       const dotGarageDoor = document.getElementById('dotGarageDoor');
       const dotCurtains = document.getElementById('dotCurtains');
       const dotGasLock = document.getElementById('dotGasLock');
+      const dotFloodGate = document.getElementById('dotFloodGate');
       const walkHud = document.getElementById('walkHud');
 
       function syncDoorButtons() {
@@ -7910,6 +8202,13 @@
         panelGasLock.setAttribute('aria-pressed', String(gasOpen));
         panelGasLock.classList.toggle('gold', gasOpen);
         panelGasLock.textContent = gasOpen ? '🔓 Gas Cylinder Vault: Unlocked' : '🔒 Gas Cylinder Vault: Locked';
+
+        const floodUp = floodGateTarget >= 0.5;
+        btnFloodGate.setAttribute('aria-pressed', String(floodUp));
+        if (dotFloodGate) dotFloodGate.className = 'btn-dot ' + (floodUp ? 'is-open' : 'is-closed');
+        panelFloodGate.setAttribute('aria-pressed', String(floodUp));
+        panelFloodGate.classList.toggle('gold', floodUp);
+        panelFloodGate.textContent = floodUp ? '🌊 Hydraulic Flood Barriers: Deployed' : '🌊 Hydraulic Flood Barriers: Stowed';
       }
       function toggleMainDoor() {
         mainDoorTarget = mainDoorTarget >= 0.5 ? 0 : 1;
@@ -7946,6 +8245,13 @@
         announceStatus(gasVaultTarget >= 0.5 ? 'Gas cylinder vault unlocked and door opened' : 'Gas cylinder vault closed and padlocked');
         startLoop();
       }
+      function toggleFloodGate() {
+        floodGateTarget = floodGateTarget >= 0.5 ? 0 : 1;
+        if (reduced) { floodGatePos = floodGateTarget; updateFloodBarriers(floodGatePos); }
+        syncDoorButtons();
+        announceStatus(floodGateTarget >= 0.5 ? 'Hydraulic aluminum flood barriers raised across gate and garage' : 'Hydraulic aluminum flood barriers retracted flush below grade');
+        startLoop();
+      }
       btnMainDoor.onclick = toggleMainDoor;
       panelMainDoor.onclick = toggleMainDoor;
       btnSafetyDoors.onclick = toggleSafetyDoors;
@@ -7956,11 +8262,14 @@
       panelCurtains.onclick = toggleCurtains;
       btnGasLock.onclick = toggleGasLock;
       panelGasLock.onclick = toggleGasLock;
+      btnFloodGate.onclick = toggleFloodGate;
+      panelFloodGate.onclick = toggleFloodGate;
       updateMainDoors(mainDoorPos);
       updateSafetyDoors(safetyDoorPos);
       updateGarageDoor(garageDoorPos);
       updateCurtains(curtainPos);
       updateGasVault(gasVaultPos);
+      updateFloodBarriers(floodGatePos);
       syncDoorButtons();
 
       function jumpWalkStop(key) {
@@ -8184,10 +8493,10 @@
       document.getElementById('resetAnimation').onclick = () => {
         if (walkMode) exitWalkthrough(false);
         tour = false; spinning = false; exploded = false; pinsVisible = true; arrangeFloors();
-        mainDoorTarget = 1; safetyDoorTarget = 1; garageDoorTarget = 1; curtainTarget = 0; gasVaultTarget = 0;
+        mainDoorTarget = 1; safetyDoorTarget = 1; garageDoorTarget = 1; curtainTarget = 0; gasVaultTarget = 0; floodGateTarget = 0;
         if (reduced) {
-          mainDoorPos = 1; safetyDoorPos = 1; garageDoorPos = 1; curtainPos = 0; gasVaultPos = 0;
-          updateMainDoors(1); updateSafetyDoors(1); updateGarageDoor(1); updateCurtains(0); updateGasVault(0);
+          mainDoorPos = 1; safetyDoorPos = 1; garageDoorPos = 1; curtainPos = 0; gasVaultPos = 0; floodGatePos = 0;
+          updateMainDoors(1); updateSafetyDoors(1); updateGarageDoor(1); updateCurtains(0); updateGasVault(0); updateFloodBarriers(0);
         }
         syncDoorButtons();
         Object.values(levels).forEach(g => { g.visible = true; });
@@ -8358,6 +8667,12 @@
           const eC = curtainPos < 0.5 ? 4 * curtainPos * curtainPos * curtainPos : 1 - Math.pow(-2 * curtainPos + 2, 3) / 2;
           updateCurtains(eC);
         }
+        if (Math.abs(floodGateTarget - floodGatePos) > 0.001) {
+          const step = Math.min(Math.abs(floodGateTarget - floodGatePos), dt * 0.72);
+          floodGatePos += Math.sign(floodGateTarget - floodGatePos) * step;
+          const eF = floodGatePos < 0.5 ? 4 * floodGatePos * floodGatePos * floodGatePos : 1 - Math.pow(-2 * floodGatePos + 2, 3) / 2;
+          updateFloodBarriers(eF);
+        }
 
         // First-Person Real-Home Walkthrough Physics (WASD / Touch D-Pad + Head-Bob + Proximity Auto-Doors!)
         if (walkMode && !camGoalPos) {
@@ -8484,6 +8799,13 @@
           // Animated directional flow pulses along visible concealed MEP pipes & ventilation ducts (ONLY when X-Ray/Spotlight active!)
           for (let i = 0; i < mepFlowBeads.length; i++) {
             const b = mepFlowBeads[i];
+            if (!b.grp.visible) continue;
+            const pT = (tSec * b.speed + b.phase) % 1;
+            b.curve.getPointAt(pT, b.mesh.position);
+          }
+          // Animated amber lightning-grounding pulses along copper down-conductors in Structural Safety X-Ray mode!
+          for (let i = 0; i < lightningFlowBeads.length; i++) {
+            const b = lightningFlowBeads[i];
             if (!b.grp.visible) continue;
             const pT = (tSec * b.speed + b.phase) % 1;
             b.curve.getPointAt(pT, b.mesh.position);
