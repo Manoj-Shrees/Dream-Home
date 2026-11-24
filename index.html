@@ -4516,7 +4516,7 @@
           'Extended Left Covered Garden Veranda (1.2 m shaded travertine walkway, 3 colonnade columns, closed bronze louver screen & teak bench)',
           'Main Living Room (Split-Inverter AC, 85" Live TV 1, Fluted Marble Wall, Cove Fan & Motorized Curtains) — 5.4 × 4.8 m',
           'Dining Room (Split-Inverter AC, 8–10 Seater) & Piped Gas Kitchen (4-Burner Hob, Island Chimney Hood, RO Tap, Leak Sensor & Pantry)',
-          '2-Car Covered Garage (5.5 × 5.5 m — Rolls-Royce Phantom & Mercedes-Benz AMG, Rolling Door & Hydraulic Flood Barrier)',
+          '2-Car Covered Garage (5.5 × 5.5 m — Rolls-Royce Phantom & Mercedes-Benz AMG, Rolling Door, Hydraulic Flood Barrier & Direct Inner Biometric Home Entrance)',
           'Grand Arrival Foyer · Floor-Cut 66-Step Spiral Atrium · Fitted Zero-Overlap Handrails · Curved Under-Stair Glass Barrier & Framed Safety Doors',
           'Bedroom 1 (Split-Inverter AC · Frosted-Glass Rain Shower Ensuite + Toilet Curtain), Frosted Guest WC & Lockable Waterproof LPG Vault'
         ],
@@ -6448,10 +6448,18 @@
       ];
       gf.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(archLedPts), 80, 0.036, 8, false), warmLedMat));
 
-      // Recessed Warm-Lit 2-Car Garage Interior (Zero-Z-Fighting Ceiling: walls 0.09..2.83, ceiling glow slab 2.86..2.92 cleanly above roller drum 2.80 & LEDs 2.77!)
+      // Recessed Warm-Lit 2-Car Garage Interior (Zero-Z-Fighting Ceiling + REAL OPEN INNER HOME ENTRANCE DOORWAY at x=-3.15, z=-0.15 between RR & Benz!)
       addBox(gf, 8.8, 0.1, 5.3, -3.15, 0.09, 2.45, garageFloorMat, false, true);
       addBox(gf, 8.8, 0.06, 5.2, -3.15, 2.89, 2.4, interiorGlowMat, false, false);
-      addBox(gf, 8.8, 2.74, 0.22, -3.15, 1.46, -0.15, warmWallMat);
+      // Rear garage wall precision-cut at x=-3.76..-2.54 (1.22 m clear opening) for direct inner garage-to-home entrance!
+      addBox(gf, 3.79, 2.74, 0.22, -5.655, 1.46, -0.15, warmWallMat); // Left rear wall (-7.55..-3.76)
+      addBox(gf, 3.79, 2.74, 0.22, -0.645, 1.46, -0.15, warmWallMat); // Right rear wall (-2.54..+1.25)
+      addBox(gf, 1.24, 0.43, 0.22, -3.15, 2.615, -0.15, warmWallMat); // Flush header lintel above inner garage door (y=2.40..2.83)
+      // Interactive Fire-Rated Biometric Inner Garage Safety Door + Illuminated Marble Mudroom Entry Step + Welcome Sconce!
+      addSafetyDoor(gf, -3.15, 0.26, -0.15, 1.08, 2.12, 0, -1);
+      addBox(gf, 1.44, 0.12, 0.44, -3.15, 0.20, 0.18, marbleMat, true, true);      // Inlaid marble transition step (garage 0.14 -> home 0.26)
+      addBox(gf, 1.36, 0.025, 0.03, -3.15, 0.155, 0.405, warmLedMat, false, false); // Warm under-step welcome LED strip
+      addBox(gf, 1.24, 0.03, 0.05, -3.15, 2.38, -0.02, warmLedMat, false, false);   // Overhead inner entrance welcome light bar
       addBox(gf, 0.18, 2.74, 5.0, -7.45, 1.46, 2.4, warmWallMat);
       addBox(gf, 0.18, 2.74, 5.0, 1.15, 1.46, 2.4, warmWallMat);
       // Warm linear LED ceiling strips inside garage
@@ -6459,10 +6467,10 @@
         addBox(gf, 2.2, 0.04, 0.09, gx, 2.75, 3.6, warmLedMat, false, false);
         addBox(gf, 2.2, 0.04, 0.09, gx, 2.75, 1.6, warmLedMat, false, false);
       }
-      // Framed wall art inside garage (seen in exterior-photo.webp!)
+      // Framed wall art inside garage (shifted cleanly right behind Mercedes-Benz, 50 cm clear of inner entrance!)
       addBox(gf, 0.05, 1.35, 0.95, -7.33, 1.42, 3.2, darkBronzeMat, false, false);
       addBox(gf, 0.06, 1.18, 0.80, -7.31, 1.42, 3.2, goldMat, false, false);
-      addBox(gf, 2.8, 1.05, 0.06, -1.5, 1.5, -0.02, darkBronzeMat, false, false);
+      addBox(gf, 2.10, 1.05, 0.06, -1.05, 1.5, -0.02, darkBronzeMat, false, false);
       // Exterior pillar black sconce lamps
       for (const sx of [-7.85, 1.62]) {
         addBox(gf, 0.12, 0.34, 0.14, sx, 1.95, 5.8, darkBronzeMat);
