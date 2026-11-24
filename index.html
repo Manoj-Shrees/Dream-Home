@@ -8252,7 +8252,7 @@
         }
       }
 
-      // Precision-Cut Smooth Rear Circulation Deck (GF/1F/2F) & Roof Deck (bi=3) — ZERO sharp wedges, ZERO excess zigzag barriers, ZERO overlapping rails!
+      // Precision-Cut Smooth Rear Circulation Deck (Unified across GF, 1F, 2F & Roof — flush inside the new glass curtain coverup!)
       const bridgeShape = new THREE.Shape();
       bridgeShape.moveTo(1.54, 0.78);
       bridgeShape.lineTo(6.74, 0.78);
@@ -8264,18 +8264,6 @@
       bridgeShape.closePath();
       const bridgeSlabGeo = new THREE.ExtrudeGeometry(bridgeShape, { depth: 0.24, bevelEnabled: false });
       const bridgeTopGeo = new THREE.ExtrudeGeometry(bridgeShape, { depth: 0.022, bevelEnabled: false });
-
-      // Roof landing terminates cleanly flush inside upperRearRightGlass & walnut spine (no protruding roof stub or U-barrier!)
-      const roofBridgeShape = new THREE.Shape();
-      roofBridgeShape.moveTo(1.54, 0.78);
-      roofBridgeShape.lineTo(5.72, 0.78);
-      roofBridgeShape.lineTo(5.68, 1.36);
-      roofBridgeShape.lineTo(3.11, 1.69);
-      roofBridgeShape.lineTo(2.30, 2.38);
-      roofBridgeShape.lineTo(1.54, 2.38);
-      roofBridgeShape.closePath();
-      const roofBridgeSlabGeo = new THREE.ExtrudeGeometry(roofBridgeShape, { depth: 0.24, bevelEnabled: false });
-      const roofBridgeTopGeo = new THREE.ExtrudeGeometry(roofBridgeShape, { depth: 0.022, bevelEnabled: false });
 
       // Flush architectural white rear return wall (x=6.28..6.72, z=0.86, GF..2F top) closing the rear gap cleanly beside the fluted walnut spine (ZERO rail clipping slats!)
       addBox(spiralBackCore, 0.46, 10.24, 0.20, 6.50, 5.12, 0.86, whiteMat, true, true);
@@ -8330,61 +8318,47 @@
       leftGlassFloorShape.closePath();
       const leftGlassFloorGeo = new THREE.ExtrudeGeometry(leftGlassFloorShape, { depth: 0.055, bevelEnabled: false });
 
-      // Roof Right Curved Glass Floor Seal (fills triangular corner cleanly between Roof landing & upperRearRightGlass!)
-      const roofGlassSealShape = new THREE.Shape();
-      roofGlassSealShape.moveTo(5.72, 0.78);
-      roofGlassSealShape.lineTo(6.18, 0.96);
-      roofGlassSealShape.lineTo(5.68, 1.36);
-      roofGlassSealShape.closePath();
-      const roofGlassSealGeo = new THREE.ExtrudeGeometry(roofGlassSealShape, { depth: 0.055, bevelEnabled: false });
-
       deckTops.forEach((topY, bi) => {
-        // Precision-cut rear circulation landing deck — smooth bevels, ZERO step overlap, ZERO sharp spikes!
-        const bDeck = new THREE.Mesh(bi === 3 ? roofBridgeSlabGeo : bridgeSlabGeo, whiteMat);
+        // Precision-cut rear circulation landing deck — smooth bevels, ZERO step overlap, unified through Roof glass gallery!
+        const bDeck = new THREE.Mesh(bridgeSlabGeo, whiteMat);
         bDeck.rotation.x = Math.PI / 2; bDeck.position.y = topY; bDeck.castShadow = true; bDeck.receiveShadow = true;
         spiralBackCore.add(bDeck);
-        const bTop = new THREE.Mesh(bi === 3 ? roofBridgeTopGeo : bridgeTopGeo, marbleMat);
+        const bTop = new THREE.Mesh(bridgeTopGeo, marbleMat);
         bTop.rotation.x = Math.PI / 2; bTop.position.y = topY + 0.011; bTop.receiveShadow = true;
         spiralBackCore.add(bTop);
 
-        // Flush Walkable Laminated Glass Floor Panels covering BOTH right & left open corridor pockets (zero drop-off in front of right doorway!)
+        // Flush Walkable Laminated Glass Floor Panels covering BOTH right & left open corridor pockets across all 4 levels!
         const lGlassDeck = new THREE.Mesh(leftGlassFloorGeo, frostedGlassMat);
         lGlassDeck.rotation.x = Math.PI / 2; lGlassDeck.position.y = topY + 0.008;
         spiralBackCore.add(lGlassDeck);
-        if (bi < 3) {
-          const rGlassDeck = new THREE.Mesh(rightGlassFloorGeo, frostedGlassMat);
-          rGlassDeck.rotation.x = Math.PI / 2; rGlassDeck.position.y = topY + 0.008;
-          spiralBackCore.add(rGlassDeck);
-          // Sleek Curved Frameless Tempered-Glass Safety Guardrail strictly hugging r=2.45 rim on 1F & 2F (seals open well cleanly with ZERO doorway or step overlap!)
-          if (bi > 0) {
-            const arcPts = [];
-            for (let i = 0; i <= 8; i++) {
-              const a = -Math.PI * 0.36 + (i / 8) * (Math.PI * 0.14);
-              arcPts.push([CX + Math.cos(a) * rGlassArc, CZ + Math.sin(a) * rGlassArc]);
-            }
-            arcPts.push([6.66, 1.94]); // Terminates cleanly into right doorway front jamb!
-            const gTopPts = [], gMidPts = [];
-            for (let i = 0; i < arcPts.length; i++) {
-              const [px, pz] = arcPts[i];
-              gTopPts.push(new THREE.Vector3(px, topY + 0.94, pz));
-              gMidPts.push(new THREE.Vector3(px, topY + 0.47, pz));
-              if (i < arcPts.length - 1) {
-                const [nx, nz] = arcPts[i + 1];
-                const dx = nx - px, dz = nz - pz;
-                const p = addBox(spiralBackCore, Math.hypot(dx, dz) + 0.008, 0.88, 0.032, (px + nx) / 2, topY + 0.46, (pz + nz) / 2, railGlassMat, false, false);
-                p.rotation.y = -Math.atan2(dz, dx);
-              }
-              if (i === 0 || i === 4 || i === arcPts.length - 1) {
-                addBox(spiralBackCore, 0.030, 0.92, 0.030, px, topY + 0.47, pz, goldMat, false, false);
-              }
-            }
-            spiralBackCore.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gTopPts), 24, 0.034, 8, false), goldMat));
-            spiralBackCore.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gMidPts), 20, 0.016, 6, false), goldMat));
+        const rGlassDeck = new THREE.Mesh(rightGlassFloorGeo, frostedGlassMat);
+        rGlassDeck.rotation.x = Math.PI / 2; rGlassDeck.position.y = topY + 0.008;
+        spiralBackCore.add(rGlassDeck);
+        // Sleek Curved Frameless Tempered-Glass Safety Guardrail strictly hugging r=2.45 rim on 1F, 2F & Roof (seals open well cleanly with ZERO doorway or step overlap!)
+        if (bi > 0) {
+          const arcPts = [];
+          for (let i = 0; i <= 8; i++) {
+            const a = -Math.PI * 0.36 + (i / 8) * (Math.PI * 0.14);
+            arcPts.push([CX + Math.cos(a) * rGlassArc, CZ + Math.sin(a) * rGlassArc]);
           }
-        } else {
-          const rfSeal = new THREE.Mesh(roofGlassSealGeo, frostedGlassMat);
-          rfSeal.rotation.x = Math.PI / 2; rfSeal.position.y = topY + 0.008;
-          spiralBackCore.add(rfSeal);
+          arcPts.push([6.66, 1.94]); // Terminates cleanly into right doorway front jamb / upper glass wall!
+          const gTopPts = [], gMidPts = [];
+          for (let i = 0; i < arcPts.length; i++) {
+            const [px, pz] = arcPts[i];
+            gTopPts.push(new THREE.Vector3(px, topY + 0.94, pz));
+            gMidPts.push(new THREE.Vector3(px, topY + 0.47, pz));
+            if (i < arcPts.length - 1) {
+              const [nx, nz] = arcPts[i + 1];
+              const dx = nx - px, dz = nz - pz;
+              const p = addBox(spiralBackCore, Math.hypot(dx, dz) + 0.008, 0.88, 0.032, (px + nx) / 2, topY + 0.46, (pz + nz) / 2, railGlassMat, false, false);
+              p.rotation.y = -Math.atan2(dz, dx);
+            }
+            if (i === 0 || i === 4 || i === arcPts.length - 1) {
+              addBox(spiralBackCore, 0.030, 0.92, 0.030, px, topY + 0.47, pz, goldMat, false, false);
+            }
+          }
+          spiralBackCore.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gTopPts), 24, 0.034, 8, false), goldMat));
+          spiralBackCore.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gMidPts), 20, 0.016, 6, false), goldMat));
         }
 
         // Precision-Cut Curved Indoor Mezzanine Balcony Landing (1F, 2F, Roof) projecting out over the chandelier void with clean open stair throats!
@@ -8489,38 +8463,48 @@
       glassCyl.position.set(CX, 7.35, CZ);
       tower.add(glassCyl);
 
-      // BALANCED FULL-HEIGHT CURVED STRUCTURAL GLASS ATRIUM ENCLOSURE WALLS ON BOTH REAR-RIGHT & REAR-LEFT FLANKS (100% Fall-Free Weather-Sealed Tower!)
-      // 1. Rear-Right Curved Glass Facade: sweeps cleanly from inside rightPier (0.58π) to Right Doorway front jamb (0.72π -> 6.71, 1.84)
+      // BALANCED FULL-HEIGHT CURVED & FLAT STRUCTURAL GLASS ATRIUM COVERUPS ON BOTH REAR-RIGHT & REAR-LEFT FLANKS (100% Sealed, Zero Open Vertical Slots!)
+      // 1. Rear-Right Curved Glass Facade: sweeps cleanly from inside rightPier (0.58π) to Right Doorway front jamb (0.725π -> 6.71, 1.84)
       const rearRightGlass = new THREE.Mesh(
         new THREE.CylinderGeometry(ATRIUM_R, ATRIUM_R, 12.74, 24, 1, true, Math.PI * 0.58, Math.PI * 0.145),
         atriumGlassMat
       );
       rearRightGlass.position.set(CX, 7.41, CZ);
       tower.add(rearRightGlass);
-      // 2. Upper Roof & Sky-Bridge Rear-Right Curved Glass Closure (y=10.24..13.78, 0.72π..0.87π): seals the open Roof quadrant above sideWing cleanly to the walnut spine!
-      const upperRearRightGlass = new THREE.Mesh(
-        new THREE.CylinderGeometry(ATRIUM_R, ATRIUM_R, 3.56, 20, 1, true, Math.PI * 0.725, Math.PI * 0.145),
-        atriumGlassMat
-      );
-      upperRearRightGlass.position.set(CX, 12.02, CZ);
-      tower.add(upperRearRightGlass);
-      // 3. Mirror Rear-Left Curved Glass Facade: balances the tower symmetrically from inside leftPier (-0.50π) around to left bridge edge (-0.66π -> 2.30, 2.26)
+      // 2. SEAMLESS UPPER RIGHT GLASS CURTAIN COVERUP DIRECTLY ABOVE 2F RIGHT DOORWAY (y=9.97..13.78, x=6.72, z=0.82..1.90 + Rear Corner Glass Return x=6.28..6.72, z=0.82!)
+      const upperRightCoverup = new THREE.Group();
+      tower.add(upperRightCoverup);
+      // Right side structural glass curtain wall seated 100% FLUSH on top of the 2F white doorway wall (y=9.97..13.78)
+      addBox(upperRightCoverup, 0.06, 3.81, 1.12, 6.72, 11.875, 1.36, atriumGlassMat, false, false);
+      // Rear corner structural glass return panel closing (6.28..6.72, z=0.82) flush from Roof return wall (10.24) up to Drum Crown (13.78)!
+      addBox(upperRightCoverup, 0.46, 3.54, 0.06, 6.50, 12.01, 0.82, atriumGlassMat, false, false);
+      // Flush laminated glass skylight roof cap sealing the top of the right coverup cleanly into the drum crown underside (y=13.78)!
+      addBox(upperRightCoverup, 0.56, 0.05, 1.14, 6.46, 13.76, 1.36, frostedGlassMat, false, false);
+      // Brushed champagne-gold vertical mullions & horizontal transoms matching the curved atrium cylinder!
+      for (const [mx, mz, mh, my] of [[6.72, 1.90, 3.81, 11.875], [6.72, 1.36, 3.81, 11.875], [6.72, 0.82, 3.81, 11.875], [6.28, 0.82, 3.54, 12.01]]) {
+        addBox(upperRightCoverup, 0.055, mh, 0.055, mx, my, mz, goldMat, false, false);
+      }
+      for (const ty of [9.99, 10.24, 11.50, 12.74, 13.76]) {
+        addBox(upperRightCoverup, 0.06, 0.048, 1.12, 6.72, ty, 1.36, goldMat, false, false);
+        if (ty >= 10.24) addBox(upperRightCoverup, 0.46, 0.048, 0.06, 6.50, ty, 0.82, goldMat, false, false);
+      }
+      // 3. Mirror Rear-Left Curved Glass Facade + Full-Height Flat Glass Coverup (x=1.55..2.30, z=2.38, y=1.04..13.78) sealing the left side symmetrically!
       const rearLeftGlass = new THREE.Mesh(
         new THREE.CylinderGeometry(ATRIUM_R, ATRIUM_R, 12.74, 24, 1, true, -Math.PI * 0.66, Math.PI * 0.16),
         atriumGlassMat
       );
       rearLeftGlass.position.set(CX, 7.41, CZ);
       tower.add(rearLeftGlass);
+      addBox(tower, 0.78, 12.74, 0.055, 1.93, 7.41, 2.38, atriumGlassMat, false, false); // Left side full-height glass coverup!
+      addBox(tower, 0.052, 12.74, 0.062, 1.93, 7.41, 2.38, goldMat, false, false);       // Center champagne-gold mullion
+      for (const ty of [3.74, 6.99, 10.24, 12.74, 13.76]) {
+        addBox(tower, 0.78, 0.046, 0.062, 1.93, ty, 2.38, goldMat, false, false);
+      }
 
-      // Slim Vertical Champagne-Gold Mullions & Curved Floor-Level Architectural Transom Bars framing BOTH rear glass flanks!
+      // Slim Vertical Champagne-Gold Mullions & Curved Floor-Level Architectural Transom Bars framing BOTH rear curved glass flanks!
       for (const th of [Math.PI * 0.64, Math.PI * 0.72, -Math.PI * 0.58, -Math.PI * 0.66]) {
         const mx = CX + Math.sin(th) * (ATRIUM_R + 0.015), mz = CZ + Math.cos(th) * (ATRIUM_R + 0.015);
         const mul = addBox(tower, 0.052, 12.74, 0.068, mx, 7.41, mz, goldMat, false, false);
-        mul.rotation.y = th;
-      }
-      for (const th of [Math.PI * 0.79, Math.PI * 0.865]) {
-        const mx = CX + Math.sin(th) * (ATRIUM_R + 0.015), mz = CZ + Math.cos(th) * (ATRIUM_R + 0.015);
-        const mul = addBox(tower, 0.052, 3.56, 0.068, mx, 12.02, mz, goldMat, false, false);
         mul.rotation.y = th;
       }
       for (const ty of [3.74, 6.99, 10.24, 12.74]) {
@@ -8532,14 +8516,6 @@
             tPts.push(new THREE.Vector3(CX + Math.sin(th) * (ATRIUM_R + 0.015), ty, CZ + Math.cos(th) * (ATRIUM_R + 0.015)));
           }
           tower.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tPts), 16, 0.032, 6, false), goldMat));
-        }
-        if (ty >= 10.24) {
-          const uPts = [];
-          for (let i = 0; i <= 10; i++) {
-            const th = Math.PI * 0.725 + (i / 10) * (Math.PI * 0.145);
-            uPts.push(new THREE.Vector3(CX + Math.sin(th) * (ATRIUM_R + 0.015), ty, CZ + Math.cos(th) * (ATRIUM_R + 0.015)));
-          }
-          tower.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(uPts), 16, 0.032, 6, false), goldMat));
         }
       }
 
