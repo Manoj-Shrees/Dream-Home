@@ -3581,6 +3581,8 @@
               <button type="button" id="tourModel" aria-pressed="false" interestfor="tip-tool-tour">▶ Guided Tour</button>
               <button type="button" id="toggleMainDoor" aria-pressed="true" interestfor="tip-tool-maindoor"><span class="btn-dot is-open" id="dotMainDoor" aria-hidden="true"></span>🚪 Main Door</button>
               <button type="button" id="toggleSafetyDoors" aria-pressed="true" interestfor="tip-tool-safety"><span class="btn-dot is-open" id="dotSafetyDoors" aria-hidden="true"></span>🛡️ Safety Doors</button>
+              <button type="button" id="toggleSlidingDoors" aria-pressed="false" interestfor="tip-tool-sliding"><span class="btn-dot is-closed" id="dotSlidingDoors" aria-hidden="true"></span>↔ Sliding Doors</button>
+              <button type="button" id="toggleSlidingDemo" aria-pressed="false" interestfor="tip-tool-slidedemo"><span class="btn-dot is-closed" id="dotSlidingDemo" aria-hidden="true"></span>🔄 Slide Sim</button>
               <button type="button" id="toggleGarageDoor" aria-pressed="true" interestfor="tip-tool-garage"><span class="btn-dot is-open" id="dotGarageDoor" aria-hidden="true"></span>🚘 Garage Roll</button>
               <button type="button" id="toggleCurtains" aria-pressed="false" interestfor="tip-tool-curtains"><span class="btn-dot is-closed" id="dotCurtains" aria-hidden="true"></span>🪟 Curtains</button>
               <button type="button" id="toggleGasLock" aria-pressed="false" interestfor="tip-tool-gaslock"><span class="btn-dot is-locked" id="dotGasLock" aria-hidden="true"></span>🔒 Gas Lock</button>
@@ -3719,6 +3721,8 @@
           <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px">
             <button type="button" class="btn small gold" id="panelMainDoor" aria-pressed="true" style="width:100%">🚪 Main Door &amp; Gate: Open</button>
             <button type="button" class="btn small gold" id="panelSafetyDoors" aria-pressed="true" style="width:100%">🛡️ Floor Safety Doors: Open</button>
+            <button type="button" class="btn small" id="panelSlidingDoors" aria-pressed="false" style="width:100%">↔ Suite &amp; Balcony Sliders: Private</button>
+            <button type="button" class="btn small" id="panelSlidingDemo" aria-pressed="false" style="width:100%">🔄 Sliding Door Simulation: Off</button>
             <button type="button" class="btn small gold" id="panelGarageDoor" aria-pressed="true" style="width:100%">🚘 Garage Rolling Door: Open</button>
             <button type="button" class="btn small" id="panelCurtains" aria-pressed="false" style="width:100%">🪟 Motorized Curtains: Folded</button>
             <button type="button" class="btn small" id="panelGasLock" aria-pressed="false" style="width:100%">🔒 Gas Cylinder Vault: Locked</button>
@@ -3796,6 +3800,8 @@
         </div>
         <div id="tip-tool-maindoor" class="ui-tip" popover="hint"><strong>Sliding Main Door &amp; Gate</strong>Operate the motorized bi-parting street sliding gate and glass atrium entry sliding door.</div>
         <div id="tip-tool-safety" class="ui-tip" popover="hint"><strong>Reinforced Safety Doors</strong>Open or close all armored biometric steel-and-walnut safety doors connecting the spiral atrium and every floor lobby.</div>
+        <div id="tip-tool-sliding" class="ui-tip" popover="hint"><strong>Suite &amp; Balcony Sliding Doors (28)</strong>Smoothly glide all 14 balcony glass sliding doors and 14 frosted bedroom/ensuite privacy sliding doors open or closed along their bronze tracks.</div>
+        <div id="tip-tool-slidedemo" class="ui-tip" popover="hint"><strong>Live Sliding Door Simulation</strong>Run a continuous staggered soft-close animation across the atrium bi-parting door, all 14 balcony sliders &amp; all 14 frosted suite privacy doors (plus auto-open proximity in Walk Inside mode).</div>
         <div id="tip-tool-garage" class="ui-tip" popover="hint"><strong>Rolling Garage Door</strong>Roll the 12-slat articulated overhead sectional garage door up or down smoothly.</div>
         <div id="tip-tool-curtains" class="ui-tip" popover="hint"><strong>Motorized Smart Curtains</strong>Unfold or fold all pleated velvet &amp; sheer window curtains smoothly across every room in the villa.</div>
         <div id="tip-tool-gaslock" class="ui-tip" popover="hint"><strong>Lockable Waterproof Gas Vault</strong>Unlock and swing open the external rainproof LPG cylinder cabinet to inspect twin cylinders &amp; regulator.</div>

@@ -581,6 +581,7 @@ async function init3DViewer() {
 
   const curtainSystems = [];
   const safetyDoors = [];
+  const slidingDoors = [];
 
   function addCurtainPair(parent, x, y, z, width, height, rotY = 0) {
     // Motorized Smart Pleated Velvet + Translucent Sheer Curtain Assembly (animates Folded=0 <-> Unfolded=1!)
@@ -692,7 +693,7 @@ async function init3DViewer() {
   }
 
   function addSlidingBalconyDoor(parent, x, y, z, width, height, rotY = 0, openSide = 1) {
-    // Real Architectural Open Walk-Through Sliding Glass Balcony Doorway (Overhead twin bronze track, flush sill, slid-back glass leaf & champagne-gold pull handles!)
+    // Interactive Animated Walk-Through Sliding Glass Balcony Doorway (Overhead twin bronze track, flush sill, animated glass leaf & champagne-gold pull handles!)
     const d = new THREE.Group();
     d.position.set(x, y, z); d.rotation.y = rotY;
     const hw = width / 2;
@@ -701,43 +702,61 @@ async function init3DViewer() {
     addBox(d, width + 0.08, 0.032, 0.14, 0, 0.016, 0, darkBronzeMat, false, false);
     addBox(d, 0.07, height, 0.14, -hw, height / 2, 0, darkBronzeMat, false, false);
     addBox(d, 0.07, height, 0.14, hw, height / 2, 0, darkBronzeMat, false, false);
-    // Fixed outer glass leaf occupying 44% on the parked side + slid-back overlapping sliding glass leaf (leaving 56% completely OPEN walk-through access to the balcony!)
-    const leafW = width * 0.44;
+    // Fixed outer glass leaf (50% on parked side) + smoothly animated sliding glass leaf on front track (zero gap when closed, wide walk-through when open!)
+    const leafW = width * 0.50;
     const leafH = height - 0.11;
     const parkX = -openSide * (hw - leafW / 2 - 0.04);
+    const closedX = openSide * (hw - leafW / 2 - 0.04);
+    const openX = parkX + openSide * 0.12;
     // Fixed pane (rear track)
     addBox(d, leafW, leafH, 0.036, parkX, leafH / 2 + 0.03, -0.028, atriumGlassMat, false, false);
     addBox(d, 0.042, leafH, 0.046, parkX + openSide * (leafW / 2), leafH / 2 + 0.03, -0.028, darkBronzeMat, false, false);
-    // Slid-open sliding leaf neatly overlapping the parked leaf (front track, offset 14 cm inward for unmistakable open-door realism!)
-    const slideX = parkX + openSide * 0.14;
-    addBox(d, leafW, leafH, 0.036, slideX, leafH / 2 + 0.03, 0.032, atriumGlassMat, false, false);
-    addBox(d, 0.044, leafH, 0.052, slideX + openSide * (leafW / 2), leafH / 2 + 0.03, 0.032, darkBronzeMat, false, false);
-    addBox(d, 0.044, leafH, 0.052, slideX - openSide * (leafW / 2), leafH / 2 + 0.03, 0.032, darkBronzeMat, false, false);
-    addBox(d, leafW, 0.044, 0.052, slideX, leafH + 0.02, 0.032, darkBronzeMat, false, false);
+    // Animated sliding glass leaf (front track) grouped cleanly for real-time horizontal glide simulation!
+    const slideLeaf = new THREE.Group();
+    slideLeaf.position.set(openX, 0, 0.032);
+    addBox(slideLeaf, leafW, leafH, 0.036, 0, leafH / 2 + 0.03, 0, atriumGlassMat, false, false);
+    addBox(slideLeaf, 0.044, leafH, 0.052, openSide * (leafW / 2), leafH / 2 + 0.03, 0, darkBronzeMat, false, false);
+    addBox(slideLeaf, 0.044, leafH, 0.052, -openSide * (leafW / 2), leafH / 2 + 0.03, 0, darkBronzeMat, false, false);
+    addBox(slideLeaf, leafW, 0.044, 0.052, 0, leafH + 0.02, 0, darkBronzeMat, false, false);
+    addBox(slideLeaf, leafW, 0.044, 0.052, 0, 0.05, 0, darkBronzeMat, false, false);
     // Tall brushed champagne-gold vertical pull handles on BOTH interior & exterior faces of the sliding leaf!
-    const hx = slideX + openSide * (leafW / 2 - 0.09);
-    addBox(d, 0.032, 0.78, 0.045, hx, Math.min(1.12, leafH * 0.52), 0.072, goldMat, false, false);
-    addBox(d, 0.032, 0.78, 0.045, hx, Math.min(1.12, leafH * 0.52), -0.012, goldMat, false, false);
+    const hx = openSide * (leafW / 2 - 0.09);
+    addBox(slideLeaf, 0.032, 0.78, 0.045, hx, Math.min(1.12, leafH * 0.52), 0.040, goldMat, false, false);
+    addBox(slideLeaf, 0.032, 0.78, 0.045, hx, Math.min(1.12, leafH * 0.52), -0.044, goldMat, false, false);
+    d.add(slideLeaf);
+    slidingDoors.push({
+      kind: 'balcony',
+      leaf: slideLeaf,
+      doorGroup: d,
+      closedX,
+      openX,
+      defaultOpen: 0.92,
+      pos: 0.92,
+      target: 0.92,
+      phase: slidingDoors.length * 0.24
+    });
     parent.add(d);
     return d;
   }
 
   function addPrivacySlidingDoor(parent, x, y, z, width, height, rotY = 0, isFrosted = true, closedRatio = 0.90) {
-    // Luxury Architectural Pocket/Track Privacy Sliding Door (Dark-Bronze Track + Walnut Stile Frame + Satin Frosted Privacy Glass + Champagne-Gold Handles!)
+    // Interactive Animated Pocket/Track Privacy Sliding Door (Dark-Bronze Track + Walnut Stile Frame + Satin Frosted Privacy Glass + Champagne-Gold Handles!)
     const d = new THREE.Group();
     d.position.set(x, y, z); d.rotation.y = rotY;
     const hw = width / 2;
-    // Overhead concealed bronze sliding pelmet track + slim floor guide + perimeter jambs
-    addBox(d, width * 1.55, 0.085, 0.14, -hw * 0.25, height - 0.04, 0, darkBronzeMat, false, false);
+    // Extended overhead concealed bronze sliding pelmet track supporting full open glide + slim floor guide + perimeter jambs
+    addBox(d, width * 1.90, 0.085, 0.14, -hw * 0.45, height - 0.04, 0, darkBronzeMat, false, false);
     addBox(d, width + 0.08, 0.024, 0.10, 0, 0.012, 0, darkBronzeMat, false, false);
     addBox(d, 0.065, height, 0.13, -hw, height / 2, 0, walnutMat, false, false);
     addBox(d, 0.065, height, 0.13, hw, height / 2, 0, walnutMat, false, false);
-    // Privacy sliding door leaf positioned closedRatio across the opening (90% closed = full suite privacy with crisp architectural reveal!)
+    // Animated privacy sliding leaf gliding smoothly from flush-closed (0) to wide-open (-0.86 * width) along the bronze pelmet track!
     const leafW = width - 0.04;
     const leafH = height - 0.09;
-    const slideOff = -(1 - closedRatio) * width;
+    const closedX = 0;
+    const openX = -(width * 0.86);
+    const defaultOpen = Math.max(0, Math.min(0.14, 1 - closedRatio));
     const leaf = new THREE.Group();
-    leaf.position.set(slideOff, leafH / 2 + 0.02, 0.022);
+    leaf.position.set(closedX + (openX - closedX) * defaultOpen, leafH / 2 + 0.02, 0.022);
     // Solid walnut perimeter stiles & top/bottom rails
     addBox(leaf, 0.11, leafH, 0.052, -leafW / 2 + 0.055, 0, 0, walnutMat, true, false);
     addBox(leaf, 0.11, leafH, 0.052, leafW / 2 - 0.055, 0, 0, walnutMat, true, false);
@@ -755,8 +774,33 @@ async function init3DViewer() {
     addBox(leaf, 0.030, 0.76, 0.042, hx, -0.04, 0.048, goldMat, false, false);
     addBox(leaf, 0.030, 0.76, 0.042, hx, -0.04, -0.048, goldMat, false, false);
     d.add(leaf);
+    slidingDoors.push({
+      kind: 'privacy',
+      leaf,
+      doorGroup: d,
+      closedX,
+      openX,
+      defaultOpen,
+      pos: defaultOpen,
+      target: defaultOpen,
+      phase: slidingDoors.length * 0.24
+    });
     parent.add(d);
     return d;
+  }
+
+  function applySlidingDoorPose(sd, ratio) {
+    const clamped = Math.max(0, Math.min(1, ratio));
+    const eased = clamped < 0.5 ? 4 * clamped * clamped * clamped : 1 - Math.pow(-2 * clamped + 2, 3) / 2;
+    sd.leaf.position.x = sd.closedX + (sd.openX - sd.closedX) * eased;
+  }
+
+  function setAllSlidingDoorTargets(mode) {
+    // mode: 'default' (balconies breezy open, suites private closed) | 'open' (all 28 open) | 'closed' (all 28 closed)
+    for (let i = 0; i < slidingDoors.length; i++) {
+      const sd = slidingDoors[i];
+      sd.target = mode === 'open' ? 1 : mode === 'closed' ? 0 : sd.defaultOpen;
+    }
   }
 
   function updateSafetyDoors(openRatio) {
@@ -4454,15 +4498,19 @@ async function init3DViewer() {
     veg: { pos: [-13.2, 1.85, -13.6], look: [-10.1, 0.65, -10.95], floorIdx: 0, mode: 'exterior', title: 'Walkthrough · Organic Kitchen Vegetable Farm', desc: 'Walking beside the 3 raised cedar beds (tomatoes, leafy greens, carrots & herbs), seed-starter greenhouse, rainwater drip barrel & organic composter.' }
   };
 
-  // Motorized Door, Safety Doors, Garage, Motorized Curtains & Lockable Gas Vault States
+  // Motorized Door, Safety Doors, Sliding Doors (28), Garage, Motorized Curtains & Lockable Gas Vault States
   let mainDoorPos = 1, mainDoorTarget = 1;
   let safetyDoorPos = 1, safetyDoorTarget = 1;
+  let slidingDoorMode = 'default'; // 'default' (balconies breezy, suites private) | 'open' (all 28 open) | 'closed' (all 28 sealed)
+  let slidingDemo = false, slidingDemoStart = 0;
   let garageDoorPos = 1, garageDoorTarget = 1;
   let curtainPos = 0, curtainTarget = 0; // 0 = Folded/Open at sides, 1 = Unfolded/Closed across windows!
   let gasVaultPos = 0, gasVaultTarget = 0;
   let floodGatePos = 0, floodGateTarget = 0; // 0 = Retracted flush below grade, 1 = Deployed hydraulic aluminum flood wall!
   const btnMainDoor = document.getElementById('toggleMainDoor');
   const btnSafetyDoors = document.getElementById('toggleSafetyDoors');
+  const btnSlidingDoors = document.getElementById('toggleSlidingDoors');
+  const btnSlidingDemo = document.getElementById('toggleSlidingDemo');
   const btnGarageDoor = document.getElementById('toggleGarageDoor');
   const btnCurtains = document.getElementById('toggleCurtains');
   const btnGasLock = document.getElementById('toggleGasLock');
@@ -4470,6 +4518,8 @@ async function init3DViewer() {
   const btnWalk = document.getElementById('walkthroughBtn');
   const panelMainDoor = document.getElementById('panelMainDoor');
   const panelSafetyDoors = document.getElementById('panelSafetyDoors');
+  const panelSlidingDoors = document.getElementById('panelSlidingDoors');
+  const panelSlidingDemo = document.getElementById('panelSlidingDemo');
   const panelGarageDoor = document.getElementById('panelGarageDoor');
   const panelCurtains = document.getElementById('panelCurtains');
   const panelGasLock = document.getElementById('panelGasLock');
@@ -4477,6 +4527,8 @@ async function init3DViewer() {
   const panelWalkBtn = document.getElementById('panelWalkBtn');
   const dotMainDoor = document.getElementById('dotMainDoor');
   const dotSafetyDoors = document.getElementById('dotSafetyDoors');
+  const dotSlidingDoors = document.getElementById('dotSlidingDoors');
+  const dotSlidingDemo = document.getElementById('dotSlidingDemo');
   const dotGarageDoor = document.getElementById('dotGarageDoor');
   const dotCurtains = document.getElementById('dotCurtains');
   const dotGasLock = document.getElementById('dotGasLock');
@@ -4486,6 +4538,7 @@ async function init3DViewer() {
   function syncDoorButtons() {
     const mOpen = mainDoorTarget >= 0.5;
     const sOpen = safetyDoorTarget >= 0.5;
+    const slOpen = slidingDoorMode === 'open';
     const gOpen = garageDoorTarget >= 0.5;
     const cUnfolded = curtainTarget >= 0.5;
     const gasOpen = gasVaultTarget >= 0.5;
@@ -4501,6 +4554,26 @@ async function init3DViewer() {
     panelSafetyDoors.setAttribute('aria-pressed', String(sOpen));
     panelSafetyDoors.classList.toggle('gold', sOpen);
     panelSafetyDoors.textContent = sOpen ? '🛡️ Floor Safety Doors: Open' : '🛡️ Floor Safety Doors: Closed';
+
+    if (btnSlidingDoors) btnSlidingDoors.setAttribute('aria-pressed', String(slOpen));
+    if (dotSlidingDoors) dotSlidingDoors.className = 'btn-dot ' + (slOpen ? 'is-open' : 'is-closed');
+    if (panelSlidingDoors) {
+      panelSlidingDoors.setAttribute('aria-pressed', String(slOpen));
+      panelSlidingDoors.classList.toggle('gold', slOpen);
+      panelSlidingDoors.textContent = slidingDoorMode === 'open'
+        ? '↔ Suite & Balcony Sliders: All Open'
+        : slidingDoorMode === 'closed'
+          ? '↔ Suite & Balcony Sliders: All Closed'
+          : '↔ Suite & Balcony Sliders: Private';
+    }
+
+    if (btnSlidingDemo) btnSlidingDemo.setAttribute('aria-pressed', String(slidingDemo));
+    if (dotSlidingDemo) dotSlidingDemo.className = 'btn-dot ' + (slidingDemo ? 'is-open' : 'is-closed');
+    if (panelSlidingDemo) {
+      panelSlidingDemo.setAttribute('aria-pressed', String(slidingDemo));
+      panelSlidingDemo.classList.toggle('gold', slidingDemo);
+      panelSlidingDemo.textContent = slidingDemo ? '🔄 Sliding Door Simulation: Running' : '🔄 Sliding Door Simulation: Off';
+    }
 
     btnGarageDoor.setAttribute('aria-pressed', String(gOpen));
     if (dotGarageDoor) dotGarageDoor.className = 'btn-dot ' + (gOpen ? 'is-open' : 'is-closed');
@@ -4541,6 +4614,39 @@ async function init3DViewer() {
     announceStatus(safetyDoorTarget >= 0.5 ? 'All floor and entry safety doors opened' : 'All floor and entry safety doors closed');
     startLoop();
   }
+  function toggleSlidingDoors() {
+    if (slidingDemo) {
+      slidingDemo = false;
+      updateMainDoors(mainDoorPos);
+    }
+    slidingDoorMode = slidingDoorMode === 'open' ? 'closed' : 'open';
+    setAllSlidingDoorTargets(slidingDoorMode);
+    if (reduced) {
+      for (let i = 0; i < slidingDoors.length; i++) {
+        slidingDoors[i].pos = slidingDoors[i].target;
+        applySlidingDoorPose(slidingDoors[i], slidingDoors[i].pos);
+      }
+    }
+    syncDoorButtons();
+    announceStatus(slidingDoorMode === 'open'
+      ? `All ${slidingDoors.length} balcony and frosted suite sliding doors gliding open`
+      : `All ${slidingDoors.length} balcony and frosted suite sliding doors sliding closed for full privacy`);
+    startLoop();
+  }
+  function toggleSlidingDemo() {
+    slidingDemo = !slidingDemo;
+    if (slidingDemo) {
+      slidingDemoStart = performance.now();
+    } else {
+      setAllSlidingDoorTargets(slidingDoorMode);
+      updateMainDoors(mainDoorPos);
+    }
+    syncDoorButtons();
+    announceStatus(slidingDemo
+      ? `Live sliding door simulation started across all ${slidingDoors.length} balcony, suite and atrium sliders`
+      : 'Live sliding door simulation stopped');
+    startLoop();
+  }
   function toggleGarageDoor() {
     garageDoorTarget = garageDoorTarget >= 0.5 ? 0 : 1;
     if (reduced) { garageDoorPos = garageDoorTarget; updateGarageDoor(garageDoorPos); }
@@ -4573,6 +4679,10 @@ async function init3DViewer() {
   panelMainDoor.onclick = toggleMainDoor;
   btnSafetyDoors.onclick = toggleSafetyDoors;
   panelSafetyDoors.onclick = toggleSafetyDoors;
+  if (btnSlidingDoors) btnSlidingDoors.onclick = toggleSlidingDoors;
+  if (panelSlidingDoors) panelSlidingDoors.onclick = toggleSlidingDoors;
+  if (btnSlidingDemo) btnSlidingDemo.onclick = toggleSlidingDemo;
+  if (panelSlidingDemo) panelSlidingDemo.onclick = toggleSlidingDemo;
   btnGarageDoor.onclick = toggleGarageDoor;
   panelGarageDoor.onclick = toggleGarageDoor;
   btnCurtains.onclick = toggleCurtains;
@@ -4583,6 +4693,7 @@ async function init3DViewer() {
   panelFloodGate.onclick = toggleFloodGate;
   updateMainDoors(mainDoorPos);
   updateSafetyDoors(safetyDoorPos);
+  for (let i = 0; i < slidingDoors.length; i++) applySlidingDoorPose(slidingDoors[i], slidingDoors[i].pos);
   updateGarageDoor(garageDoorPos);
   updateCurtains(curtainPos);
   updateGasVault(gasVaultPos);
@@ -4759,9 +4870,14 @@ async function init3DViewer() {
     if (walkMode) exitWalkthrough(false);
     tour = false; spinning = false; exploded = false; pinsVisible = true; arrangeFloors();
     mainDoorTarget = 1; safetyDoorTarget = 1; garageDoorTarget = 1; curtainTarget = 0; gasVaultTarget = 0; floodGateTarget = 0;
+    slidingDemo = false; slidingDoorMode = 'default'; setAllSlidingDoorTargets('default');
     if (reduced) {
       mainDoorPos = 1; safetyDoorPos = 1; garageDoorPos = 1; curtainPos = 0; gasVaultPos = 0; floodGatePos = 0;
       updateMainDoors(1); updateSafetyDoors(1); updateGarageDoor(1); updateCurtains(0); updateGasVault(0); updateFloodBarriers(0);
+      for (let i = 0; i < slidingDoors.length; i++) {
+        slidingDoors[i].pos = slidingDoors[i].defaultOpen;
+        applySlidingDoorPose(slidingDoors[i], slidingDoors[i].pos);
+      }
     }
     syncDoorButtons();
     Object.values(levels).forEach(g => { g.visible = true; });
@@ -4860,7 +4976,7 @@ async function init3DViewer() {
   const modelSection = document.getElementById('model');
   const _walkFwd = new THREE.Vector3(), _walkRight = new THREE.Vector3(), _walkMove = new THREE.Vector3();
   const _tourPosA = new THREE.Vector3(), _tourPosB = new THREE.Vector3(), _tourTgtA = new THREE.Vector3(), _tourTgtB = new THREE.Vector3();
-  const _doorPosMain = new THREE.Vector3(4.5, 1.8, 6.2), _doorPosGarage = new THREE.Vector3(-3.0, 1.8, 5.2), _doorPosGas = new THREE.Vector3(8.95, 1.8, -3.25);
+  const _doorPosMain = new THREE.Vector3(4.5, 1.8, 6.2), _doorPosGarage = new THREE.Vector3(-3.0, 1.8, 5.2), _doorPosGas = new THREE.Vector3(8.95, 1.8, -3.25), _sdWorldPos = new THREE.Vector3();
 
   function startLoop() {
     if (rafId || isSkipped || isHidden) return;
@@ -4937,6 +5053,49 @@ async function init3DViewer() {
       floodGatePos += Math.sign(floodGateTarget - floodGatePos) * step;
       const eF = floodGatePos < 0.5 ? 4 * floodGatePos * floodGatePos * floodGatePos : 1 - Math.pow(-2 * floodGatePos + 2, 3) / 2;
       updateFloodBarriers(eF);
+    }
+
+    // Real-Time Sliding Door Simulation: Smooth soft-close glide for ALL 28 balcony & frosted suite sliding doors (+ choreographed Demo Wave & Walkthrough Proximity Sensor!)
+    if (slidingDemo && !reduced) {
+      const elapsed = (time - slidingDemoStart) * 0.001;
+      const cycleDur = 5.6;
+      const waveVal = (t) => {
+        const u = ((t % cycleDur) + cycleDur) % cycleDur;
+        if (u < 1.35) return u / 1.35;          // Smooth glide open
+        if (u < 2.80) return 1;                 // Pause open
+        if (u < 4.15) return 1 - (u - 2.80) / 1.35; // Soft-close glide shut
+        return 0;                               // Pause sealed
+      };
+      // Sync bi-parting glass atrium entry door cleanly in the live sliding simulation!
+      const atriumW = waveVal(elapsed);
+      const atriumE = atriumW < 0.5 ? 4 * atriumW * atriumW * atriumW : 1 - Math.pow(-2 * atriumW + 2, 3) / 2;
+      entryLeafLeft.position.x = CX - 0.56 - atriumE * 0.94;
+      entryLeafRight.position.x = CX + 0.56 + atriumE * 0.94;
+      for (let i = 0; i < slidingDoors.length; i++) {
+        const sd = slidingDoors[i];
+        sd.pos = waveVal(elapsed + sd.phase);
+        applySlidingDoorPose(sd, sd.pos);
+      }
+    } else {
+      for (let i = 0; i < slidingDoors.length; i++) {
+        const sd = slidingDoors[i];
+        if (walkMode) {
+          sd.doorGroup.getWorldPosition(_sdWorldPos);
+          const dx = camera.position.x - _sdWorldPos.x;
+          const dz = camera.position.z - _sdWorldPos.z;
+          const dy = Math.abs(camera.position.y - (_sdWorldPos.y + 1.2));
+          const horizDist = Math.hypot(dx, dz);
+          const baseT = slidingDoorMode === 'open' ? 1 : slidingDoorMode === 'closed' ? 0 : sd.defaultOpen;
+          if (horizDist < 3.2 && dy < 2.2) sd.target = 1;
+          else if (horizDist > 3.7 || dy >= 2.2) sd.target = baseT;
+        }
+        const diff = sd.target - sd.pos;
+        if (Math.abs(diff) > 0.001) {
+          const step = Math.min(Math.abs(diff), dt * 0.95);
+          sd.pos += Math.sign(diff) * step;
+          applySlidingDoorPose(sd, sd.pos);
+        }
+      }
     }
 
     // First-Person Real-Home Walkthrough Physics (WASD / Touch D-Pad + Head-Bob + Proximity Auto-Doors!)
