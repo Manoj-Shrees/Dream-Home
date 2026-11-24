@@ -193,7 +193,8 @@ async function init3DViewer() {
   sunLight.shadow.camera.right = 22;
   sunLight.shadow.camera.top = 24;
   sunLight.shadow.camera.bottom = -14;
-  sunLight.shadow.bias = -0.0005;
+  sunLight.shadow.bias = -0.0004;
+  sunLight.shadow.normalBias = 0.032;
   scene.add(sunLight);
 
   const fillLight = new THREE.DirectionalLight(0x88b4e6, 0.65);
@@ -676,18 +677,18 @@ async function init3DViewer() {
     // Heavy-Duty Brushed-Bronze & Armored Walnut Security Safety Door with Biometric Keypad LED & Hinged Pivot!
     const frame = new THREE.Group();
     frame.position.set(x, y, z); frame.rotation.y = rotY;
-    // Heavy steel perimeter door frame jambs + lintel (OPEN walkthrough interior!)
-    addBox(frame, 0.12, height, 0.16, -width / 2 - 0.04, height / 2, 0, goldMat, false, false);
-    addBox(frame, 0.12, height, 0.16, width / 2 + 0.04, height / 2, 0, goldMat, false, false);
-    addBox(frame, width + 0.20, 0.14, 0.18, 0, height + 0.05, 0, goldMat, false, false);
+    // Heavy steel perimeter door frame jambs + lintel (clear of door leaf & proud of wall thickness — zero Z-fighting!)
+    addBox(frame, 0.10, height, 0.18, -width / 2 - 0.055, height / 2, 0, goldMat, false, false);
+    addBox(frame, 0.10, height, 0.18, width / 2 + 0.055, height / 2, 0, goldMat, false, false);
+    addBox(frame, width + 0.22, 0.12, 0.19, 0, height + 0.06, 0, goldMat, false, false);
     // Biometric Smart-Lock Keypad on right jamb (emerald security LED)
-    addBox(frame, 0.07, 0.16, 0.05, width / 2 + 0.05, 1.24, 0.09, charcoalMat, false, false);
-    addBox(frame, 0.03, 0.03, 0.02, width / 2 + 0.05, 1.29, 0.12, gasSensorLedMat, false, false);
-    // Hinged Armored Door Leaf (pivots cleanly at left jamb!)
+    addBox(frame, 0.07, 0.16, 0.05, width / 2 + 0.055, 1.24, 0.10, charcoalMat, false, false);
+    addBox(frame, 0.03, 0.03, 0.02, width / 2 + 0.055, 1.29, 0.13, gasSensorLedMat, false, false);
+    // Hinged Armored Door Leaf (pivots cleanly at left jamb, clear of bronze jambs even at 90 deg!)
     const pivot = new THREE.Group();
-    pivot.position.set(-width / 2, 0, 0);
+    pivot.position.set(-width / 2 + 0.015, 0, 0);
     frame.add(pivot);
-    addBox(pivot, width - 0.02, height - 0.02, 0.075, width / 2, height / 2, 0, walnutMat, true, false);
+    addBox(pivot, width - 0.04, height - 0.03, 0.075, width / 2, height / 2, 0, walnutMat, true, false);
     // Steel perimeter armor trim + horizontal brushed-gold security inlay ribs + frosted safety vision slit
     addBox(pivot, width, 0.055, 0.085, width / 2, height - 0.03, 0, darkBronzeMat, false, false);
     addBox(pivot, width, 0.055, 0.085, width / 2, 0.03, 0, darkBronzeMat, false, false);
@@ -756,11 +757,11 @@ async function init3DViewer() {
     const d = new THREE.Group();
     d.position.set(x, y, z); d.rotation.y = rotY;
     const hw = width / 2;
-    // Extended overhead concealed bronze sliding pelmet track supporting full open glide + slim floor guide + perimeter jambs
-    addBox(d, width * 1.90, 0.085, 0.14, -hw * 0.45, height - 0.04, 0, darkBronzeMat, false, false);
-    addBox(d, width + 0.08, 0.024, 0.10, 0, 0.012, 0, darkBronzeMat, false, false);
-    addBox(d, 0.065, height, 0.13, -hw, height / 2, 0, walnutMat, false, false);
-    addBox(d, 0.065, height, 0.13, hw, height / 2, 0, walnutMat, false, false);
+    // Extended overhead concealed bronze sliding pelmet track (1 cm proud of 14 cm partitions — zero Z-fighting!)
+    addBox(d, width * 1.90, 0.085, 0.165, -hw * 0.45, height - 0.04, 0, darkBronzeMat, false, false);
+    addBox(d, width + 0.08, 0.024, 0.11, 0, 0.012, 0, darkBronzeMat, false, false);
+    addBox(d, 0.065, height - 0.085, 0.16, -hw, (height - 0.085) / 2, 0, walnutMat, false, false);
+    addBox(d, 0.065, height - 0.085, 0.16, hw, (height - 0.085) / 2, 0, walnutMat, false, false);
     // Animated privacy sliding leaf gliding smoothly from flush-closed (0) to wide-open (-0.86 * width) along the bronze pelmet track!
     const leafW = width - 0.04;
     const leafH = height - 0.09;
@@ -877,16 +878,16 @@ async function init3DViewer() {
     const g = new THREE.Group();
     g.position.set(x, y, z); g.rotation.y = rotY;
     if (withWindow) {
-      // Frosted privacy window glass behind the toilet/bath curtain
-      addBox(g, width, height, 0.035, 0, height / 2, -0.055, frostedGlassMat, false, false);
-      addBox(g, width + 0.06, 0.04, 0.06, 0, height + 0.01, -0.055, darkBronzeMat, false, false);
-      addBox(g, width + 0.06, 0.04, 0.06, 0, 0.02, -0.055, darkBronzeMat, false, false);
+      // Frosted privacy window glass mounted cleanly proud of tile back wall (zero Z-fighting!)
+      addBox(g, width, height, 0.028, 0, height / 2, -0.018, frostedGlassMat, false, false);
+      addBox(g, width + 0.06, 0.04, 0.046, 0, height + 0.02, -0.018, darkBronzeMat, false, false);
+      addBox(g, width + 0.06, 0.04, 0.046, 0, 0.02, -0.018, darkBronzeMat, false, false);
     }
-    // Brushed-gold waterproof curtain rod + decorative brass rings
-    addBox(g, width + 0.14, 0.036, 0.044, 0, height - 0.025, 0.020, goldMat, false, false);
+    // Brushed-gold waterproof curtain rod + decorative brass rings (cleanly ahead of frosted glass!)
+    addBox(g, width + 0.14, 0.036, 0.044, 0, height - 0.025, 0.034, goldMat, false, false);
     for (let r = 0; r < 6; r++) {
       const rx = -width * 0.44 + (r / 5) * (width * 0.88);
-      addBox(g, 0.022, 0.046, 0.052, rx, height - 0.05, 0.024, goldMat, false, false);
+      addBox(g, 0.022, 0.046, 0.052, rx, height - 0.05, 0.038, goldMat, false, false);
     }
     const hDrape = height - 0.08;
     const makeWing = (mat, depthZ, zOff) => {
@@ -898,10 +899,10 @@ async function init3DViewer() {
       }
       return wing;
     };
-    const leftVelvet = makeWing(bathCurtainMat, 0.042, 0.038);
-    const rightVelvet = makeWing(bathCurtainMat, 0.042, 0.038);
-    const leftSheer = makeWing(curtainSheerMat, 0.022, 0.010);
-    const rightSheer = makeWing(curtainSheerMat, 0.022, 0.010);
+    const leftVelvet = makeWing(bathCurtainMat, 0.042, 0.052);
+    const rightVelvet = makeWing(bathCurtainMat, 0.042, 0.052);
+    const leftSheer = makeWing(curtainSheerMat, 0.022, 0.024);
+    const rightSheer = makeWing(curtainSheerMat, 0.022, 0.024);
     g.add(leftVelvet, rightVelvet, leftSheer, rightSheer);
     curtainSystems.push({ width, leftVelvet, rightVelvet, leftSheer, rightSheer });
     parent.add(g);
@@ -968,9 +969,9 @@ async function init3DViewer() {
     addBox(g, 0.72, 0.14, 0.42, 0.44, 0.64, -0.78, whiteMat, false, false);
     addBox(g, 2.65, 1.25, 0.14, 0, 0.72, -1.16, walnutMat, false, false);
     addBox(g, 2.55, 0.05, 0.06, 0, 1.36, -1.14, warmLedMat, false, false);
-    // Twin nightstands & warm bedside lamps
+    // Twin nightstands & warm bedside lamps (seated cleanly atop 3 cm rug — zero Z-fighting!)
     for (const dx of [-1.34, 1.34]) {
-      addBox(g, 0.46, 0.44, 0.42, dx, 0.22, -0.92, walnutMat, false, false);
+      addBox(g, 0.46, 0.41, 0.42, dx, 0.235, -0.92, walnutMat, false, false);
       const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.14, 0.26, 10), warmLedMat);
       lamp.position.set(dx, 0.58, -0.92); g.add(lamp);
     }
@@ -1179,10 +1180,10 @@ async function init3DViewer() {
 
   /* === GROUND FLOOR: SCULPTURAL ROUNDED GARAGE PORTAL + 2 SLEEK CARS + FULL 3D LIVING / DINING / KITCHEN === */
   const gf = levels.ground;
-  // Ground plinth slab (stops cleanly before spiral tower at x=1.95)
+  // Ground plinth slab (stops cleanly before spiral tower at x=2.20, meets veranda flush at x=-8.40)
   addBox(gf, 10.6, 0.26, 10.2, -3.1, 0.13, -0.1, warmWallMat, false, true);
-  // EXTENDED GROUND LEFT COVERED GARDEN VERANDA DECK & COLONNADE SUPPORTING THE 1.9 m LEFT BALCONIES ABOVE!
-  addBox(gf, 1.18, 0.24, 9.35, -8.78, 0.12, -0.45, marbleMat, true, true);
+  // EXTENDED GROUND LEFT COVERED GARDEN VERANDA DECK & COLONNADE (flush join at x=-8.40 — zero slab overlap!)
+  addBox(gf, 0.97, 0.24, 9.35, -8.885, 0.12, -0.45, marbleMat, true, true);
   addBox(gf, 0.05, 0.04, 9.25, -9.35, 0.04, -0.45, warmLedMat, false, false);
   // 3 Slim Sculptural White Colonnade Columns supporting the extended x=-9.35 left wraparound balconies
   for (const cz of [-4.85, -0.45, 3.85]) {
@@ -1205,10 +1206,10 @@ async function init3DViewer() {
     addBox(gf, 0.10, 0.34, 0.10, -8.44, 2.08, sz, darkBronzeMat, false, false);
     addBox(gf, 0.09, 0.06, 0.09, -8.46, 2.26, sz, warmLedMat, false, false);
   }
-  // Rear living/dining glass bay with REAL OPEN 2.0 m sliding garden patio door (x=-3.10) — top strictly 1.5 cm below 1F ceiling (3.27)!
-  addBox(gf, 3.60, 2.98, 0.14, -5.90, 1.75, -5.05, atriumGlassMat, false, false);
-  addBox(gf, 3.60, 2.98, 0.14, -0.30, 1.75, -5.05, atriumGlassMat, false, false);
-  for (const mx of [-7.6, -5.9, -4.1, -2.1, -0.3, 1.4]) addBox(gf, 0.10, 2.98, 0.14, mx, 1.75, -5.05, darkBronzeMat);
+  // Rear living/dining glass bay (8 cm recessed glass inside 15 cm bronze mullions — zero Z-fighting!) + REAL OPEN 2.0 m sliding door
+  addBox(gf, 3.60, 2.98, 0.08, -5.90, 1.75, -5.05, atriumGlassMat, false, false);
+  addBox(gf, 3.60, 2.98, 0.08, -0.30, 1.75, -5.05, atriumGlassMat, false, false);
+  for (const mx of [-7.6, -5.9, -4.1, -2.1, -0.3, 1.4]) addBox(gf, 0.10, 2.98, 0.15, mx, 1.75, -5.05, darkBronzeMat);
   addSlidingBalconyDoor(gf, -3.10, 0.26, -5.05, 2.00, 2.84, 0, 1);
   // Left exterior wall split cleanly at z=-0.82..+0.62 with REAL OPEN sliding glass door out to Covered Left Garden Veranda (top = 3.24 < 3.27 slab underside!)
   const gfLeftWallGrp = new THREE.Group();
@@ -1286,8 +1287,8 @@ async function init3DViewer() {
     const kp = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), chandelierOrbMat);
     kp.position.set(kx, 2.22, -1.60); gfInterior.add(kp);
   }
-  // REAR-RIGHT BEHIND-SPIRAL GROUND WING: Ground Guest WC + Ensuite Bathroom 1 (Full Privacy Enclosures + Frosted Sliding Doors!)
-  addBox(gf, 6.2, 0.26, 4.45, 4.85, 0.13, -2.65, warmWallMat, false, true);
+  // REAR-RIGHT BEHIND-SPIRAL GROUND WING (flush join at x=2.20 — zero slab overlap!): Ground Guest WC + Ensuite Bathroom 1
+  addBox(gf, 5.75, 0.26, 4.45, 5.075, 0.13, -2.65, warmWallMat, false, true);
   addBox(gf, 5.4, 3.00, 0.14, 4.95, 1.75, -4.82, atriumGlassMat, false, false);
   for (const bx of [2.3, 4.0, 5.7, 7.4]) addBox(gf, 0.08, 3.00, 0.16, bx, 1.75, -4.82, darkBronzeMat);
   cutawayShells.push(addBox(gf, 0.22, 3.00, 2.45, 7.85, 1.75, -3.62, whiteMat));
@@ -1348,7 +1349,7 @@ async function init3DViewer() {
   addBox(gf, 1.24, 0.43, 0.22, -3.15, 2.615, -0.15, warmWallMat); // Flush header lintel above inner garage door (y=2.40..2.83)
   // Interactive Fire-Rated Biometric Inner Garage Safety Door + Illuminated Marble Mudroom Entry Step + Welcome Sconce!
   addSafetyDoor(gf, -3.15, 0.26, -0.15, 1.08, 2.12, 0, -1);
-  addBox(gf, 1.44, 0.12, 0.44, -3.15, 0.20, 0.18, marbleMat, true, true);      // Inlaid marble transition step (garage 0.14 -> home 0.26)
+  addBox(gf, 1.44, 0.13, 0.44, -3.15, 0.205, 0.18, marbleMat, true, true);     // Inlaid marble transition step (1 cm proud of 0.26 slab — zero Z-fighting!)
   addBox(gf, 1.36, 0.025, 0.03, -3.15, 0.155, 0.405, warmLedMat, false, false); // Warm under-step welcome LED strip
   addBox(gf, 1.24, 0.03, 0.05, -3.15, 2.38, -0.02, warmLedMat, false, false);   // Overhead inner entrance welcome light bar
   addBox(gf, 0.18, 2.74, 5.0, -7.45, 1.46, 2.4, warmWallMat);
@@ -1681,53 +1682,54 @@ async function init3DViewer() {
       addPlanterTree(owner, px, y + 0.38, pz, 0.85 + (j % 2) * 0.22, j % 2 === 0);
     });
 
-    // Recessed Floor-to-Ceiling Bronze Glazed Front Facade WITH REAL OPEN SLIDING BALCONY DOORS FOR EVERY FRONT ROOM (1F Lounge & Office, 2F Private Lounge, Roof Gaming Studio & Media Lounge!)
+    // Recessed Floor-to-Ceiling Bronze Glazed Front Facade WITH REAL OPEN SLIDING BALCONY DOORS (Glass strictly below transom header — zero Z-fighting!)
     const doorBaseY = y + 0.38;
     const doorH = idx < 2 ? 2.64 : 1.84;
+    const paneY = doorBaseY + doorH / 2;
     if (idx < 2) {
       // Fixed glass panes flanking TWO real open sliding doors onto the Front Curved Balcony (Left lounge door x=-4.55, Right office/gallery door x=-0.40)
-      addBox(owner, 1.70, wallH, 0.12, -6.50, wallY, 3.65, atriumGlassMat, false, false); // x=-7.35..-5.65
-      addBox(owner, 2.05, wallH, 0.12, -2.425, wallY, 3.65, atriumGlassMat, false, false); // x=-3.45..-1.40
-      addBox(owner, 0.90, wallH, 0.12, 1.05, wallY, 3.65, atriumGlassMat, false, false);   // x=+0.60..+1.50
+      addBox(owner, 1.70, doorH, 0.09, -6.50, paneY, 3.65, atriumGlassMat, false, false); // x=-7.35..-5.65
+      addBox(owner, 2.05, doorH, 0.09, -2.425, paneY, 3.65, atriumGlassMat, false, false); // x=-3.45..-1.40
+      addBox(owner, 0.90, doorH, 0.09, 1.05, paneY, 3.65, atriumGlassMat, false, false);   // x=+0.60..+1.50
       addSlidingBalconyDoor(owner, -4.55, doorBaseY, 3.65, 2.20, doorH, 0, 1);  // Family Lounge / Private Lounge TV 2 -> Front Balcony!
       addSlidingBalconyDoor(owner, -0.40, doorBaseY, 3.65, 2.00, doorH, 0, -1); // Executive Office / 2F Gallery -> Front Balcony!
-      // Flush top transom header strip above sliding doors
+      // Flush top transom header strip strictly above fixed panes & sliding doors
       addBox(owner, 8.85, wallH - doorH, 0.14, -2.92, doorBaseY + doorH + (wallH - doorH) / 2, 3.65, darkBronzeMat, false, false);
     } else {
       // Roof front facade: REAL OPEN sliding doors from Gaming Studio (x=-4.85) AND Media Lounge TV 3 (x=-0.55) directly onto Front Sky-Deck Balcony!
-      addBox(owner, 1.50, wallH, 0.12, -6.60, wallY, 3.65, atriumGlassMat, false, false); // x=-7.35..-5.85
-      addBox(owner, 2.30, wallH, 0.12, -2.70, wallY, 3.65, atriumGlassMat, false, false); // x=-3.85..-1.55
-      addBox(owner, 1.05, wallH, 0.12, 0.975, wallY, 3.65, atriumGlassMat, false, false); // x=+0.45..+1.50
+      addBox(owner, 1.50, doorH, 0.09, -6.60, paneY, 3.65, atriumGlassMat, false, false); // x=-7.35..-5.85
+      addBox(owner, 2.30, doorH, 0.09, -2.70, paneY, 3.65, atriumGlassMat, false, false); // x=-3.85..-1.55
+      addBox(owner, 1.05, doorH, 0.09, 0.975, paneY, 3.65, atriumGlassMat, false, false); // x=+0.45..+1.50
       addSlidingBalconyDoor(owner, -4.85, doorBaseY, 3.65, 2.00, doorH, 0, 1);  // Gaming Studio -> Front Sky-Deck Balcony!
       addSlidingBalconyDoor(owner, -0.55, doorBaseY, 3.65, 2.00, doorH, 0, -1); // Media Lounge TV 3 -> Front Sky-Deck Balcony!
       addBox(owner, 8.85, wallH - doorH, 0.14, -2.92, doorBaseY + doorH + (wallH - doorH) / 2, 3.65, darkBronzeMat, false, false);
     }
-    // ZERO-Z-FIGHTING RECESSED WARM CEILING GLOW PANEL (Ultra-thin 2 cm sheet seated strictly 2 cm BELOW the slab underside & 3 cm ABOVE all cove trays!)
+    // ZERO-Z-FIGHTING RECESSED WARM CEILING GLOW PANEL (Inset 18 cm clear of left glass/mullions & 3.5 cm clear of slab/transoms!)
     if (idx < 2) {
-      addBox(owner, 8.6, 0.02, 7.8, -3.2, y + 3.09, -0.5, interiorGlowMat, false, false);
+      addBox(owner, 8.2, 0.02, 7.4, -3.05, y + 3.055, -0.5, interiorGlowMat, false, false);
     } else {
-      addBox(owner, 8.6, 0.02, 3.85, -3.2, 12.18, 1.62, interiorGlowMat, false, false);
+      addBox(owner, 8.2, 0.02, 3.55, -3.05, 12.145, 1.62, interiorGlowMat, false, false);
     }
-    // USABLE LEFT BALCONY ACCESS: REAL OPEN SLIDING GLASS BALCONY DOORS ALONG x = -7.45 FOR EVERY LEFT-SIDE ROOM (Bed 2, Master Suite, Family Lounge, Private Lounge & Gaming Studio!)
+    // USABLE LEFT BALCONY ACCESS: REAL OPEN SLIDING GLASS BALCONY DOORS ALONG x = -7.45 (Glass stops cleanly under bronze transom!)
     const leftGlazeWall = new THREE.Group();
     if (idx < 2) {
       addBox(leftGlazeWall, 0.24, wallH, 1.05, -7.45, wallY, -4.55, whiteMat, true, true); // Rear corner pier (-5.07..-4.02)
       addBox(leftGlazeWall, 0.24, wallH, 1.05, -7.45, wallY, 3.15, whiteMat, true, true);  // Front corner pier (+2.62..+3.67)
-      addBox(leftGlazeWall, 0.12, wallH, 0.37, -7.45, wallY, -3.84, atriumGlassMat, false, false); // Fixed narrow sidelight
-      addBox(leftGlazeWall, 0.12, wallH, 1.80, -7.45, wallY, -0.55, atriumGlassMat, false, false); // Center fixed glass mullion pier between rooms (-1.45..+0.35)
-      addBox(leftGlazeWall, 0.16, wallH, 0.10, -7.45, wallY, -0.35, darkBronzeMat, false, false);  // Partition divider mullion
+      addBox(leftGlazeWall, 0.09, doorH, 0.37, -7.45, paneY, -3.84, atriumGlassMat, false, false); // Fixed narrow sidelight
+      addBox(leftGlazeWall, 0.09, doorH, 1.80, -7.45, paneY, -0.55, atriumGlassMat, false, false); // Center fixed glass mullion pier between rooms (-1.45..+0.35)
+      addBox(leftGlazeWall, 0.16, doorH, 0.10, -7.45, paneY, -0.35, darkBronzeMat, false, false);  // Partition divider mullion
       // TWO REAL OPEN SLIDING BALCONY DOORS directly onto the 1.9 m Extended Left Balcony:
       addSlidingBalconyDoor(leftGlazeWall, -7.45, doorBaseY, -2.55, 2.20, doorH, Math.PI / 2, 1); // Bed 2 (1F) / Grand Master Suite (2F) -> Left Balcony!
       addSlidingBalconyDoor(leftGlazeWall, -7.45, doorBaseY, 1.45, 2.20, doorH, Math.PI / 2, -1); // Family Lounge (1F) / Private Lounge (2F) -> Left Balcony!
-      addBox(leftGlazeWall, 0.14, wallH - doorH, 6.70, -7.45, doorBaseY + doorH + (wallH - doorH) / 2, -0.70, darkBronzeMat, false, false);
+      addBox(leftGlazeWall, 0.14, wallH - doorH, 6.62, -7.45, doorBaseY + doorH + (wallH - doorH) / 2, -0.70, darkBronzeMat, false, false);
     } else {
       // On Roof: REAL OPEN sliding balcony door from Gaming Studio (z=1.45, cleanly between Arcade & VR Car!) straight onto Roof Left Sunset Bar Terrace!
       addBox(leftGlazeWall, 0.22, wallH, 0.55, -7.45, wallY, -0.08, whiteMat, true, true); // Rear pier (-0.35..+0.20)
       addBox(leftGlazeWall, 0.22, wallH, 0.55, -7.45, wallY, 3.38, whiteMat, true, true);  // Front pier (+3.10..+3.65)
-      addBox(leftGlazeWall, 0.12, wallH, 0.40, -7.45, wallY, 0.40, atriumGlassMat, false, false);
-      addBox(leftGlazeWall, 0.12, wallH, 0.80, -7.45, wallY, 2.70, atriumGlassMat, false, false);
+      addBox(leftGlazeWall, 0.09, doorH, 0.40, -7.45, paneY, 0.40, atriumGlassMat, false, false);
+      addBox(leftGlazeWall, 0.09, doorH, 0.80, -7.45, paneY, 2.70, atriumGlassMat, false, false);
       addSlidingBalconyDoor(leftGlazeWall, -7.45, doorBaseY, 1.45, 1.70, doorH, Math.PI / 2, 1); // Gaming Studio -> Roof Sunset Bar Balcony!
-      addBox(leftGlazeWall, 0.14, wallH - doorH, 3.00, -7.45, doorBaseY + doorH + (wallH - doorH) / 2, 1.65, darkBronzeMat, false, false);
+      addBox(leftGlazeWall, 0.14, wallH - doorH, 2.90, -7.45, doorBaseY + doorH + (wallH - doorH) / 2, 1.65, darkBronzeMat, false, false);
     }
     owner.add(leftGlazeWall);
     cutawayShells.push(leftGlazeWall);
@@ -1776,9 +1778,9 @@ async function init3DViewer() {
       addBox(owner, 0.42, 0.06, 3.10, -8.98, byTop + 0.98, 0.95, walnutMat, false, false);
       for (const sz of [-0.15, 0.95, 2.05]) {
         addBox(owner, 0.06, 0.98, 0.06, -9.14, byTop + 0.49, sz, darkBronzeMat, false, false);
-        // High barstool facing Chitwan sunset
-        addBox(owner, 0.34, 0.72, 0.34, -8.42, byTop + 0.36, sz, darkBronzeMat, false, false);
-        addBox(owner, 0.38, 0.09, 0.38, -8.42, byTop + 0.75, sz, upholsteryMat, false, false);
+        // High barstool resting cleanly atop teak deck inlay (byTop + 0.03)
+        addBox(owner, 0.34, 0.69, 0.34, -8.42, byTop + 0.375, sz, darkBronzeMat, false, false);
+        addBox(owner, 0.38, 0.09, 0.38, -8.42, byTop + 0.765, sz, upholsteryMat, false, false);
       }
       // BBQ Chef side herb planter bench near rear BBQ pergola
       addBox(owner, 0.56, 0.48, 1.95, -8.55, byTop + 0.25, -3.15, woodMat, true, true);
@@ -1813,7 +1815,7 @@ async function init3DViewer() {
       addBox(floorFurn, 3.8, 0.03, 2.7, -4.5, fy + 0.015, 1.75, rugMat, false, true);
       addSofaUnit(floorFurn, -4.5, fy, 1.35, 0, 2.7);
       addSofaUnit(floorFurn, -6.1, fy, 2.05, Math.PI / 2, 1.65);
-      addBox(floorFurn, 1.25, 0.30, 0.72, -4.5, fy + 0.15, 2.35, walnutMat, false, false);
+      addBox(floorFurn, 1.25, 0.30, 0.72, -4.5, fy + 0.18, 2.35, walnutMat, false, false);
       // Slatted acoustic walnut TV wall + warm vertical LED strips + Live 4K TV + Wall Art + Drapes + Cove Ceiling Fan
       for (let fx = -5.75; fx <= -3.25; fx += 0.22) addBox(floorFurn, 0.07, 2.45, 0.06, fx, fy + 1.24, -0.24, walnutMat, false, false);
       addBox(floorFurn, 0.05, 2.35, 0.05, -5.88, fy + 1.22, -0.22, warmLedMat, false, false);
@@ -1851,7 +1853,7 @@ async function init3DViewer() {
       // Bedroom 2 & Bedroom 3 (Rear Private Suites) + Suite Entry & Frosted Bathroom Sliding Doors + Left & Rear Privacy Curtains!
       addBedSuite(floorFurn, -5.96, fy, -2.65, 0, 0.80);
       addACUnit(floorFurn, -5.96, fy + 2.46, -0.44, Math.PI, 0.90); // 1F Bedroom 2 Split-Inverter AC
-      addCurtainPair(floorFurn, -5.55, fy, -4.78, 3.2, 2.66, 0);
+      addCurtainPair(floorFurn, -6.00, fy, -4.78, 2.45, 2.66, 0);
       addCurtainPair(floorFurn, -7.28, fy, -2.55, 2.35, 2.66, Math.PI / 2); // 1F Bedroom 2 Left Balcony Privacy Curtain!
       addWallArt(floorFurn, -5.96, fy + 1.65, -3.72, 1.10, 0.72, 0, 0);
       // Suite Entry Privacy Sliding Doors entering Bed 2 & Bed 3 from Family Lounge/Hallway
@@ -1867,7 +1869,7 @@ async function init3DViewer() {
       addBathCurtain(floorFurn, -3.15, fy, -4.78, 2.75, 2.66, 0, false); // Exterior rear window curtains for 1F Ensuites 2 & 3!
       addBedSuite(floorFurn, -0.22, fy, -2.65, 0, 0.80);
       addACUnit(floorFurn, -0.22, fy + 2.46, -0.44, Math.PI, 0.90); // 1F Bedroom 3 Split-Inverter AC
-      addCurtainPair(floorFurn, -0.35, fy, -4.78, 3.2, 2.66, 0);
+      addCurtainPair(floorFurn, -0.09, fy, -4.78, 2.82, 2.66, 0);
       addWallArt(floorFurn, -0.22, fy + 1.65, -3.72, 1.10, 0.72, 0, 2);
       // REAR-RIGHT BEHIND-SPIRAL FIRST-FLOOR WING: Private Ensuite Bathroom 4 (for Bed 4) + Quiet Study + Frosted Privacy Sliding Doors!
       addBox(owner, 6.2, 0.32, 4.45, 4.85, y + 0.18, -2.65, whiteMat, true, true);
@@ -1887,7 +1889,7 @@ async function init3DViewer() {
       addBox(floorFurn, 3.8, 0.03, 2.7, -4.2, fy + 0.015, 1.75, rugMat, false, true);
       addSofaUnit(floorFurn, -5.35, fy, 1.8, Math.PI / 2, 2.25);
       addSofaUnit(floorFurn, -2.95, fy, 1.8, -Math.PI / 2, 2.25);
-      addBox(floorFurn, 1.15, 0.32, 0.85, -4.15, fy + 0.16, 1.8, marbleMat, false, false);
+      addBox(floorFurn, 1.15, 0.32, 0.85, -4.15, fy + 0.19, 1.8, marbleMat, false, false);
       addBox(floorFurn, 2.35, 0.36, 0.42, -4.15, fy + 0.18, -0.02, walnutMat, false, false);
       addFlatScreen(floorFurn, 2.18, 1.04, -4.15, fy + 1.38, -0.14, 0, liveScreens.cinema.mat, warmLedMat);
       addACUnit(floorFurn, -4.15, fy + 2.46, -0.22, 0, 1.02); // 2F Private Lounge TV 2 Split-Inverter AC
@@ -1907,7 +1909,7 @@ async function init3DViewer() {
       addCurtainPair(floorFurn, -7.28, fy, -2.55, 2.35, 2.66, Math.PI / 2); // 2F Grand Master Suite Left Balcony Privacy Curtain!
       addPrivacySlidingDoor(floorFurn, -3.65, fy, -0.35, 1.18, 2.34, 0, true, 0.92); // Grand Master Suite Entry Sliding Privacy Door!
       addCeilingDecor(floorFurn, -5.35, fy + 2.64, -2.55, 3.8, 3.6, { fan: true, fanSpeed: 1.9 });
-      addBox(floorFurn, 1.55, 0.42, 0.46, -5.35, fy + 0.21, -1.16, upholsteryMat, false, false);
+      addBox(floorFurn, 1.55, 0.39, 0.46, -5.35, fy + 0.225, -1.16, upholsteryMat, false, false);
       for (const px of [-6.68, -4.02]) {
         addBox(floorFurn, 0.016, 1.06, 0.016, px, fy + 2.15, -3.58, goldMat, false, false);
         const po = new THREE.Mesh(new THREE.SphereGeometry(0.10, 10, 8), chandelierOrbMat);
@@ -1921,7 +1923,7 @@ async function init3DViewer() {
       addBox(floorFurn, 0.04, 1.88, 0.78, -3.02, fy + 1.06, -3.25, warmLedMat, false, false);
       addBox(floorFurn, 0.05, 1.78, 0.68, -3.00, fy + 1.06, -3.25, atriumGlassMat, false, false);
       // Full-Height Master Spa Ensuite Privacy Partition & Satin Frosted-Glass Sliding Spa Door (x=-1.52) shielding tub/toilet from WIR & Master Bed!
-      addBox(floorFurn, 0.14, 2.66, 2.55, -1.52, fy + 1.33, -3.58, whiteMat, false, false); // Rear solid spa privacy wall (-4.85..-2.30)
+      addBox(floorFurn, 0.14, 2.62, 2.55, -1.52, fy + 1.35, -3.58, whiteMat, false, false); // Rear solid spa privacy wall cleanly atop marble floor (-4.85..-2.30)
       addBox(floorFurn, 0.14, 2.66, 0.72, -1.52, fy + 1.33, -0.78, whiteMat, false, false); // Front spa privacy pier (-1.14..-0.42)
       addBox(floorFurn, 0.14, 0.36, 1.18, -1.52, fy + 2.48, -1.72, whiteMat, false, false); // Flush spa doorway lintel
       addPrivacySlidingDoor(floorFurn, -1.52, fy, -1.72, 1.08, 2.28, Math.PI / 2, true, 0.90); // Master Spa Frosted Privacy Sliding Door!
@@ -1963,12 +1965,12 @@ async function init3DViewer() {
       addBathCurtain(floorFurn, 2.98, fy, -4.68, 2.05, 2.66, 0, false); // Exterior rear window curtain for 2F Ensuite 6!
     } else {
       // ROOFTOP LEVEL 3: Redesigned L-Shaped BBQ Chef Kitchen (rear), Enclosed RGB Gaming Studio (mid-left), Party Bar & Buffet (mid-right), Lounge TV 3 (front)
-      // 1. L-Shaped Outdoor Chef's BBQ Kitchen (travertine wrap bar + 4-burner grill with glowing embers + sink + beverage fridge + 3 bar stools)
-      addBox(floorFurn, 0.78, 0.94, 3.15, -6.78, fy + 0.47, -2.95, marbleMat, false, true);
-      addBox(floorFurn, 0.72, 0.78, 3.05, -6.78, fy + 0.39, -2.95, walnutMat, false, false);
-      // L-return serving bar + 3 bar stools
-      addBox(floorFurn, 2.35, 0.98, 0.68, -5.65, fy + 0.49, -1.48, marbleMat, false, true);
-      addBox(floorFurn, 2.28, 0.80, 0.60, -5.65, fy + 0.40, -1.48, walnutMat, false, false);
+      // 1. L-Shaped Outdoor Chef's BBQ Kitchen (walnut cabinetry under true 10 cm overhanging marble bar counter — zero overlapping boxes!)
+      addBox(floorFurn, 0.72, 0.84, 3.05, -6.78, fy + 0.42, -2.95, walnutMat, true, true);
+      addBox(floorFurn, 0.80, 0.10, 3.16, -6.78, fy + 0.89, -2.95, marbleMat, false, true);
+      // L-return serving bar joining cleanly at x = -6.38 (zero corner overlap!) + 3 bar stools
+      addBox(floorFurn, 1.92, 0.86, 0.60, -5.42, fy + 0.43, -1.48, walnutMat, true, true);
+      addBox(floorFurn, 1.98, 0.12, 0.68, -5.39, fy + 0.92, -1.48, marbleMat, false, true);
       for (const bx of [-6.15, -5.45, -4.75]) {
         addBox(floorFurn, 0.36, 0.64, 0.36, bx, fy + 0.32, -0.92, darkBronzeMat, false, false);
         addBox(floorFurn, 0.38, 0.10, 0.38, bx, fy + 0.68, -0.92, upholsteryMat, false, false);
@@ -2295,9 +2297,9 @@ async function init3DViewer() {
     addBox(partyShedGroup, 0.22, 0.22, 0.04, spx, py + 0.85, -0.27, rgbPurpleMat, false, false);
     addBox(partyShedGroup, 0.22, 0.22, 0.04, spx, py + 0.48, -0.27, rgbCyanMat, false, false);
   }
-  // Backlit Rooftop Cocktail Mini-Bar Counter + Bottle Display + 3 Bar Stools
-  addBox(partyShedGroup, 0.72, 1.04, 2.55, -1.55, py + 0.52, 1.65, marbleMat, false, true);
-  addBox(partyShedGroup, 0.66, 0.92, 2.48, -1.55, py + 0.46, 1.65, charcoalMat, false, false);
+  // Backlit Rooftop Cocktail Mini-Bar Counter (charcoal fluted cabinet under clean 10 cm marble overhang — zero Z-fighting!)
+  addBox(partyShedGroup, 0.66, 0.94, 2.48, -1.55, py + 0.47, 1.65, charcoalMat, true, true);
+  addBox(partyShedGroup, 0.76, 0.10, 2.58, -1.55, py + 0.99, 1.65, marbleMat, false, true);
   addBox(partyShedGroup, 0.05, 0.05, 2.40, -1.91, py + 0.94, 1.65, warmLedMat, false, false);
   for (const bz of [0.85, 1.65, 2.45]) {
     addBox(partyShedGroup, 0.34, 0.68, 0.34, -2.35, py + 0.34, bz, darkBronzeMat, false, false);
@@ -2652,9 +2654,9 @@ async function init3DViewer() {
     const g = new THREE.Group();
     g.position.set(x, 0.048, z);
     if (alongZ) g.rotation.y = Math.PI / 2;
-    addBox(g, length, 0.036, 0.34, 0, 0, 0, charcoalMat, false, true);
-    addBox(g, length, 0.044, 0.04, 0, 0.008, -0.15, steelMat, false, false);
-    addBox(g, length, 0.044, 0.04, 0, 0.008, 0.15, steelMat, false, false);
+    addBox(g, length, 0.036, 0.28, 0, 0, 0, charcoalMat, false, true);
+    addBox(g, length, 0.044, 0.04, 0, 0.008, -0.16, steelMat, false, false);
+    addBox(g, length, 0.044, 0.04, 0, 0.008, 0.16, steelMat, false, false);
     const bars = Math.max(8, Math.floor(length / 0.24));
     for (let i = 0; i <= bars; i++) {
       const bx = -length / 2 + (i / bars) * length;
@@ -2778,8 +2780,8 @@ async function init3DViewer() {
   const lpgBay = new THREE.Group();
   lpgBay.position.set(8.95, 0.0, -3.25);
   // Zero-Water-Damage Elevated 24 cm Concrete Plinth + Perimeter Drainage Gravel Apron + Perforated Steel Grate Floor!
-  addBox(lpgBay, 2.05, 0.06, 1.48, 0, 0.03, 0, stoneWallMat, false, true); // Gravel French-drain surround
-  addBox(lpgBay, 1.66, 0.24, 1.08, 0, 0.12, 0, concreteMat, true, true); // 24 cm raised monsoon-proof plinth!
+  addBox(lpgBay, 2.05, 0.06, 1.48, 0, 0.03, 0, stoneWallMat, false, true); // Gravel French-drain surround (y: 0.00..0.06)
+  addBox(lpgBay, 1.66, 0.18, 1.08, 0, 0.15, 0, concreteMat, true, true);   // Raised monsoon-proof concrete plinth seated atop gravel (y: 0.06..0.24!)
   addBox(lpgBay, 1.44, 0.04, 0.88, 0, 0.26, 0, steelMat, false, true); // Perforated elevated drain grate
   // Sealed Back & Left/Right Galvanized Steel Cabinet Enclosure with EPDM Silicone Wall Flashing
   addBox(lpgBay, 1.56, 1.54, 0.08, 0, 1.01, -0.46, darkBronzeMat, true, true); // Sealed rear waterproof wall
@@ -3576,10 +3578,10 @@ async function init3DViewer() {
   // Recessed Low-Iron Architectural Circular Glass Skylight Disc + Slim Flush Radial Gold Mullions (zero protruding dome!)
   const oculusGlass = new THREE.Mesh(new THREE.CylinderGeometry(2.34, 2.34, 0.04, 48), atriumGlassMat);
   oculusGlass.position.set(CX, crownTopY + 0.01, CZ); crownGroup.add(oculusGlass);
-  for (let k = 0; k < 4; k++) {
-    const ang = (k / 4) * Math.PI;
-    const bar = addBox(crownGroup, 4.64, 0.035, 0.04, CX, crownTopY + 0.032, CZ, goldMat, false, false);
-    bar.rotation.y = ang;
+  for (let k = 0; k < 8; k++) {
+    const ang = (k / 8) * Math.PI * 2;
+    const bar = addBox(crownGroup, 2.06, 0.035, 0.04, CX + Math.cos(ang) * 1.31, crownTopY + 0.032, CZ + Math.sin(ang) * 1.31, goldMat, false, false);
+    bar.rotation.y = -ang;
   }
   const oculusHub = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.055, 24), goldMat);
   oculusHub.position.set(CX, crownTopY + 0.035, CZ); crownGroup.add(oculusHub);
@@ -3889,6 +3891,7 @@ async function init3DViewer() {
     }
     parent.add(g); return g;
   }
+  const placedWallPillars = new Set(['-9.2,14.5', '8.2,14.5']);
   function addWallRun(x1, z1, x2, z2) {
     const dx = x2 - x1, dz = z2 - z1, len = Math.hypot(dx, dz), ang = -Math.atan2(dz, dx);
     const mx = (x1 + x2) / 2, mz = (z1 + z2) / 2;
@@ -3904,8 +3907,12 @@ async function init3DViewer() {
     const count = Math.max(1, Math.round(len / 3.2));
     for (let i = 0; i <= count; i++) {
       const t = i / count;
-      addBox(boundary, 0.38, 2.02, 0.38, x1 + dx * t, 1.01, z1 + dz * t, stoneWallMat);
-      addBox(boundary, 0.42, 0.05, 0.42, x1 + dx * t, 2.04, z1 + dz * t, goldMat, false, false);
+      const px = x1 + dx * t, pz = z1 + dz * t;
+      const key = `${px.toFixed(1)},${pz.toFixed(1)}`;
+      if (placedWallPillars.has(key)) continue;
+      placedWallPillars.add(key);
+      addBox(boundary, 0.38, 2.02, 0.38, px, 1.01, pz, stoneWallMat);
+      addBox(boundary, 0.42, 0.05, 0.42, px, 2.04, pz, goldMat, false, false);
     }
   }
   addWallRun(-14.5, -13.5, 14.5, -13.5);
@@ -4117,10 +4124,10 @@ async function init3DViewer() {
   const vegBrightGreen = new THREE.MeshStandardMaterial({ color: 0x4ea832, roughness: 0.82 });
   const vegDarkGreen = new THREE.MeshStandardMaterial({ color: 0x266b28, roughness: 0.86 });
   const barrelMat = new THREE.MeshStandardMaterial({ color: 0x1e5c45, roughness: 0.45 });
-  // Gravel garden courtyard pad grounded solidly to earth (-0.04..+0.045) & low bamboo/teak garden border rails
+  // Gravel garden courtyard pad grounded solidly to earth (-0.04..+0.045) & timber border rails seated cleanly atop pad!
   addBox(vegFarm, 5.2, 0.085, 4.1, 0, 0.0025, 0, stoneWallMat, false, true);
-  for (const [fx, fz, fw, fd] of [[0, -2.02, 5.2, 0.06], [0, 2.02, 5.2, 0.06], [-2.58, 0, 0.06, 4.1]]) {
-    addBox(vegFarm, fw, 0.42, fd, fx, 0.22, fz, woodMat, false, false);
+  for (const [fx, fz, fw, fd] of [[0, -2.01, 5.18, 0.06], [0, 2.01, 5.18, 0.06], [-2.57, 0, 0.06, 3.96]]) {
+    addBox(vegFarm, fw, 0.38, fd, fx, 0.235, fz, woodMat, false, false);
   }
   // 3 Raised Cedar Timber Vegetable Beds with Rich Organic Soil + Micro-Drip Irrigation Tubing!
   const bedPositions = [-1.25, 0.0, 1.25];
