@@ -5887,6 +5887,43 @@
         return d;
       }
 
+      function addPrivacySlidingDoor(parent, x, y, z, width, height, rotY = 0, isFrosted = true, closedRatio = 0.90) {
+        // Luxury Architectural Pocket/Track Privacy Sliding Door (Dark-Bronze Track + Walnut Stile Frame + Satin Frosted Privacy Glass + Champagne-Gold Handles!)
+        const d = new THREE.Group();
+        d.position.set(x, y, z); d.rotation.y = rotY;
+        const hw = width / 2;
+        // Overhead concealed bronze sliding pelmet track + slim floor guide + perimeter jambs
+        addBox(d, width * 1.55, 0.085, 0.14, -hw * 0.25, height - 0.04, 0, darkBronzeMat, false, false);
+        addBox(d, width + 0.08, 0.024, 0.10, 0, 0.012, 0, darkBronzeMat, false, false);
+        addBox(d, 0.065, height, 0.13, -hw, height / 2, 0, walnutMat, false, false);
+        addBox(d, 0.065, height, 0.13, hw, height / 2, 0, walnutMat, false, false);
+        // Privacy sliding door leaf positioned closedRatio across the opening (90% closed = full suite privacy with crisp architectural reveal!)
+        const leafW = width - 0.04;
+        const leafH = height - 0.09;
+        const slideOff = -(1 - closedRatio) * width;
+        const leaf = new THREE.Group();
+        leaf.position.set(slideOff, leafH / 2 + 0.02, 0.022);
+        // Solid walnut perimeter stiles & top/bottom rails
+        addBox(leaf, 0.11, leafH, 0.052, -leafW / 2 + 0.055, 0, 0, walnutMat, true, false);
+        addBox(leaf, 0.11, leafH, 0.052, leafW / 2 - 0.055, 0, 0, walnutMat, true, false);
+        addBox(leaf, leafW, 0.12, 0.052, 0, leafH / 2 - 0.06, 0, walnutMat, false, false);
+        addBox(leaf, leafW, 0.14, 0.052, 0, -leafH / 2 + 0.07, 0, walnutMat, false, false);
+        // Center privacy infill: acid-etched satin frosted privacy glass (soft daylight, zero sightline!) or fluted walnut acoustic panel
+        const innerW = Math.max(0.22, leafW - 0.22);
+        const innerH = leafH - 0.26;
+        addBox(leaf, innerW, innerH, 0.036, 0, 0, 0, isFrosted ? frostedGlassMat : warmWallMat, false, false);
+        // Slim champagne-gold horizontal privacy muntin bars + tall vertical designer pull handles on BOTH faces!
+        for (const my of [-innerH * 0.22, innerH * 0.22]) {
+          addBox(leaf, innerW, 0.022, 0.046, 0, my, 0, goldMat, false, false);
+        }
+        const hx = leafW / 2 - 0.14;
+        addBox(leaf, 0.030, 0.76, 0.042, hx, -0.04, 0.048, goldMat, false, false);
+        addBox(leaf, 0.030, 0.76, 0.042, hx, -0.04, -0.048, goldMat, false, false);
+        d.add(leaf);
+        parent.add(d);
+        return d;
+      }
+
       function updateSafetyDoors(openRatio) {
         for (let i = 0; i < safetyDoors.length; i++) {
           const d = safetyDoors[i];
@@ -6358,12 +6395,16 @@
         const kp = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), chandelierOrbMat);
         kp.position.set(kx, 2.22, -1.60); gfInterior.add(kp);
       }
-      // REAR-RIGHT BEHIND-SPIRAL GROUND WING: Ground Guest WC + Ensuite Bathroom 1 (structurally supports upper behind-spiral wing!)
+      // REAR-RIGHT BEHIND-SPIRAL GROUND WING: Ground Guest WC + Ensuite Bathroom 1 (Full Privacy Enclosures + Frosted Sliding Doors!)
       addBox(gf, 6.2, 0.26, 4.45, 4.85, 0.13, -2.65, warmWallMat, false, true);
-      addBox(gf, 5.4, 3.10, 0.14, 4.95, 1.75, -4.82, atriumGlassMat, false, false);
-      for (const bx of [2.3, 4.0, 5.7, 7.4]) addBox(gf, 0.08, 3.10, 0.16, bx, 1.75, -4.82, darkBronzeMat);
-      cutawayShells.push(addBox(gf, 0.22, 3.25, 2.45, 7.85, 1.76, -3.62, whiteMat));
-      interiorWalls.push(addBox(gf, 0.14, 3.10, 2.6, 4.45, 1.76, -3.50, partitionMat, false, false));
+      addBox(gf, 5.4, 3.00, 0.14, 4.95, 1.75, -4.82, atriumGlassMat, false, false);
+      for (const bx of [2.3, 4.0, 5.7, 7.4]) addBox(gf, 0.08, 3.00, 0.16, bx, 1.75, -4.82, darkBronzeMat);
+      cutawayShells.push(addBox(gf, 0.22, 3.00, 2.45, 7.85, 1.75, -3.62, whiteMat));
+      // Full-depth acoustic privacy wall dividing Guest WC from Ensuite 1 + Frosted Bathroom Privacy Sliding Doors!
+      addBox(gf, 0.14, 2.98, 4.25, 4.45, 1.75, -2.65, whiteMat, false, false);
+      addBox(gf, 2.65, 2.98, 0.14, 3.08, 1.75, -0.52, whiteMat, false, false); // Privacy front wall shielding GF Guest WC
+      addPrivacySlidingDoor(gfInterior, 3.05, 0.27, -1.62, 0.88, 2.18, 0, true, 0.90);  // GF Guest WC Frosted Sliding Privacy Door!
+      addPrivacySlidingDoor(gfInterior, 6.15, 0.27, -2.35, 0.98, 2.22, 0, true, 0.90);  // GF Ensuite 1 Frosted Sliding Privacy Door!
       addGuestWC(gfInterior, 3.05, 0.27, -2.35, Math.PI);
       addEnsuiteBath(gfInterior, 6.15, 0.27, -3.45, Math.PI, 0.94);
       addBathCurtain(gfInterior, 6.15, 0.28, -4.68, 2.20, 2.80, 0, false); // Exterior rear glazed window curtain for GF Ensuite 1!
@@ -6883,6 +6924,7 @@
           addWallArt(floorFurn, -7.22, fy + 1.48, 1.75, 1.25, 0.85, Math.PI / 2, 2);
           addACUnit(floorFurn, -4.50, fy + 2.46, -0.22, 0, 1.02); // 1F Family TV Lounge Split-Inverter AC
           addCurtainPair(floorFurn, -4.5, fy, 3.48, 4.2, 2.66, Math.PI);
+          addCurtainPair(floorFurn, -7.28, fy, 1.45, 2.35, 2.66, Math.PI / 2); // 1F Family Lounge Left Balcony Curtain!
           addCeilingDecor(floorFurn, -4.5, fy + 2.64, 1.65, 4.2, 3.2, { fan: true, fanSpeed: 2.2 });
           const flPole = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.03, 1.78, 8), goldMat);
           flPole.position.set(-6.78, fy + 0.89, 0.82); floorFurn.add(flPole);
@@ -6907,31 +6949,42 @@
             addBox(floorFurn, 0.22, 0.24, 0.42, 1.18, fy + sy + 0.16, 1.15, upholsteryMat, false, false);
             addBox(floorFurn, 0.22, 0.22, 0.38, 1.18, fy + sy + 0.15, 2.12, goldMat, false, false);
           }
-          // Bedroom 2 & Bedroom 3 (Rear) + Split-Inverter ACs + Motorized Curtains + Wall Art + Twin Ensuite Bathrooms 2 & 3!
+          // Bedroom 2 & Bedroom 3 (Rear Private Suites) + Suite Entry & Frosted Bathroom Sliding Doors + Left & Rear Privacy Curtains!
           addBedSuite(floorFurn, -5.96, fy, -2.65, 0, 0.80);
           addACUnit(floorFurn, -5.96, fy + 2.46, -0.44, Math.PI, 0.90); // 1F Bedroom 2 Split-Inverter AC
-          addCurtainPair(floorFurn, -5.55, fy, -4.78, 3.2, 2.72, 0);
+          addCurtainPair(floorFurn, -5.55, fy, -4.78, 3.2, 2.66, 0);
+          addCurtainPair(floorFurn, -7.28, fy, -2.55, 2.35, 2.66, Math.PI / 2); // 1F Bedroom 2 Left Balcony Privacy Curtain!
           addWallArt(floorFurn, -5.96, fy + 1.65, -3.72, 1.10, 0.72, 0, 0);
+          // Suite Entry Privacy Sliding Doors entering Bed 2 & Bed 3 from Family Lounge/Hallway
+          addPrivacySlidingDoor(floorFurn, -5.15, fy, -0.35, 1.06, 2.30, 0, true, 0.92); // Bed 2 Suite Entry Sliding Door!
+          addPrivacySlidingDoor(floorFurn, -0.75, fy, -0.35, 1.06, 2.30, 0, true, 0.92); // Bed 3 Suite Entry Sliding Door!
+          // Full Privacy Walls + Frosted-Glass Bathroom Sliding Doors enclosing Twin Ensuites 2 & 3 (zero toilet/shower sightline from beds!)
+          addBox(floorFurn, 0.12, 2.64, 2.45, -4.68, fy + 1.32, -3.68, whiteMat, false, false); // Bed 2 -> Ensuite 2 privacy divider
+          addBox(floorFurn, 0.12, 2.64, 2.45, -1.62, fy + 1.32, -3.68, whiteMat, false, false); // Bed 3 -> Ensuite 3 privacy divider
+          addPrivacySlidingDoor(floorFurn, -3.95, fy, -2.50, 0.94, 2.22, 0, true, 0.90); // Ensuite 2 Frosted Bathroom Sliding Door!
+          addPrivacySlidingDoor(floorFurn, -2.35, fy, -2.50, 0.94, 2.22, 0, true, 0.90); // Ensuite 3 Frosted Bathroom Sliding Door!
           addEnsuiteBath(floorFurn, -3.95, fy, -3.55, Math.PI, 0.66);
           addEnsuiteBath(floorFurn, -2.35, fy, -3.55, Math.PI, 0.66);
           addBathCurtain(floorFurn, -3.15, fy, -4.78, 2.75, 2.66, 0, false); // Exterior rear window curtains for 1F Ensuites 2 & 3!
           addBedSuite(floorFurn, -0.22, fy, -2.65, 0, 0.80);
           addACUnit(floorFurn, -0.22, fy + 2.46, -0.44, Math.PI, 0.90); // 1F Bedroom 3 Split-Inverter AC
-          addCurtainPair(floorFurn, -0.35, fy, -4.78, 3.2, 2.72, 0);
+          addCurtainPair(floorFurn, -0.35, fy, -4.78, 3.2, 2.66, 0);
           addWallArt(floorFurn, -0.22, fy + 1.65, -3.72, 1.10, 0.72, 0, 2);
-          // REAR-RIGHT BEHIND-SPIRAL FIRST-FLOOR WING: Ensuite Bathroom 4 (for Bed 4) + Quiet Study Alcove + Flush Spiral Access Corridor Slab!
+          // REAR-RIGHT BEHIND-SPIRAL FIRST-FLOOR WING: Private Ensuite Bathroom 4 (for Bed 4) + Quiet Study + Frosted Privacy Sliding Doors!
           addBox(owner, 6.2, 0.32, 4.45, 4.85, y + 0.18, -2.65, whiteMat, true, true);
           addBox(owner, 1.44, 0.24, 1.35, 2.32, y + 0.23, 0.18, whiteMat, true, true); // Flush corridor deck joining spiral landing (z=0.78) to rear-right study/Bath 4!
           addBox(owner, 5.4, wallH, 0.14, 4.95, wallY, -4.82, atriumGlassMat, false, false);
           for (const bx of [2.3, 4.0, 5.7, 7.4]) addBox(owner, 0.08, wallH, 0.16, bx, wallY, -4.82, darkBronzeMat);
           cutawayShells.push(addBox(owner, 0.20, wallH, 2.45, 7.85, wallY, -3.62, whiteMat));
-          interiorWalls.push(addBox(owner, 0.14, wallH - 0.15, 2.6, 4.45, wallY, -3.50, partitionMat, false, false));
+          addBox(owner, 0.14, wallH, 4.35, 4.45, wallY, -2.65, whiteMat, false, false); // Full privacy partition separating Study from Ensuite 4!
+          addPrivacySlidingDoor(floorFurn, 6.15, fy, -2.35, 0.98, 2.24, 0, true, 0.90); // 1F Ensuite 4 Frosted Bathroom Sliding Door!
+          addPrivacySlidingDoor(floorFurn, 2.45, fy, -0.46, 1.06, 2.28, 0, true, 0.88); // 1F Behind-Spiral Study Sliding Privacy Door!
           addEnsuiteBath(floorFurn, 6.15, fy, -3.45, Math.PI, 0.94);
           addBathCurtain(floorFurn, 6.15, fy, -4.68, 2.20, 2.66, 0, false); // Exterior rear window curtain for 1F Ensuite 4!
           addBox(floorFurn, 1.35, 0.74, 0.68, 3.05, fy + 0.37, -3.45, walnutMat, false, false);
           addOfficeChair(floorFurn, 3.05, fy, -2.72, Math.PI, charcoalMat, false);
         } else if (idx === 1) {
-          // SECOND FLOOR: Private Lounge TV 2 (front), Master Suite + Decor + AC + Ceiling Fan (rear-left), Walk-in Robe, Master Spa Ensuite
+          // SECOND FLOOR: Private Lounge TV 2 (front), Grand Master Private Suite + WIR + Frosted-Door Master Spa + Private Bedroom 6 Suite!
           addBox(floorFurn, 3.8, 0.03, 2.7, -4.2, fy + 0.015, 1.75, rugMat, false, true);
           addSofaUnit(floorFurn, -5.35, fy, 1.8, Math.PI / 2, 2.25);
           addSofaUnit(floorFurn, -2.95, fy, 1.8, -Math.PI / 2, 2.25);
@@ -6940,17 +6993,20 @@
           addFlatScreen(floorFurn, 2.18, 1.04, -4.15, fy + 1.38, -0.14, 0, liveScreens.cinema.mat, warmLedMat);
           addACUnit(floorFurn, -4.15, fy + 2.46, -0.22, 0, 1.02); // 2F Private Lounge TV 2 Split-Inverter AC
           addCurtainPair(floorFurn, -4.15, fy, 3.48, 4.4, 2.66, Math.PI);
+          addCurtainPair(floorFurn, -7.28, fy, 1.45, 2.35, 2.66, Math.PI / 2); // 2F Private Lounge Left Balcony Curtain!
           addCeilingDecor(floorFurn, -4.15, fy + 2.64, 1.75, 4.2, 3.0, { ringChandelier: true });
           const plPole = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.03, 1.75, 8), goldMat);
           plPole.position.set(-6.45, fy + 0.88, 0.72); floorFurn.add(plPole);
           const plOrb = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 10), chandelierOrbMat);
           plOrb.position.set(-6.45, fy + 1.78, 0.72); floorFurn.add(plOrb);
-          // Grand Master Suite (rear-left) + Foot Bench + Wall Art + Split-Inverter AC + Ambient Master TV + Cove Ceiling & Spinning Fan!
+          // Grand Master Private Suite (rear-left) + Suite Entry Sliding Door + Left & Rear Privacy Curtains + Frosted-Door Master Spa Enclosure!
           addBedSuite(floorFurn, -5.35, fy, -2.65, 0, 1.02);
           addWallArt(floorFurn, -5.35, fy + 1.88, -3.86, 1.55, 0.85, 0, 1);
           addFlatScreen(floorFurn, 1.65, 0.86, -5.35, fy + 1.38, -0.49, Math.PI, liveScreens.cinema.mat, warmLedMat);
           addACUnit(floorFurn, -5.35, fy + 2.46, -0.44, Math.PI, 1.04); // 2F Grand Master Suite Split-Inverter AC
           addCurtainPair(floorFurn, -5.35, fy, -4.78, 3.8, 2.66, 0);
+          addCurtainPair(floorFurn, -7.28, fy, -2.55, 2.35, 2.66, Math.PI / 2); // 2F Grand Master Suite Left Balcony Privacy Curtain!
+          addPrivacySlidingDoor(floorFurn, -3.65, fy, -0.35, 1.18, 2.34, 0, true, 0.92); // Grand Master Suite Entry Sliding Privacy Door!
           addCeilingDecor(floorFurn, -5.35, fy + 2.64, -2.55, 3.8, 3.6, { fan: true, fanSpeed: 1.9 });
           addBox(floorFurn, 1.55, 0.42, 0.46, -5.35, fy + 0.21, -1.16, upholsteryMat, false, false);
           for (const px of [-6.68, -4.02]) {
@@ -6965,25 +7021,40 @@
           addBox(floorFurn, 0.85, 0.84, 0.56, -2.25, fy + 0.42, -2.45, marbleMat, false, false);
           addBox(floorFurn, 0.04, 1.88, 0.78, -3.02, fy + 1.06, -3.25, warmLedMat, false, false);
           addBox(floorFurn, 0.05, 1.78, 0.68, -3.00, fy + 1.06, -3.25, atriumGlassMat, false, false);
+          // Full-Height Master Spa Ensuite Privacy Partition & Satin Frosted-Glass Sliding Spa Door (x=-1.52) shielding tub/toilet from WIR & Master Bed!
+          addBox(floorFurn, 0.14, 2.66, 2.55, -1.52, fy + 1.33, -3.58, whiteMat, false, false); // Rear solid spa privacy wall (-4.85..-2.30)
+          addBox(floorFurn, 0.14, 2.66, 0.72, -1.52, fy + 1.33, -0.78, whiteMat, false, false); // Front spa privacy pier (-1.14..-0.42)
+          addBox(floorFurn, 0.14, 0.36, 1.18, -1.52, fy + 2.48, -1.72, whiteMat, false, false); // Flush spa doorway lintel
+          addPrivacySlidingDoor(floorFurn, -1.52, fy, -1.72, 1.08, 2.28, Math.PI / 2, true, 0.90); // Master Spa Frosted Privacy Sliding Door!
           // Master Spa Ensuite (BOTH freestanding soaking tub AND full frosted-glass walk-in rain/handheld shower + full spa & toilet curtains!)
           addSpaBath(floorFurn, -0.05, fy, -2.75);
           addBathCurtain(floorFurn, -0.05, fy, -4.78, 2.75, 2.66, 0, false); // Full-height Master Spa exterior rear glass privacy curtain!
 
-          // BEDROOM 6 SUITE + ENSUITE BATHROOM 6 RIGHT BEHIND THE SPIRAL STAIRCASE (With REAL OPEN Sliding Balcony Door out to 2F Curved Right Sun Terrace & Flush Spiral Access Corridor!)
+          // BEDROOM 6 PRIVATE SUITE + ENCLOSED ENSUITE 6 (Always-visible Terrace Sliding Door + Privacy Curtains + Front Hallway Privacy Wall + Frosted Ensuite Sliding Door!)
           addBox(owner, 6.2, 0.34, 4.45, 4.85, y + 0.18, -2.65, whiteMat, true, true);
           addBox(owner, 1.44, 0.24, 1.35, 2.32, y + 0.23, 0.18, whiteMat, true, true); // Flush corridor deck joining spiral landing (z=0.78) to Bedroom 6!
           addBox(owner, 5.4, wallH, 0.14, 4.95, wallY, -4.82, atriumGlassMat, false, false);
           for (const bx of [2.3, 4.0, 5.7, 7.4]) addBox(owner, 0.08, wallH, 0.16, bx, wallY, -4.82, darkBronzeMat);
-          // Bedroom 6 Right Exterior Wall split cleanly at z=-2.10..-0.60 with a REAL OPEN 1.50 m Sliding Glass Door onto the 2F Curved Right Sun Terrace!
+          // Bedroom 6 Right Exterior Wall ALWAYS VISIBLE with REAL Sliding Glass Door onto 2F Curved Right Sun Terrace + Full-Height Interior Privacy Curtain!
           const bed6RightWall = new THREE.Group();
           addBox(bed6RightWall, 0.22, wallH, 2.75, 7.85, wallY, -3.475, whiteMat); // Rear section (-4.85..-2.10)
           addBox(bed6RightWall, 0.22, wallH, 0.22, 7.85, wallY, -0.49, whiteMat);  // Front pier (-0.60..-0.38)
           addBox(bed6RightWall, 0.22, wallH - 2.64, 1.52, 7.85, doorBaseY + 2.64 + (wallH - 2.64) / 2, -1.35, whiteMat); // Flush lintel header
           addSlidingBalconyDoor(bed6RightWall, 7.85, doorBaseY, -1.35, 1.50, 2.64, -Math.PI / 2, 1); // Bedroom 6 -> 2F Curved Right Sun Terrace!
           owner.add(bed6RightWall);
-          cutawayShells.push(bed6RightWall);
+          // Full Front Privacy Wall along z=-0.45 shielding Bedroom 6 & Ensuite 6 from the 2F spiral landing + Walnut & Frosted-Glass Suite Entry Sliding Door!
+          addBox(owner, 2.50, wallH, 0.16, 3.00, wallY, -0.45, whiteMat, false, false);  // Ensuite 6 front privacy wall (x=1.75..4.25)
+          addBox(owner, 2.40, wallH, 0.16, 6.65, wallY, -0.45, whiteMat, false, false);  // Bed 6 right-front privacy wall (x=5.45..7.85)
+          addBox(owner, 1.24, wallH - 2.34, 0.16, 4.85, doorBaseY + 2.34 + (wallH - 2.34) / 2, -0.45, whiteMat, false, false); // Suite doorway lintel
+          addPrivacySlidingDoor(floorFurn, 4.85, fy, -0.45, 1.12, 2.30, 0, true, 0.90);  // Bedroom 6 Private Suite Entry Sliding Door!
+          // Full-Depth Privacy Wall + Satin Frosted-Glass Bathroom Sliding Door at x=4.18 enclosing Ensuite 6 completely (ZERO toilet sightline from Bed 6 or Sun Terrace!)
+          addBox(owner, 0.14, wallH, 2.95, 4.18, wallY, -3.35, whiteMat, false, false);  // Rear solid bathroom enclosure (-4.82..-1.88)
+          addBox(owner, 0.14, wallH, 0.44, 4.18, wallY, -0.66, whiteMat, false, false);  // Front bathroom pier (-0.88..-0.44)
+          addBox(owner, 0.14, wallH - 2.28, 1.04, 4.18, doorBaseY + 2.28 + (wallH - 2.28) / 2, -1.38, whiteMat, false, false); // Ensuite doorway header
+          addPrivacySlidingDoor(floorFurn, 4.18, fy, -1.38, 0.96, 2.24, Math.PI / 2, true, 0.92); // Ensuite 6 Frosted Privacy Sliding Door!
           addBedSuite(floorFurn, 5.85, fy, -2.55, Math.PI, 0.88);
           addCurtainPair(floorFurn, 5.85, fy, -4.68, 3.2, 2.66, 0);
+          addCurtainPair(floorFurn, 7.64, fy, -1.35, 1.65, 2.64, -Math.PI / 2); // Bedroom 6 Terrace Sliding Door Privacy Curtain!
           addWallArt(floorFurn, 5.85, fy + 1.72, -1.48, 1.25, 0.78, Math.PI, 0);
           addACUnit(floorFurn, 5.85, fy + 2.46, -1.44, Math.PI, 0.90); // 2F Bedroom 6 Behind Spiral Split-Inverter AC
           addCeilingDecor(floorFurn, 5.85, fy + 2.64, -2.65, 3.0, 3.2, { fan: true, fanSpeed: 2.1 });
@@ -6991,7 +7062,6 @@
           addBox(floorFurn, 0.05, 2.20, 0.05, 7.24, fy + 1.18, -2.72, warmLedMat, false, false);
           addEnsuiteBath(floorFurn, 2.98, fy, -2.75, Math.PI, 0.92);
           addBathCurtain(floorFurn, 2.98, fy, -4.68, 2.05, 2.66, 0, false); // Exterior rear window curtain for 2F Ensuite 6!
-          interiorWalls.push(addBox(owner, 0.14, wallH - 0.15, 2.6, 4.18, wallY, -3.50, partitionMat, false, false));
         } else {
           // ROOFTOP LEVEL 3: Redesigned L-Shaped BBQ Chef Kitchen (rear), Enclosed RGB Gaming Studio (mid-left), Party Bar & Buffet (mid-right), Lounge TV 3 (front)
           // 1. L-Shaped Outdoor Chef's BBQ Kitchen (travertine wrap bar + 4-burner grill with glowing embers + sink + beverage fridge + 3 bar stools)
@@ -8831,13 +8901,19 @@
         sMesh.castShadow = true;
         sideWing.add(sMesh);
       }
-      // Warm lit glazed walls & furnished guest/family bedroom suites + Split-Inverter ACs inside right curved pavilion (Ground Bed 1 & First Bed 4!)
+      // Warm lit glazed walls & PRIVATE furnished bedroom suites (Bed 1 GF & Bed 4 1F) with FULL Wraparound Privacy Curtains & Private Frosted Sliding Ensuite Doors!
       addBox(sideWing, 2.6, 6.2, 4.1, 8.0, 3.55, 0.05, atriumGlassMat, false, false);
       for (const mz of [-1.4, 0.05, 1.5]) addBox(sideWing, 0.07, 6.2, 0.07, 9.32, 3.55, mz, goldMat);
       addBedSuite(sideWing, 7.95, 0.36, 0.05, -Math.PI / 2, 0.76);
       addACUnit(sideWing, 7.95, 2.84, -1.94, 0, 0.86); // GF Right Pavilion Bed 1 Split-Inverter AC
+      addCurtainPair(sideWing, 9.18, 0.36, 0.05, 3.70, 2.92, -Math.PI / 2); // GF Bed 1 Right Panoramic Privacy Curtain!
+      addCurtainPair(sideWing, 7.95, 0.36, 1.96, 2.30, 2.92, Math.PI);      // GF Bed 1 Front Glass Privacy Curtain!
+      addPrivacySlidingDoor(sideWing, 7.25, 0.36, -1.96, 0.96, 2.24, 0, true, 0.90); // GF Bed 1 -> Private Ensuite 1 Frosted Sliding Door!
       addBedSuite(sideWing, 7.95, 3.75, 0.05, -Math.PI / 2, 0.76);
       addACUnit(sideWing, 7.95, 6.22, -1.94, 0, 0.86); // 1F Right Pavilion Bed 4 Split-Inverter AC
+      addCurtainPair(sideWing, 9.18, 3.75, 0.05, 3.70, 2.80, -Math.PI / 2); // 1F Bed 4 Right Panoramic Privacy Curtain!
+      addCurtainPair(sideWing, 7.95, 3.75, 1.96, 2.30, 2.80, Math.PI);      // 1F Bed 4 Front Glass Privacy Curtain!
+      addPrivacySlidingDoor(sideWing, 7.25, 3.75, -1.96, 0.96, 2.24, 0, true, 0.90); // 1F Bed 4 -> Private Ensuite 4 Frosted Sliding Door!
       // 2ND FLOOR CURVED RIGHT SUN TERRACE ON sideWing TOP SLAB (y = 6.99 — Joins curved atrium glass wall flush at (7.10, 2.46) + full rear safety barrier!)
       const swTerraceY = 6.99;
       const swRailCurve2D = new THREE.Path();
