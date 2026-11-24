@@ -917,19 +917,167 @@
       }
     }
 
-    /* Compact Mobile Controls Launcher Bar & Slide-Up Bottom Sheet Backdrop (Shown <= 1050px) */
+    /* Compact Mobile 3D Studio Dock & Slide-Up Bottom Sheet Backdrop (Shown <= 1050px) */
     .mobile-controls-bar {
       display: none;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 9px;
+      padding: 11px;
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(17, 34, 52, .95), rgba(8, 19, 32, .97));
+      border: 1px solid rgba(232, 193, 126, .34);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .34), inset 0 1px rgba(255, 255, 255, .07);
     }
 
-    .mobile-controls-bar .btn {
-      flex: 1 1 auto;
+    .mobile-view-bar {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .mobile-step-btn {
+      padding: 0;
+      min-block-size: 44px;
+      min-inline-size: 44px;
+      font-size: 18px;
+      font-weight: 800;
       justify-content: center;
-      font-size: 12.5px;
+      border-radius: 11px;
+    }
+
+    .mobile-view-select {
+      width: 100%;
+      min-block-size: 44px;
+      padding: 9px 34px 9px 12px;
+      border-radius: 11px;
+      border: 1px solid rgba(232, 193, 126, .48);
+      background-color: #0d1f33;
+      color: #f7f9fc;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, var(--gold-bright) 50%), linear-gradient(135deg, var(--gold-bright) 50%, transparent 50%), linear-gradient(135deg, rgba(35, 56, 78, .92), rgba(11, 24, 38, .96));
+      background-position: calc(100% - 17px) 50%, calc(100% - 11px) 50%, 0 0;
+      background-size: 6px 6px, 6px 6px, 100% 100%;
+      background-repeat: no-repeat;
+    }
+
+    .mobile-quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .mobile-quick-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      min-block-size: 52px;
+      padding: 7px 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(232, 193, 126, .30);
+      background: linear-gradient(160deg, rgba(25, 47, 70, .92), rgba(11, 24, 38, .96));
+      color: #f3f7fc;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.15;
+      text-align: center;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .mobile-quick-tile .tile-ico {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .mobile-quick-tile.gold,
+    .mobile-quick-tile[aria-pressed="true"] {
+      background: linear-gradient(135deg, #fbe5ba, #cfa056);
+      color: #0a1522;
+      border-color: #fff2d1;
+      box-shadow: 0 6px 16px rgba(212, 168, 92, .32), inset 0 1px rgba(255, 255, 255, .48);
+    }
+
+    .mobile-more-drawer {
+      border-radius: 12px;
+      border: 1px solid rgba(232, 193, 126, .24);
+      background: rgba(8, 19, 31, .72);
+      overflow: hidden;
+    }
+
+    .mobile-more-drawer summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-block-size: 44px;
       padding: 10px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--gold-bright);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .mobile-more-drawer summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .mobile-more-drawer summary::after {
+      content: "▾";
+      font-size: 14px;
+      transition: transform .18s ease-out;
+    }
+
+    .mobile-more-drawer[open] summary::after {
+      transform: rotate(180deg);
+    }
+
+    .mobile-more-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      padding: 0 10px 10px;
+    }
+
+    .mobile-more-grid .btn {
+      width: 100%;
+      min-block-size: 44px;
+      padding: 8px 10px;
+      font-size: 12px;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .mobile-more-grid .btn[aria-pressed="true"] {
+      background: linear-gradient(135deg, #fbe5ba, #cfa056);
+      color: #0a1522;
+      border-color: #fff2d1;
+    }
+
+    .mobile-more-zoom {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .mobile-more-zoom .btn {
+      padding: 8px 4px;
+      font-size: 11.5px;
+    }
+
+    .plan-toolbar-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .mobile-sheet-backdrop {
@@ -1668,7 +1816,7 @@
       box-shadow: inset 0 1px rgba(255, 255, 255, .08);
     }
 
-    @container controls-panel (inline-size >= 340px) {
+    @container controls-panel (inline-size >= 300px) {
       .panel-controls-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -2787,6 +2935,25 @@
         min-height: 380px
       }
 
+      .viewer-touch-hint {
+        bottom: 14px;
+      }
+
+      /* On small screens outside fullscreen, move cluttered 24-preset & 19-action bars out of the 3D canvas into the organized Mobile Studio Dock below! */
+      #modelStage:not(.is-fullscreen):not(:fullscreen):not(:-webkit-full-screen) .viewer-presets,
+      #modelStage:not(.is-fullscreen):not(:fullscreen):not(:-webkit-full-screen) .viewer-tools,
+      #modelStage:not(.is-fullscreen):not(:fullscreen):not(:-webkit-full-screen) .viewer-mobile-ctrl {
+        display: none;
+      }
+
+      #modelStage:not(.is-fullscreen):not(:fullscreen):not(:-webkit-full-screen) .viewer-overlay {
+        max-width: calc(100% - 122px);
+      }
+
+      #modelStage:not(.is-fullscreen):not(:fullscreen):not(:-webkit-full-screen) .walk-hud {
+        bottom: 10px;
+      }
+
       .viewer-overlay {
         left: 10px;
         right: auto;
@@ -2852,6 +3019,190 @@
 
       .walk-hud-hint {
         display: none;
+      }
+
+      /* Redesigned Small-Screen Button Sections Across Every Page Section (44px+ Thumb Grids, Zero Hidden Horizontal Clipping!) */
+      .hero-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+      }
+
+      .hero-buttons .btn {
+        width: 100%;
+        min-block-size: 46px;
+        padding: 10px 12px;
+        justify-content: center;
+        text-align: center;
+        font-size: 13px;
+      }
+
+      .hero-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .hero-badge {
+        text-align: center;
+      }
+
+      .hero-footer-group {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px 44px auto;
+        gap: 6px;
+        width: 100%;
+      }
+
+      .hero-footer button {
+        min-block-size: 44px;
+        padding: 8px 8px;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      .section-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .section-head .tabs {
+        width: 100%;
+      }
+
+      #model .section-head .tabs .btn {
+        width: 100%;
+        min-block-size: 46px;
+        justify-content: center;
+      }
+
+      #floorTabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        overflow: visible;
+        padding: 0;
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+
+      #floorTabs button {
+        width: 100%;
+        min-block-size: 44px;
+        padding: 8px 6px;
+        font-size: 12px;
+        justify-content: center;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.2;
+      }
+
+      .plan-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .plan-toolbar-actions {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 6px;
+        width: 100%;
+      }
+
+      .plan-toolbar-actions #planInspect,
+      .plan-toolbar-actions #planSave {
+        grid-column: span 3;
+      }
+
+      .plan-toolbar-actions #planPlus,
+      .plan-toolbar-actions #planMinus,
+      .plan-toolbar-actions #planReset {
+        grid-column: span 2;
+      }
+
+      .plan-toolbar-actions .btn {
+        width: 100%;
+        min-block-size: 44px;
+        padding: 8px 6px;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      #rooftop .tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+        overflow: visible;
+        padding: 0;
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+
+      #rooftop .tabs > a {
+        width: 100%;
+        min-block-size: 44px;
+        padding: 9px 10px;
+        justify-content: center;
+        text-align: center;
+        font-size: 12px;
+        white-space: normal;
+        line-height: 1.2;
+      }
+
+      #rooftop .tabs > a:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+
+      #assetFilters {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        overflow: visible;
+        padding: 0;
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+
+      #assetFilters button {
+        width: 100%;
+        min-block-size: 44px;
+        padding: 8px 6px;
+        font-size: 12px;
+        justify-content: center;
+        text-align: center;
+      }
+
+      #assetFilters button:nth-child(4) {
+        grid-column: span 1;
+      }
+
+      #assetFilters button:nth-child(5) {
+        grid-column: span 2;
+      }
+
+      #full-board .tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        overflow: visible;
+        padding: 0;
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+
+      #full-board .tabs button,
+      #full-board .tabs a {
+        width: 100%;
+        min-block-size: 44px;
+        justify-content: center;
+        text-align: center;
+      }
+
+      #full-board .tabs a {
+        grid-column: 1 / -1;
       }
 
       /* Mobile Fullscreen Safe-Area & Bottom-Sheet Controls Drawer (keeps live 3D villa visible above!) */
@@ -2940,16 +3291,19 @@
       }
 
       .modal-actions {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        scrollbar-width: none;
-        scroll-snap-type: x proximity;
-        padding-bottom: 4px
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        overflow: visible;
+        padding-bottom: 2px;
       }
 
       .modal-actions > * {
-        flex: 0 0 auto;
-        scroll-snap-align: start
+        width: 100%;
+        min-block-size: 44px;
+        justify-content: center;
+        padding: 8px 6px;
+        font-size: 12px;
       }
 
       .modal-meta {
@@ -3002,24 +3356,27 @@
       }
 
       .plan-toolbar {
-        align-items: flex-start
+        align-items: stretch
       }
 
-      .tabs {
-        width: 100%;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        scrollbar-width: none;
-        overscroll-behavior-x: contain;
-        overflow-anchor: none;
-        scroll-padding-inline: 10px;
-        padding: 2px 16px 4px 0;
-        -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
-        mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+      .hero-footer-group {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
       }
 
-      .tabs > * {
-        flex: 0 0 auto;
+      .hero-footer-group #heroModeOrig,
+      .hero-footer-group #heroModeRefined {
+        grid-column: span 3;
+      }
+
+      .hero-footer-group #heroZoomIn,
+      .hero-footer-group #heroZoomOut,
+      .hero-footer-group #heroExpand {
+        grid-column: span 2;
+      }
+
+      .mobile-quick-tile {
+        font-size: 10.5px;
+        padding: 6px 3px;
       }
     }
 
@@ -3028,8 +3385,16 @@
         grid-template-columns: 1fr
       }
 
-      .hero-buttons .btn {
-        width: 100%
+      .hero-buttons {
+        grid-template-columns: 1fr
+      }
+
+      .mobile-quick-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #floorTabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -3825,7 +4190,7 @@
               <button type="button" class="btn gold viewer-quick-fs" id="viewerQuickFs" commandfor="modelStage"
                 command="--toggle-fullscreen" aria-pressed="false" interestfor="tip-tool-fs">⛶ Fullscreen</button>
             </div>
-            <div class="viewer-touch-hint" id="viewerTouchHint" aria-hidden="true">👆 1 finger orbit · ✌️ 2 fingers zoom · Tap glowing pins</div>
+            <div class="viewer-touch-hint" id="viewerTouchHint" aria-hidden="true">👆 1 finger orbit · ✌️ 2 fingers zoom · Tap quick buttons below</div>
             <div class="fs-bar" id="fsBar" aria-label="Fullscreen studio controls">
               <button type="button" class="btn gold" id="exitFullscreenBtn" commandfor="modelStage"
                 command="--exit-fullscreen" interestfor="tip-fs-exit">✕ Exit Fullscreen
@@ -3910,7 +4275,7 @@
               <button type="button" id="toggleGasLock" aria-pressed="false" interestfor="tip-tool-gaslock"><span class="btn-dot is-locked" id="dotGasLock" aria-hidden="true"></span>🔒 Gas Lock</button>
               <button type="button" id="toggleFloodGate" aria-pressed="false" interestfor="tip-tool-flood"><span class="btn-dot is-closed" id="dotFloodGate" aria-hidden="true"></span>🌊 Flood Gate</button>
               <button type="button" id="explodeModel" aria-pressed="false" interestfor="tip-tool-explode">Explode Floors</button>
-              <button type="button" id="togglePins" aria-pressed="true" interestfor="tip-tool-pins">🏷️ Room Pins</button>
+              <button type="button" id="togglePins" aria-pressed="true" interestfor="tip-tool-pins"><span class="btn-dot is-open" id="dotPins" aria-hidden="true"></span>🏷️ Room Pins</button>
               <button type="button" id="rotateModel" aria-pressed="false" interestfor="tip-tool-rotate">⟳ Auto-Rotate</button>
               <button type="button" id="zoomIn" interestfor="tip-tool-zin">＋ Zoom</button>
               <button type="button" id="zoomOut" interestfor="tip-tool-zout">－ Zoom</button>
@@ -3959,10 +4324,76 @@
             </div>
           </div>
           <div class="mobile-controls-bar" id="mobileControlsBar" aria-label="Quick mobile 3D studio controls">
-            <button type="button" class="btn gold" id="mobileBarCustomize" commandfor="modelStage"
-              command="--toggle-mobile-controls" aria-pressed="false" aria-controls="modelControlsPanel">⚙ Live 3D Controls (Lighting · Floors · Doors)</button>
-            <button type="button" class="btn" id="mobileQuickNight" aria-pressed="false">🌙 Night</button>
-            <button type="button" class="btn" id="mobileQuickSlideDemo" aria-pressed="false">🔄 Slide Sim</button>
+            <div class="mobile-view-bar">
+              <button type="button" class="btn mobile-step-btn" id="mobilePrevView" aria-label="Previous 3D room view">⟨</button>
+              <label for="mobileViewSelect" class="sr-only">Choose 3D room or camera view</label>
+              <select id="mobileViewSelect" class="mobile-view-select" aria-label="Choose 3D room or camera view">
+                <optgroup label="Exterior &amp; Arrival">
+                  <option value="hero">🏠 Hero Front (Full Estate)</option>
+                  <option value="garageCars">🚘 2-Car Garage · RR &amp; Benz</option>
+                  <option value="spiralBalcony">🌀 Spiral Balconies &amp; Atrium</option>
+                  <option value="leftBalcony">🌅 Extended Left Balconies</option>
+                  <option value="stairTop">✨ Stair-Top Skylight Oculus</option>
+                  <option value="aerial">🛰️ Aerial Estate Overview</option>
+                </optgroup>
+                <optgroup label="3D Furnished Interiors">
+                  <option value="cutaway">🏛️ 3D Interior Cutaway</option>
+                  <option value="livingKitchen">🛋️ Living &amp; Gas Kitchen (GF)</option>
+                  <option value="familyOffice">💼 Family Lounge &amp; Office (1F)</option>
+                  <option value="masterSuite">👑 Grand Master Suite (2F)</option>
+                  <option value="spaBaths">🚿 Spa Baths &amp; Showers (8)</option>
+                  <option value="spiralBack">🛏️ Bedroom 6 Behind Spiral (2F)</option>
+                </optgroup>
+                <optgroup label="Rooftop &amp; Sky-Deck">
+                  <option value="gameRoom">🎮 Game Room &amp; VR Car</option>
+                  <option value="bbqKitchen">🍖 Rooftop BBQ Chef Kitchen</option>
+                  <option value="rooftopParty">🎉 Party Shed &amp; Bar</option>
+                  <option value="laundry">🧺 Laundry &amp; Drying Wing</option>
+                </optgroup>
+                <optgroup label="MEP, Safety &amp; Water X-Ray">
+                  <option value="structuralSafety">🏗️ Foundation &amp; Safety X-Ray</option>
+                  <option value="gasVault">🔒 Gas Vault &amp; Lines</option>
+                  <option value="waterFilter">🧪 5-Stage Water Filter Sim</option>
+                  <option value="stormDrains">🌊 Storm &amp; Strainers X-Ray</option>
+                  <option value="water">🔧 Full MEP · Water &amp; Vents</option>
+                </optgroup>
+                <optgroup label="Garden &amp; Grounds">
+                  <option value="vegFarm">🥬 Organic Veg Farm</option>
+                  <option value="garden">🌿 Rear Garden &amp; Benches</option>
+                  <option value="firePit">🔥 Sunken Fire-Pit Lounge</option>
+                </optgroup>
+              </select>
+              <button type="button" class="btn mobile-step-btn" id="mobileNextView" aria-label="Next 3D room view">⟩</button>
+            </div>
+            <div class="mobile-quick-grid" role="group" aria-label="Primary 3D quick controls">
+              <button type="button" class="mobile-quick-tile" id="mobileDockWalk" data-proxy-click="walkthroughBtn" aria-pressed="false"><span class="tile-ico" aria-hidden="true">🚶</span><span>Walk</span></button>
+              <button type="button" class="mobile-quick-tile" id="mobileQuickNight" aria-pressed="false"><span class="tile-ico" aria-hidden="true">🌙</span><span>Night</span></button>
+              <button type="button" class="mobile-quick-tile" id="mobileDockTour" data-proxy-click="tourModel" aria-pressed="false"><span class="tile-ico" aria-hidden="true">▶</span><span>Tour</span></button>
+              <button type="button" class="mobile-quick-tile" id="mobileQuickSlideDemo" aria-pressed="false"><span class="tile-ico" aria-hidden="true">🔄</span><span>Slide</span></button>
+              <button type="button" class="mobile-quick-tile" id="mobileDockPins" data-proxy-click="togglePins" aria-pressed="false"><span class="tile-ico" aria-hidden="true">🏷️</span><span>Pins</span></button>
+              <button type="button" class="mobile-quick-tile" id="mobileDockExplode" data-proxy-click="explodeModel" aria-pressed="false"><span class="tile-ico" aria-hidden="true">💥</span><span>Explode</span></button>
+              <button type="button" class="mobile-quick-tile" id="mobileDockFit" data-proxy-click="fitModel"><span class="tile-ico" aria-hidden="true">🎯</span><span>Fit View</span></button>
+              <button type="button" class="mobile-quick-tile gold" id="mobileBarCustomize" commandfor="modelStage"
+                command="--toggle-mobile-controls" aria-pressed="false" aria-controls="modelControlsPanel"><span class="tile-ico" aria-hidden="true">⚙</span><span>Controls</span></button>
+            </div>
+            <details class="mobile-more-drawer">
+              <summary>🚪 Doors, Curtains, Zoom &amp; More Actions</summary>
+              <div class="mobile-more-grid">
+                <div class="mobile-more-zoom">
+                  <button type="button" class="btn small" data-proxy-click="zoomIn">＋ Zoom</button>
+                  <button type="button" class="btn small" data-proxy-click="zoomOut">－ Zoom</button>
+                  <button type="button" class="btn small" id="mobileDockSpin" data-proxy-click="rotateModel" aria-pressed="false">⟳ Spin</button>
+                  <button type="button" class="btn small" data-proxy-click="resetAnimation">↺ Reset</button>
+                </div>
+                <button type="button" class="btn small" id="mobileDockSliding" data-proxy-click="toggleSlidingDoors" aria-pressed="false">↔ All Sliders</button>
+                <button type="button" class="btn small" id="mobileDockMainDoor" data-proxy-click="toggleMainDoor" aria-pressed="true">🚪 Main Door</button>
+                <button type="button" class="btn small" id="mobileDockSafety" data-proxy-click="toggleSafetyDoors" aria-pressed="true">🛡️ Safety Doors</button>
+                <button type="button" class="btn small" id="mobileDockGarage" data-proxy-click="toggleGarageDoor" aria-pressed="true">🚘 Garage Roll</button>
+                <button type="button" class="btn small" id="mobileDockCurtains" data-proxy-click="toggleCurtains" aria-pressed="false">🪟 Curtains</button>
+                <button type="button" class="btn small" id="mobileDockGasLock" data-proxy-click="toggleGasLock" aria-pressed="false">🔒 Gas Lock</button>
+                <button type="button" class="btn small" id="mobileDockFlood" data-proxy-click="toggleFloodGate" aria-pressed="false" style="grid-column:1/-1">🌊 Hydraulic Flood Gate</button>
+              </div>
+            </details>
           </div>
           <p id="viewerLiveStatus" class="sr-only" role="status" aria-live="polite"></p>
         </div>
@@ -4057,6 +4488,7 @@
             <button type="button" class="btn small" id="panelCurtains" aria-pressed="false" style="width:100%">🪟 Motorized Curtains: Folded</button>
             <button type="button" class="btn small" id="panelGasLock" aria-pressed="false" style="width:100%">🔒 Gas Cylinder Vault: Locked</button>
             <button type="button" class="btn small" id="panelFloodGate" aria-pressed="false" style="width:100%">🌊 Hydraulic Flood Barriers: Stowed</button>
+            <button type="button" class="btn small" id="panelPinsBtn" data-proxy-click="togglePins" aria-pressed="true" style="width:100%">🏷️ 3D Room Pins: Shown</button>
             <button type="button" class="btn small" id="panelWalkBtn" aria-pressed="false" style="width:100%">🚶 Real-Home Walkthrough</button>
           </div>
 
@@ -4249,7 +4681,7 @@
         <div class="plan-panel">
           <div class="plan-toolbar">
             <strong id="planName">Site plan</strong>
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <div class="plan-toolbar-actions">
               <button type="button" class="btn small" id="planInspect">⛶ Zoom plan image</button>
               <button type="button" class="btn small" id="planPlus">＋ SVG</button>
               <button type="button" class="btn small" id="planMinus">－ SVG</button>

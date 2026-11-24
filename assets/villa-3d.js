@@ -4522,7 +4522,6 @@ async function init3DViewer() {
     if (mobileQuickNight) {
       mobileQuickNight.setAttribute('aria-pressed', String(isNight));
       mobileQuickNight.classList.toggle('gold', isNight);
-      mobileQuickNight.textContent = isNight ? '☀️ Day/Gold' : '🌙 Night';
     }
   }
 
@@ -4676,8 +4675,10 @@ async function init3DViewer() {
     firePit: { floor: 'all', mode: 'exterior', pos: [6.4, 3.7, 13.4], target: [11.1, 0.65, 10.1], badge: 'FRONT-RIGHT PATIO · SUNKEN FIRE-PIT LOUNGE', title: 'Circular Sunken Fire-Pit Lounge & Curved Benches', desc: 'Front-right circular stone patio featuring a glowing ember fire pit surrounded by three fitted teak-topped conversation benches and tropical palms.' },
     aerial: { floor: 'all', mode: 'exterior', pos: [-12.5, 27.5, 25.5], target: [-0.2, 5.2, 0.2], badge: 'AERIAL ESTATE · PARTY SHED · ERV HVAC · SOLAR · GARDEN', title: 'Aerial Property Overview', desc: 'Complete 16-aana estate showing the rooftop Party Shed, BBQ pergola with exhaust hood, Laundry Wing, 3,000 L tanks, ERV HVAC, spinning roof turbo-vent, Solar PV, gas vault, garden & perimeter wall.' }
   };
+  const CAM_PRESET_KEYS = Object.keys(CAM_PRESETS);
+  const isSmallViewport = () => window.innerWidth <= 780;
   let camGoalPos = null, camGoalTarget = null;
-  let activeCamKey = 'hero', pinFloorLock = 'all', pinsVisible = true, walkMode = false;
+  let activeCamKey = 'hero', pinFloorLock = 'all', pinsVisible = !isSmallViewport(), pinsUserToggled = false, walkMode = false;
   let rafId = 0, isSkipped = false, isHidden = document.hidden, lastScreenTick = 0;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const liveStatusEl = document.getElementById('viewerLiveStatus');
@@ -4878,6 +4879,8 @@ async function init3DViewer() {
         }
       }
     }
+    const mobileViewSel = document.getElementById('mobileViewSelect');
+    if (mobileViewSel && mobileViewSel.value !== name) mobileViewSel.value = name;
     document.getElementById('viewerBadge').textContent = p.badge;
     if (captionTextEl) captionTextEl.innerHTML = `<strong>${p.title}</strong>${p.desc}`;
 
@@ -4945,10 +4948,22 @@ async function init3DViewer() {
       startLoop();
     }
     updatePins(true);
+    if (typeof syncActionDock === 'function') syncActionDock();
   }
   document.getElementById('cameraPresets').addEventListener('click', e => {
     const b = e.target.closest('[data-cam]');
     if (b) goPreset(b.dataset.cam, { userInitiated: true });
+  });
+  document.getElementById('mobileViewSelect')?.addEventListener('change', e => {
+    if (e.target.value) goPreset(e.target.value, { userInitiated: true });
+  });
+  document.getElementById('mobilePrevView')?.addEventListener('click', () => {
+    const idx = CAM_PRESET_KEYS.indexOf(activeCamKey);
+    goPreset(CAM_PRESET_KEYS[(idx - 1 + CAM_PRESET_KEYS.length) % CAM_PRESET_KEYS.length], { userInitiated: true });
+  });
+  document.getElementById('mobileNextView')?.addEventListener('click', () => {
+    const idx = CAM_PRESET_KEYS.indexOf(activeCamKey);
+    goPreset(CAM_PRESET_KEYS[(idx + 1) % CAM_PRESET_KEYS.length], { userInitiated: true });
   });
   document.getElementById('jumpGame3D')?.addEventListener('click', () => goPreset('gameRoom', { scrollToViewer: true, userInitiated: true }));
   document.getElementById('jumpParty3D')?.addEventListener('click', () => goPreset('rooftopParty', { scrollToViewer: true, userInitiated: true }));
@@ -4958,6 +4973,7 @@ async function init3DViewer() {
     if (tour) {
       tour = false;
       document.getElementById('tourModel').setAttribute('aria-pressed', 'false');
+      if (typeof syncActionDock === 'function') syncActionDock();
       announceStatus('Guided tour paused for manual control');
     }
     if (pinFloorLock !== 'all') {
@@ -4991,6 +5007,13 @@ async function init3DViewer() {
     camera.updateProjectionMatrix();
     controls.rotateSpeed = walkMode ? (isTouchDevice() ? -0.45 : -0.52) : (isTouchDevice() ? 0.74 : 1.0);
     controls.panSpeed = isTouchDevice() ? 0.72 : 1.0;
+    if (!pinsUserToggled) {
+      const nextPins = !isSmallViewport();
+      if (pinsVisible !== nextPins) {
+        pinsVisible = nextPins;
+        if (typeof syncPinButtons === 'function') syncPinButtons();
+      }
+    }
     updatePins(true);
   };
   new ResizeObserver(resize).observe(canvas);
@@ -5120,7 +5143,6 @@ async function init3DViewer() {
     if (mobileQuickSlideDemo) {
       mobileQuickSlideDemo.setAttribute('aria-pressed', String(slidingDemo));
       mobileQuickSlideDemo.classList.toggle('gold', slidingDemo);
-      mobileQuickSlideDemo.textContent = slidingDemo ? '🔄 Slide Sim: On' : '🔄 Slide Sim';
     }
     if (panelSlidingDemo) {
       panelSlidingDemo.setAttribute('aria-pressed', String(slidingDemo));
@@ -5152,6 +5174,17 @@ async function init3DViewer() {
     panelFloodGate.setAttribute('aria-pressed', String(floodUp));
     panelFloodGate.classList.toggle('gold', floodUp);
     panelFloodGate.textContent = floodUp ? '🌊 Hydraulic Flood Barriers: Deployed' : '🌊 Hydraulic Flood Barriers: Stowed';
+
+    // Keep mobile quick dock door states cleanly synchronized
+    const dockSyncPairs = [
+      ['mobileDockSliding', slOpen], ['mobileDockMainDoor', mOpen], ['mobileDockSafety', sOpen],
+      ['mobileDockGarage', gOpen], ['mobileDockCurtains', cUnfolded], ['mobileDockGasLock', gasOpen],
+      ['mobileDockFlood', floodUp]
+    ];
+    for (const [id, on] of dockSyncPairs) {
+      const el = document.getElementById(id);
+      if (el) el.setAttribute('aria-pressed', String(on));
+    }
   }
   function toggleMainDoor() {
     mainDoorTarget = mainDoorTarget >= 0.5 ? 0 : 1;
@@ -5336,6 +5369,7 @@ async function init3DViewer() {
     controls.maxPolarAngle = Math.PI * 0.82;
     jumpWalkStop(startStop);
     updatePins(true);
+    syncActionDock();
     announceStatus('Entered real-home eye-level walkthrough mode');
   }
   function exitWalkthrough(restoreHero = true) {
@@ -5359,6 +5393,7 @@ async function init3DViewer() {
     controls.maxPolarAngle = Math.PI * 0.492;
     if (restoreHero) goPreset('hero');
     updatePins(true);
+    syncActionDock();
     announceStatus('Exited walkthrough mode');
   }
   btnWalk.onclick = () => { if (walkMode) exitWalkthrough(true); else enterWalkthrough('entry'); };
@@ -5455,6 +5490,47 @@ async function init3DViewer() {
     updatePins(true);
     startLoop();
   }
+  function syncPinButtons() {
+    const tPins = document.getElementById('togglePins');
+    const dotPins = document.getElementById('dotPins');
+    const dockPins = document.getElementById('mobileDockPins');
+    const panelPins = document.getElementById('panelPinsBtn');
+    if (tPins) tPins.setAttribute('aria-pressed', String(pinsVisible));
+    if (dotPins) dotPins.className = 'btn-dot ' + (pinsVisible ? 'is-open' : 'is-closed');
+    if (dockPins) {
+      dockPins.setAttribute('aria-pressed', String(pinsVisible));
+      dockPins.classList.toggle('gold', pinsVisible);
+    }
+    if (panelPins) {
+      panelPins.setAttribute('aria-pressed', String(pinsVisible));
+      panelPins.classList.toggle('gold', pinsVisible);
+      panelPins.textContent = pinsVisible ? '🏷️ 3D Room Pins: Shown' : '🏷️ 3D Room Pins: Hidden';
+    }
+  }
+  function syncActionDock() {
+    const pairs = [
+      ['mobileDockWalk', walkMode],
+      ['mobileDockTour', tour],
+      ['mobileDockExplode', exploded],
+      ['mobileDockSpin', spinning]
+    ];
+    for (const [id, on] of pairs) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.setAttribute('aria-pressed', String(on));
+        if (el.classList.contains('mobile-quick-tile')) el.classList.toggle('gold', on);
+      }
+    }
+  }
+  // Proxy-click delegation for the compact Mobile 3D Studio Dock & Panel controls (zero duplicated logic!)
+  for (const containerId of ['mobileControlsBar', 'modelControlsPanel']) {
+    document.getElementById(containerId)?.addEventListener('click', e => {
+      const proxy = e.target.closest?.('[data-proxy-click]');
+      if (!proxy) return;
+      const targetBtn = document.getElementById(proxy.dataset.proxyClick);
+      if (targetBtn) targetBtn.click();
+    });
+  }
   document.getElementById('zoomIn').onclick = () => stepZoom(0.84);
   document.getElementById('zoomOut').onclick = () => stepZoom(1.19);
   document.getElementById('fitModel').onclick = () => goPreset('hero', { userInitiated: true });
@@ -5463,13 +5539,15 @@ async function init3DViewer() {
     exploded = !exploded;
     arrangeFloors();
     document.getElementById('explodeModel').setAttribute('aria-pressed', String(exploded));
+    syncActionDock();
     announceStatus(exploded ? 'Floors exploded vertically' : 'Floors stacked back together');
     updatePins(true);
     startLoop();
   };
   document.getElementById('togglePins').onclick = () => {
+    pinsUserToggled = true;
     pinsVisible = !pinsVisible;
-    document.getElementById('togglePins').setAttribute('aria-pressed', String(pinsVisible));
+    syncPinButtons();
     updatePins(true);
     announceStatus(pinsVisible ? '3D room pins shown' : '3D room pins hidden');
   };
@@ -5478,9 +5556,12 @@ async function init3DViewer() {
     spinning = !spinning; tour = false; camGoalPos = null;
     document.getElementById('rotateModel').setAttribute('aria-pressed', String(spinning));
     document.getElementById('tourModel').setAttribute('aria-pressed', 'false');
+    syncActionDock();
     announceStatus(spinning ? 'Auto-rotate enabled' : 'Auto-rotate paused');
     startLoop();
   };
+  syncPinButtons();
+  syncActionDock();
 
   /* Rebuilt 10-Stop Zero-Clipping Arc-Glide Cinematic Guided Tour (Exterior Arc Fly-Arounds + Parallax Dwell + Animated Doors, Showers & MEP!) */
   const TOUR_STOPS = [
@@ -5516,6 +5597,7 @@ async function init3DViewer() {
     }
     document.getElementById('tourModel').setAttribute('aria-pressed', String(tour));
     document.getElementById('rotateModel').setAttribute('aria-pressed', 'false');
+    syncActionDock();
     announceStatus(tour ? 'Started 10-stop cinematic guided tour' : 'Stopped guided tour');
     startLoop();
   };
@@ -5530,7 +5612,7 @@ async function init3DViewer() {
   };
   document.getElementById('resetAnimation').onclick = () => {
     if (walkMode) exitWalkthrough(false);
-    tour = false; spinning = false; exploded = false; pinsVisible = true; arrangeFloors();
+    tour = false; spinning = false; exploded = false; pinsVisible = !isSmallViewport(); arrangeFloors();
     mainDoorTarget = 1; safetyDoorTarget = 1; garageDoorTarget = 1; curtainTarget = 0; gasVaultTarget = 0; floodGateTarget = 0;
     slidingDemo = false; slidingDoorMode = 'default'; setAllSlidingDoorTargets('default');
     if (reduced) {
@@ -5546,7 +5628,8 @@ async function init3DViewer() {
     tower.visible = true;
     document.getElementById('modelLevel').value = 'all';
     document.getElementById('explodeModel').setAttribute('aria-pressed', 'false');
-    document.getElementById('togglePins').setAttribute('aria-pressed', 'true');
+    syncPinButtons();
+    syncActionDock();
     goPreset('hero');
   };
   document.getElementById('modelLevel').onchange = e => {
